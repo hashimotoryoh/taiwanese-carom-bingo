@@ -141,8 +141,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          ref: ${{ env.BRANCH_NAME }}
-
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository && github.sha || env.BRANCH_NAME }}
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
