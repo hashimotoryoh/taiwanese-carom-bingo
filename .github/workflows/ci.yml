@@ -70,12 +70,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check ESLint
+      - name: Check lint
         id: check
         continue-on-error: true
-        run: npm run eslint
+        run: npm run lint
 
-      - name: Record ESLint result
+      - name: Record lint result
         id: result
         if: always()
         run: echo "failed=${{ steps.check.outcome == 'failure' }}" >> "$GITHUB_OUTPUT"
@@ -113,7 +113,7 @@ jobs:
         if: needs.format-check.outputs.failed == 'true'
         run: npm run format
 
-      - name: Fix ESLint
+      - name: Fix lint
         if: needs.lint-check.outputs.failed == 'true'
         run: npm run lint:fix
 
@@ -159,5 +159,5 @@ jobs:
       - name: Verify formatting
         run: npm run format:check
 
-      - name: Verify ESLint
-        run: npm run eslint
+      - name: Verify lint
+        run: npm run lint

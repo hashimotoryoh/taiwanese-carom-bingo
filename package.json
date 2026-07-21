@@ -10,7 +10,6 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "cleanup": "rm -rf node_modules .nuxt .output",
-    "eslint": "eslint .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
