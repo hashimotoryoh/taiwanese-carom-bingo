@@ -1,75 +1,73 @@
-# Nuxt Minimal Starter
+# taiwanese-carom-bingo
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+台湾式カラムビンゴゲームのWebアプリケーション。
 
-## Setup
+## 技術スタック
 
-Make sure to install dependencies:
+- [Nuxt v4](https://nuxt.com/)
+- [Vue 3](https://vuejs.org/)
+- TypeScript
+
+## セットアップ
+
+依存パッケージをインストールする:
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
+## 開発サーバー
 
-Start the development server on `http://localhost:3000`:
+開発サーバーを `http://localhost:3000` で起動する:
 
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
-
-Build the application for production:
+ローカルネットワーク上のデバイスからアクセスする場合:
 
 ```bash
-# npm
+npm run local
+```
+
+## ビルド
+
+本番向けにビルドする:
+
+```bash
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
 ```
 
-Locally preview production build:
+ローカルで本番ビルドをプレビューする:
 
 ```bash
-# npm
 npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## コード品質
+
+ESLintでコードをチェックする:
+
+```bash
+npm run lint
+```
+
+ESLintで自動修正する:
+
+```bash
+npm run lint:fix
+```
+
+Prettierでフォーマットする:
+
+```bash
+npm run format
+```
+
+## クリーンアップ
+
+生成ファイルと依存パッケージを削除する:
+
+```bash
+npm run cleanup
+```
