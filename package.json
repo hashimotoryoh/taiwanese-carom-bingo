@@ -23,7 +23,8 @@
   "devDependencies": {
     "@nuxt/eslint": "^1.16.0",
     "eslint": "^10.7.0",
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.6",
+    "typescript": "^7.0.2"
   },
   "allowScripts": {
     "esbuild@0.28.1": true,
