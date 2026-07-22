@@ -3,7 +3,10 @@ import type { BingoCardSummary } from '#shared/types/bingo'
 
 useHead({ title: 'ビンゴカード一覧 | カイルンBINGO' })
 
-const { data: summaries, status } = useFetch<BingoCardSummary[]>('/api/cards')
+const { data: summaries, status, refresh } = useFetch<BingoCardSummary[]>('/api/cards')
+
+// カード詳細ページからの戻り時など、ページがキャッシュから復元された際に最新状態を取得する
+onActivated(() => refresh())
 
 const active = computed(() =>
   (summaries.value ?? []).filter((c) => !c.archived).sort((a, b) => b.createdAt - a.createdAt),
