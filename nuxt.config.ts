@@ -8,4 +8,11 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
   },
+  app: {
+    head: {
+      meta: [
+        { name: 'x-app-version', content: process.env.APP_VERSION },
+      ],
+    },
+  },
 })
