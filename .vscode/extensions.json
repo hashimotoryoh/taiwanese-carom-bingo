@@ -1,8 +1,8 @@
 {
-    "recommendations": [
-        "vue.volar",
-        "editorconfig.editorconfig",
-        "github.vscode-github-actions",
-        "anthropic.claude-code"
-    ]
+  "recommendations": [
+    "vue.volar",
+    "editorconfig.editorconfig",
+    "github.vscode-github-actions",
+    "anthropic.claude-code"
+  ]
 }
