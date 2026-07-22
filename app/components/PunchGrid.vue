@@ -61,7 +61,7 @@ function punchDate(col: ColumnKey, r: number): string | null {
             type="button"
             class="punch-cell"
             :class="cellClasses(col.key, r)"
-            :disabled="locked || busy"
+            :disabled="locked || props.busy"
             @click="emit('toggle', col.key, r)"
           >
             <span class="cell-num">{{ cellValue(col.key, r) }}</span>
