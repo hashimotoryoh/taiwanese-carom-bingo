@@ -8,6 +8,14 @@
 - [Vue 3](https://vuejs.org/)
 - TypeScript
 
+## アーキテクチャ
+
+- フロントエンドは SPA（`ssr: false`）
+- ビンゴカードは全ユーザー共有の公開データ。サーバーAPI（`server/api/cards/*`）経由で読み書きする
+- 保存先は `useStorage('data')` で抽象化しており、本番（Netlify）は Netlify Blobs、ローカル開発時は `.data/kv` のファイルシステムを使う（`nuxt.config.ts` の `nitro.storage` / `nitro.devStorage`）
+- ビンゴ判定などクライアント・サーバー共通のロジックは `shared/` に置く
+- Netlify へは `npm run build` でデプロイする（API を Netlify Functions として含めるため、`generate` による静的書き出しは使わない）
+
 ## セットアップ
 
 依存パッケージをインストールする:
