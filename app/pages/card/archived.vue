@@ -3,7 +3,9 @@ import type { BingoCardSummary } from '#shared/types/bingo'
 
 useHead({ title: 'アーカイブ済み一覧 | カイルンBINGO' })
 
-const { data: summaries, status, refresh } = useFetch<BingoCardSummary[]>('/api/cards')
+const { data: summaries, status, refresh } = useFetch<BingoCardSummary[]>('/api/cards', {
+  key: 'cards',
+})
 
 const archived = computed(() =>
   (summaries.value ?? []).filter((c) => c.archived).sort((a, b) => b.createdAt - a.createdAt),
