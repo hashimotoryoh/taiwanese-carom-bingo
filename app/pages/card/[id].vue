@@ -4,7 +4,9 @@ import type { BingoCard, ColumnKey } from '#shared/types/bingo'
 const route = useRoute()
 const id = route.params.id as string
 
-const { data: card, status, refresh } = useFetch<BingoCard>(`/api/cards/${id}`)
+const { data: card, status, refresh } = useFetch<BingoCard>(`/api/cards/${id}`, {
+  key: `card-${id}`,
+})
 
 useHead(() => ({ title: card.value ? `${card.value.name} | カイルンBINGO` : 'カイルンBINGO' }))
 
@@ -80,7 +82,7 @@ function gotoCreateNew() {
         🔥 リーチ {{ reachCount }} 本！光っているマスが開けばビンゴ！
       </div>
 
-      <PunchGrid :card="card" @toggle="onToggle" />
+      <PunchGrid :card="card" :busy="busy" @toggle="onToggle" />
       <p v-if="!locked" class="punch-legend">
         マスをタップして穴を開ける・もう一度タップで元に戻せます
       </p>
