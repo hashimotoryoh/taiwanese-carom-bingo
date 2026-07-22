@@ -9,7 +9,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "cleanup": "rm -rf node_modules .nuxt .output",
+    "cleanup": "rm -rf node_modules .output .data .nuxt .nitro .cache dist",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -22,7 +22,14 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.16.0",
+    "@types/node": "^26.1.1",
     "eslint": "^10.7.0",
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.6",
+    "typescript": "^6.0.3"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "fsevents@2.3.3": true,
+    "unrs-resolver@1.12.2": true
   }
 }
