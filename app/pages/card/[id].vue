@@ -4,7 +4,11 @@ import type { BingoCard, ColumnKey } from '#shared/types/bingo'
 const route = useRoute()
 const id = route.params.id as string
 
-const { data: card, status, refresh } = useFetch<BingoCard>(`/api/cards/${id}`, {
+const {
+  data: card,
+  status,
+  refresh,
+} = useFetch<BingoCard>(`/api/cards/${id}`, {
   key: `card-${id}`,
 })
 
