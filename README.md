@@ -1,6 +1,6 @@
-# taiwanese-carom-bingo
+# カイルンBINGO
 
-台湾式カラムビンゴゲームのWebアプリケーション。
+カイルンビンゴゲームのWebアプリケーション。
 
 ## 技術スタック
 
@@ -56,6 +56,12 @@ ESLintで自動修正する:
 
 ```bash
 npm run lint:fix
+```
+
+Prettierでフォーマットチェックする:
+
+```bash
+npm run format:check
 ```
 
 Prettierでフォーマットする:
