@@ -36,6 +36,7 @@ jobs:
         with:
           name: node-modules
           path: node_modules
+          include-hidden-files: true
           retention-days: 1
 
   format-check:
