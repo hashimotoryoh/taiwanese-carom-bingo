@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
+    "db:status": "netlify database status",
+    "db:migrate": "netlify database migrations apply",
     "dev": "nuxt dev",
     "dev:host": "nuxt dev --host",
     "dev:netlify": "netlify dev",
