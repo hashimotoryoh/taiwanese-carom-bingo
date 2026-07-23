@@ -22,8 +22,6 @@ export default defineEventHandler(async (event): Promise<PunchResult> => {
     if (card.archived) {
       throw createError({ statusCode: 409, message: 'アーカイブ済みのカードは変更できません。' })
     }
-    if (!card.punchedAt) card.punchedAt = emptyPunchedAt()
-
     const wasCompleted = countCompletedLines(card.punched)
     card.punched[col][row] = !card.punched[col][row]
     card.punchedAt[col][row] = card.punched[col][row] ? Date.now() : null
@@ -40,7 +38,6 @@ export default defineEventHandler(async (event): Promise<PunchResult> => {
     }
 
     await saveCard(card)
-    await syncCardToIndex(card)
     return { card, achievedNow }
   })
 })

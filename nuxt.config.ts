@@ -27,13 +27,4 @@ export default defineNuxtConfig({
       ],
     },
   },
-  nitro: {
-    // 本番（Netlify）は Netlify Blobs、ローカル開発はファイルシステムに保存する
-    storage: {
-      data: { driver: 'netlify-blobs', name: 'kailun-bingo' },
-    },
-    devStorage: {
-      data: { driver: 'fs', base: './.data/kv' },
-    },
-  },
 })

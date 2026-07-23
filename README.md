@@ -12,7 +12,8 @@
 
 - フロントエンドは SPA（`ssr: false`）
 - ビンゴカードは全ユーザー共有の公開データ。サーバーAPI（`server/api/cards/*`）経由で読み書きする
-- 保存先は `useStorage('data')` で抽象化しており、本番（Netlify）は Netlify Blobs、ローカル開発時は `.data/kv` のファイルシステムを使う（`nuxt.config.ts` の `nitro.storage` / `nitro.devStorage`）
+- 保存先は Netlify Database（マネージド Postgres）。データアクセスは `server/utils/cardStore.ts` に集約している
+- DB スキーマは `netlify/database/migrations/` の SQL ファイルで管理し、デプロイ時に自動適用される（初回デプロイで DB も自動プロビジョニングされる）
 - ビンゴ判定などクライアント・サーバー共通のロジックは `shared/` に置く
 - Netlify へは `npm run build` でデプロイする（API を Netlify Functions として含めるため、`generate` による静的書き出しは使わない）
 
@@ -26,16 +27,33 @@ npm install
 
 ## 開発サーバー
 
-開発サーバーを `http://localhost:3000` で起動する:
+初回のみ Netlify CLI でログインし、Netlify 上のサイトと紐付ける:
 
 ```bash
-npm run dev
+npx netlify login
+npx netlify link
 ```
 
-ローカルネットワーク上のデバイスからアクセスする場合:
+開発サーバーを起動する（`http://localhost:8888`）。`netlify dev` がローカル Postgres を自動起動・接続し、マイグレーションも適用する:
 
 ```bash
-npm run local
+npm run dev:netlify
+```
+
+> **注意**: `npm run dev` / `npm run local`（`nuxt dev` 単体）では DB 接続が解決されないため、カード API は動作しない。DB を使う開発は必ず `npm run dev:netlify` を使うこと。
+
+ローカル DB の補助コマンド:
+
+```bash
+npx netlify database status
+```
+
+```bash
+npx netlify database connect
+```
+
+```bash
+npx netlify database reset
 ```
 
 ## ビルド

@@ -1,9 +1,5 @@
+import { getDatabase } from '@netlify/database'
 import type { BingoCard, BingoCardSummary } from '#shared/types/bingo'
-
-const INDEX_KEY = 'index'
-const cardKey = (id: string) => `card:${id}`
-
-const storage = () => useStorage('data')
 
 const locks = new Map<string, Promise<unknown>>()
 
@@ -24,43 +20,83 @@ function withLock<T>(key: string, task: () => Promise<T>): Promise<T> {
 
 /** カード単位の排他制御 */
 export function withCardLock<T>(id: string, task: () => Promise<T>): Promise<T> {
-  return withLock(cardKey(id), task)
+  return withLock(`card:${id}`, task)
 }
 
-/** カード一覧インデックス（共有キー）の排他制御 */
-export function withIndexLock<T>(task: () => Promise<T>): Promise<T> {
-  return withLock(INDEX_KEY, task)
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/** cardsテーブルの1行。BIGINT列はnode-postgresが文字列で返す */
+interface CardRow {
+  id: string
+  name: string
+  created_at: string
+  updated_at: string
+  numbers: BingoCard['numbers']
+  punched: BingoCard['punched']
+  punched_at: BingoCard['punchedAt']
+  archived: boolean
+  bingo_achieved: boolean
+  bingo_achieved_at: string | null
+}
+
+/** DB行をアプリの型へ変換する（BIGINT文字列の数値化を一元化。行アクセスは必ずここを通す） */
+function rowToCard(row: CardRow): BingoCard {
+  return {
+    id: row.id,
+    name: row.name,
+    createdAt: Number(row.created_at),
+    updatedAt: Number(row.updated_at),
+    numbers: row.numbers,
+    punched: row.punched,
+    punchedAt: row.punched_at,
+    archived: row.archived,
+    bingoAchieved: row.bingo_achieved,
+    bingoAchievedAt: row.bingo_achieved_at === null ? null : Number(row.bingo_achieved_at),
+  }
 }
 
 export async function loadCardIndex(): Promise<BingoCardSummary[]> {
-  const idx = await storage().getItem<BingoCardSummary[]>(INDEX_KEY)
-  return Array.isArray(idx) ? idx : []
-}
-
-export async function saveCardIndex(idx: BingoCardSummary[]): Promise<void> {
-  await storage().setItem(INDEX_KEY, idx)
+  const { sql } = getDatabase()
+  const rows = await sql<CardRow>`SELECT * FROM cards ORDER BY created_at DESC`
+  return rows.map((row) => toSummary(rowToCard(row)))
 }
 
 export async function loadCard(id: string): Promise<BingoCard | null> {
-  return (await storage().getItem<BingoCard>(cardKey(id))) ?? null
+  // 非UUID文字列をUUID列に渡すとpgがエラーを投げるため、事前に弾いて404挙動を維持する
+  if (!UUID_RE.test(id)) return null
+  const { sql } = getDatabase()
+  const rows = await sql<CardRow>`SELECT * FROM cards WHERE id = ${id}`
+  return rows[0] ? rowToCard(rows[0]) : null
 }
 
 export async function saveCard(card: BingoCard): Promise<void> {
-  await storage().setItem(cardKey(card.id), card)
+  const { sql } = getDatabase()
+  await sql`
+    INSERT INTO cards (
+      id, name, created_at, updated_at,
+      numbers, punched, punched_at,
+      archived, bingo_achieved, bingo_achieved_at
+    ) VALUES (
+      ${card.id}, ${card.name}, ${card.createdAt}, ${card.updatedAt},
+      ${JSON.stringify(card.numbers)}::jsonb,
+      ${JSON.stringify(card.punched)}::jsonb,
+      ${JSON.stringify(card.punchedAt)}::jsonb,
+      ${card.archived}, ${card.bingoAchieved}, ${card.bingoAchievedAt}
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      name = EXCLUDED.name,
+      updated_at = EXCLUDED.updated_at,
+      numbers = EXCLUDED.numbers,
+      punched = EXCLUDED.punched,
+      punched_at = EXCLUDED.punched_at,
+      archived = EXCLUDED.archived,
+      bingo_achieved = EXCLUDED.bingo_achieved,
+      bingo_achieved_at = EXCLUDED.bingo_achieved_at
+  `
 }
 
 export async function removeCard(id: string): Promise<void> {
-  await storage().removeItem(cardKey(id))
-}
-
-/** カードの現状をインデックスへ反映する（エントリが無ければ追加する） */
-export async function syncCardToIndex(card: BingoCard): Promise<void> {
-  await withIndexLock(async () => {
-    const idx = await loadCardIndex()
-    const summary = toSummary(card)
-    const pos = idx.findIndex((c) => c.id === card.id)
-    if (pos >= 0) idx[pos] = summary
-    else idx.push(summary)
-    await saveCardIndex(idx)
-  })
+  if (!UUID_RE.test(id)) return
+  const { sql } = getDatabase()
+  await sql`DELETE FROM cards WHERE id = ${id}`
 }

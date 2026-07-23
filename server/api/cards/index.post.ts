@@ -46,6 +46,5 @@ export default defineEventHandler(async (event): Promise<BingoCard> => {
     bingoAchievedAt: null,
   }
   await saveCard(card)
-  await syncCardToIndex(card)
   return card
 })

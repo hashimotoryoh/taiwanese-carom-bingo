@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "command": "./node_modules/.bin/nuxt dev",
+      "command": "npm run dev:netlify",
       "name": "Dev Server",
       "request": "launch",
       "type": "node-terminal"
