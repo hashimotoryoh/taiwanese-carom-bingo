@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { BingoCard, ColumnKey } from '#shared/types/bingo'
 
-const props = defineProps<{ card: BingoCard }>()
+const props = defineProps<{ card: BingoCard; busy?: boolean }>()
 
 const emit = defineEmits<{ toggle: [col: ColumnKey, row: number] }>()
 
@@ -61,7 +61,7 @@ function punchDate(col: ColumnKey, r: number): string | null {
             type="button"
             class="punch-cell"
             :class="cellClasses(col.key, r)"
-            :disabled="locked"
+            :disabled="locked || props.busy"
             @click="emit('toggle', col.key, r)"
           >
             <span class="cell-num">{{ cellValue(col.key, r) }}</span>
