@@ -16,7 +16,7 @@ function withLock<T>(key: string, task: () => Promise<T>): Promise<T> {
   const run = prev.then(task, task)
   const marker = run.catch(() => undefined)
   locks.set(key, marker)
-  marker.finally(() => {
+  void marker.finally(() => {
     if (locks.get(key) === marker) locks.delete(key)
   })
   return run
