@@ -46,14 +46,11 @@ function randomFill() {
         existingValues.push(vals[i]!)
       })
     } else if (col.key === 'O') {
-      const emptyRows = draft.value.columns.O
-        .map((v, i) => (v === null ? i : -1))
-        .filter((i) => i !== -1)
+      const emptyRows = draft.value.columns.O.map((v, i) => (v === null ? i : -1)).filter(
+        (i) => i !== -1,
+      )
       if (emptyRows.length === 0) return
-      const vals = randomUnique(col.min, col.max, emptyRows.length, [
-        FREE_VALUE,
-        ...existingValues,
-      ])
+      const vals = randomUnique(col.min, col.max, emptyRows.length, [FREE_VALUE, ...existingValues])
       emptyRows.forEach((r, i) => {
         draft.value.columns.O[r] = vals[i]!
         existingValues.push(vals[i]!)
