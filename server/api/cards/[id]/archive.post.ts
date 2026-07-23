@@ -12,7 +12,6 @@ export default defineEventHandler(async (event) => {
       card.archived = true
       card.updatedAt = Date.now()
       await saveCard(card)
-      await syncCardToIndex(card)
     }
     return card
   })

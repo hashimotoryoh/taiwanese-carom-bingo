@@ -5,6 +5,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:netlify": "netlify dev",
     "local": "nuxt dev --host",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
@@ -16,7 +17,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@netlify/blobs": "^10.0.9",
+    "@netlify/database": "^1.1.0",
     "nuxt": "^4.5.0",
     "vue": "^3.5.40",
     "vue-router": "^5.2.0"
@@ -25,6 +26,7 @@
     "@nuxt/eslint": "^1.16.0",
     "@types/node": "^26.1.1",
     "eslint": "^10.7.0",
+    "netlify-cli": "^26.2.0",
     "prettier": "^3.9.6",
     "typescript": "^6.0.3"
   },
