@@ -19,26 +19,59 @@ const activeNames = computed(() =>
 )
 
 const errors = ref<string[]>([])
+const showClearConfirm = ref(false)
 
 function updateCell(col: ColumnKey, row: number, value: number | null) {
   draft.value.columns[col][row] = value
 }
 
 function randomFill() {
+  // 既に埋まっている値を除外したプールからランダムに補完する
+  const existingValues = COLUMNS.flatMap((col) =>
+    draft.value.columns[col.key].filter((v): v is number => v !== null),
+  )
+
   COLUMNS.forEach((col) => {
     if (col.key === 'N') {
-      const vals = randomUnique(col.min, col.max, GRID_SIZE - 1)
-      let vi = 0
+      // Nセンターマスを除いた空きマスのインデックスを収集
+      const emptyRows = []
       for (let r = 0; r < GRID_SIZE; r++) {
         if (r === FREE_ROW) continue
-        draft.value.columns.N[r] = vals[vi++]!
+        if (draft.value.columns.N[r] === null) emptyRows.push(r)
       }
+      if (emptyRows.length === 0) return
+      const vals = randomUnique(col.min, col.max, emptyRows.length, existingValues)
+      emptyRows.forEach((r, i) => {
+        draft.value.columns.N[r] = vals[i]!
+        existingValues.push(vals[i]!)
+      })
     } else if (col.key === 'O') {
-      draft.value.columns.O = randomUnique(col.min, col.max, GRID_SIZE, [FREE_VALUE])
+      const emptyRows = draft.value.columns.O.map((v, i) => (v === null ? i : -1)).filter(
+        (i) => i !== -1,
+      )
+      if (emptyRows.length === 0) return
+      const vals = randomUnique(col.min, col.max, emptyRows.length, [FREE_VALUE, ...existingValues])
+      emptyRows.forEach((r, i) => {
+        draft.value.columns.O[r] = vals[i]!
+        existingValues.push(vals[i]!)
+      })
     } else {
-      draft.value.columns[col.key] = randomUnique(col.min, col.max, GRID_SIZE)
+      const emptyRows = draft.value.columns[col.key]
+        .map((v, i) => (v === null ? i : -1))
+        .filter((i) => i !== -1)
+      if (emptyRows.length === 0) return
+      const vals = randomUnique(col.min, col.max, emptyRows.length, existingValues)
+      emptyRows.forEach((r, i) => {
+        draft.value.columns[col.key][r] = vals[i]!
+        existingValues.push(vals[i]!)
+      })
     }
   })
+}
+
+function clearAll() {
+  draft.value.columns = blankDraft().columns
+  showClearConfirm.value = false
 }
 
 function toConfirm() {
@@ -84,8 +117,25 @@ function toConfirm() {
     <div class="row" style="margin-top: 22px">
       <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
       <div class="spacer" />
+      <button class="btn btn-danger" @click="showClearConfirm = true">番号を全てクリアする</button>
       <button class="btn btn-secondary" @click="randomFill">ランダムに埋める</button>
       <button class="btn btn-primary" @click="toConfirm">確認へ進む</button>
     </div>
+
+    <ConfirmDialog
+      v-if="showClearConfirm"
+      message="入力済みの番号を全て削除します。よろしいですか？"
+      ok-label="全てクリアする"
+      @confirm="clearAll"
+      @cancel="showClearConfirm = false"
+    />
   </div>
 </template>
+
+<style scoped>
+.btn-danger {
+  background: var(--stamp);
+  color: var(--paper);
+  box-shadow: 0 3px 0 var(--stamp-dark);
+}
+</style>
