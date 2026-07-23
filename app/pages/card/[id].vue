@@ -32,13 +32,12 @@ async function onToggle(col: ColumnKey, row: number) {
     if (res.achievedNow) {
       justAchievedBingo.value = true
       confetti.fire()
-      // ビンゴ達成による自動アーカイブも一覧側のキャッシュに反映させる
-      await refreshNuxtData('cards')
     }
   } catch {
     // 他の端末でアーカイブ済みなどの競合時は最新状態を取り直す
     await refresh()
   } finally {
+    await refreshNuxtData()
     busy.value = false
   }
 }
@@ -47,8 +46,7 @@ async function doArchive() {
   confirmingArchive.value = false
   if (!card.value || card.value.archived) return
   card.value = await api.archive(id)
-  // 一覧ページの /api/cards キャッシュを無効化し、戻った際に最新状態を表示させる
-  await refreshNuxtData('cards')
+  await refreshNuxtData()
 }
 
 function gotoCreateNew() {
