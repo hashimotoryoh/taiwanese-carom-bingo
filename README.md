@@ -2,6 +2,8 @@
 
 カイルンビンゴゲームのWebアプリケーション。
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/af4639f5-9b20-4fe6-aeaf-2da7252054f8/deploy-status)](https://app.netlify.com/projects/taiwanese-carom-bingo/deploys)
+
 ## 技術スタック
 
 - [Nuxt v4](https://nuxt.com/)
