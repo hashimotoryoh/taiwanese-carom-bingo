@@ -34,7 +34,9 @@ const emit = defineEmits<{ close: [] }>()
       <ul>
         <li>サイコロの出目の番号が自分のビンゴカードにあれば、そのマスに穴を開ける</li>
       </ul>
-      <p class="warning">※罰金ありでプレイしている場合の罰金によるサイコロの出目はカウントしません。</p>
+      <p class="warning">
+        ※罰金ありでプレイしている場合の罰金によるサイコロの出目はカウントしません。
+      </p>
     </div>
     <div class="rule-block">
       <h4>ビンゴしたら</h4>
