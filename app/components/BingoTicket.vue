@@ -26,6 +26,7 @@ const bingoDays = computed(() => {
       </div>
       <div class="stat-row">
         <span class="stat-chip">穴 {{ summary.punchedCount }} 個</span>
+        <span class="stat-chip">カイルン {{ summary.rollCount }} 回</span>
       </div>
       <button type="button" class="delete-btn" @click.stop="emit('delete', summary.id)">
         🗑 完全に削除
@@ -39,6 +40,7 @@ const bingoDays = computed(() => {
       </div>
       <div class="stat-row">
         <span class="stat-chip">穴 {{ summary.punchedCount }} 個</span>
+        <span class="stat-chip">カイルン {{ summary.rollCount }} 回</span>
         <span v-if="summary.reachCount > 0" class="stat-chip reach">
           リーチ {{ summary.reachCount }} 本
         </span>

@@ -9,6 +9,15 @@ export interface ColumnDef {
   max: number
 }
 
+/** サイコロの出目を1回分記録したレコード */
+export interface Roll {
+  id: string
+  /** 出目（1〜120） */
+  value: number
+  /** 出目を記録した日時（epoch ミリ秒） */
+  rolledAt: number
+}
+
 /** 保存されるビンゴカード本体 */
 export interface BingoCard {
   id: string
@@ -21,6 +30,8 @@ export interface BingoCard {
   punched: Record<ColumnKey, boolean[]>
   /** 穴を開けた日時（未開はnull） */
   punchedAt: Record<ColumnKey, (number | null)[]>
+  /** 記録した出目の履歴（記録順） */
+  rolls: Roll[]
   archived: boolean
   bingoAchieved: boolean
   bingoAchievedAt: number | null
@@ -37,6 +48,8 @@ export interface BingoCardSummary {
   bingoAchievedAt: number | null
   punchedCount: number
   reachCount: number
+  /** 記録した出目の総数（＝カイルン回数） */
+  rollCount: number
 }
 
 /** 作成ページ〜確認ページ間で受け渡すドラフト（未入力マスはnull） */
@@ -45,9 +58,11 @@ export interface DraftCard {
   columns: Record<ColumnKey, (number | null)[]>
 }
 
-/** 穴あけトグルAPIのレスポンス */
-export interface PunchResult {
+/** 出目記録APIのレスポンス */
+export interface RollResult {
   card: BingoCard
-  /** このトグルで初めてビンゴが成立したか */
+  /** この記録で初めてビンゴが成立したか */
   achievedNow: boolean
+  /** この記録で新たに穴が開いたマス（既開・カード外はnull）。演出対象 */
+  punchedCell: { col: ColumnKey; row: number } | null
 }

@@ -34,6 +34,7 @@ interface CardRow {
   numbers: BingoCard['numbers']
   punched: BingoCard['punched']
   punched_at: BingoCard['punchedAt']
+  rolls: BingoCard['rolls']
   archived: boolean
   bingo_achieved: boolean
   bingo_achieved_at: string | null
@@ -49,6 +50,7 @@ function rowToCard(row: CardRow): BingoCard {
     numbers: row.numbers,
     punched: row.punched,
     punchedAt: row.punched_at,
+    rolls: row.rolls ?? [],
     archived: row.archived,
     bingoAchieved: row.bingo_achieved,
     bingoAchievedAt: row.bingo_achieved_at === null ? null : Number(row.bingo_achieved_at),
@@ -74,13 +76,14 @@ export async function saveCard(card: BingoCard): Promise<void> {
   await sql`
     INSERT INTO cards (
       id, name, created_at, updated_at,
-      numbers, punched, punched_at,
+      numbers, punched, punched_at, rolls,
       archived, bingo_achieved, bingo_achieved_at
     ) VALUES (
       ${card.id}, ${card.name}, ${card.createdAt}, ${card.updatedAt},
       ${JSON.stringify(card.numbers)}::jsonb,
       ${JSON.stringify(card.punched)}::jsonb,
       ${JSON.stringify(card.punchedAt)}::jsonb,
+      ${JSON.stringify(card.rolls)}::jsonb,
       ${card.archived}, ${card.bingoAchieved}, ${card.bingoAchievedAt}
     )
     ON CONFLICT (id) DO UPDATE SET
@@ -89,6 +92,7 @@ export async function saveCard(card: BingoCard): Promise<void> {
       numbers = EXCLUDED.numbers,
       punched = EXCLUDED.punched,
       punched_at = EXCLUDED.punched_at,
+      rolls = EXCLUDED.rolls,
       archived = EXCLUDED.archived,
       bingo_achieved = EXCLUDED.bingo_achieved,
       bingo_achieved_at = EXCLUDED.bingo_achieved_at
