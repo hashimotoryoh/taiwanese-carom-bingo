@@ -25,11 +25,13 @@ const particles = Array.from({ length: PARTICLE_COUNT }, (_, i) => {
 
 const locked = computed(() => props.card.archived)
 
+// パンチ状態・パンチ日時は出目履歴から導出する
+const punched = computed(() => buildPunched(props.card))
+const punchedAt = computed(() => buildPunchedAt(props.card))
+
 // リーチライン検出：あと1マスで揃うラインの構成マスを収集
 const reach = computed(() =>
-  locked.value
-    ? { part: new Set<string>(), target: new Set<string>() }
-    : reachCells(props.card.punched),
+  locked.value ? { part: new Set<string>(), target: new Set<string>() } : reachCells(punched.value),
 )
 
 function isFree(col: ColumnKey, r: number): boolean {
@@ -45,10 +47,9 @@ function isFlashing(col: ColumnKey, r: number): boolean {
 }
 
 function cellClasses(col: ColumnKey, r: number): string[] {
-  const punched = props.card.punched[col][r]
   const key = `${col}:${r}`
   const classes: string[] = []
-  if (punched) classes.push('punched')
+  if (punched.value[col][r]) classes.push('punched')
   else if (isFree(col, r)) classes.push('free')
   if (locked.value) classes.push('locked')
   if (reach.value.part.has(key)) classes.push('reach-part')
@@ -57,8 +58,8 @@ function cellClasses(col: ColumnKey, r: number): string[] {
 }
 
 function punchDate(col: ColumnKey, r: number): string | null {
-  if (!props.card.punched[col][r]) return null
-  const ts = props.card.punchedAt?.[col]?.[r]
+  if (!punched.value[col][r]) return null
+  const ts = punchedAt.value[col][r]
   return ts ? fmtDate(ts) : null
 }
 </script>

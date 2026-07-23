@@ -39,8 +39,6 @@ export default defineEventHandler(async (event): Promise<BingoCard> => {
     createdAt: now,
     updatedAt: now,
     numbers: draftToNumbers(draft),
-    punched: emptyPunched(),
-    punchedAt: emptyPunchedAt(),
     rolls: [],
     archived: false,
     bingoAchieved: false,

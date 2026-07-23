@@ -22,7 +22,7 @@ const now = Date.now()
 
 const locked = computed(() => !!card.value?.archived)
 const reachCount = computed(() =>
-  card.value && !card.value.archived ? countReachLines(card.value.punched) : 0,
+  card.value && !card.value.archived ? countReachLines(buildPunched(card.value)) : 0,
 )
 
 const justAchievedBingo = ref(false)

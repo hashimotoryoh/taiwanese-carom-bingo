@@ -57,8 +57,32 @@ export function emptyPunched(): Record<ColumnKey, boolean[]> {
   return emptyColumns(false)
 }
 
-export function emptyPunchedAt(): Record<ColumnKey, (number | null)[]> {
-  return emptyColumns<number | null>(null)
+/** 出目履歴からカードの各マスのパンチ状態を導出する（そのマスの番号が記録済みならパンチ済み） */
+export function buildPunched(card: BingoCard): Record<ColumnKey, boolean[]> {
+  const values = new Set(card.rolls.map((r) => r.value))
+  const punched = emptyPunched()
+  for (const col of COLUMNS) {
+    for (let r = 0; r < GRID_SIZE; r++) {
+      punched[col.key][r] = values.has(card.numbers[col.key][r]!)
+    }
+  }
+  return punched
+}
+
+/** 出目履歴から各マスのパンチ日時（同一番号の最先記録時刻。未パンチはnull）を導出する */
+export function buildPunchedAt(card: BingoCard): Record<ColumnKey, (number | null)[]> {
+  const earliest = new Map<number, number>()
+  for (const roll of card.rolls) {
+    const prev = earliest.get(roll.value)
+    if (prev === undefined || roll.rolledAt < prev) earliest.set(roll.value, roll.rolledAt)
+  }
+  const at = emptyColumns<number | null>(null)
+  for (const col of COLUMNS) {
+    for (let r = 0; r < GRID_SIZE; r++) {
+      at[col.key][r] = earliest.get(card.numbers[col.key][r]!) ?? null
+    }
+  }
+  return at
 }
 
 export function blankDraft(): DraftCard {
@@ -192,6 +216,7 @@ export function draftToNumbers(draft: DraftCard): Record<ColumnKey, number[]> {
 
 /** カードから一覧表示用サマリーを組み立てる */
 export function toSummary(card: BingoCard) {
+  const punched = buildPunched(card)
   return {
     id: card.id,
     name: card.name,
@@ -200,8 +225,8 @@ export function toSummary(card: BingoCard) {
     archived: card.archived,
     bingoAchieved: card.bingoAchieved,
     bingoAchievedAt: card.bingoAchievedAt,
-    punchedCount: countPunched(card.punched),
-    reachCount: countReachLines(card.punched),
+    punchedCount: countPunched(punched),
+    reachCount: countReachLines(punched),
     rollCount: card.rolls.length,
   }
 }
@@ -271,7 +296,7 @@ export function computeRollStats(card: BingoCard): RollStats {
   const signedSum = rolls.reduce((sum, r) => sum + (isZorome(r.value) ? -r.value : r.value), 0)
   const totalZorome = rolls.filter((r) => isZorome(r.value)).length
   const distinctDays = new Set(rolls.map((r) => fmtDate(r.rolledAt))).size
-  const punchedCount = countPunched(card.punched)
+  const punchedCount = countPunched(buildPunched(card))
 
   return {
     totalRolls,

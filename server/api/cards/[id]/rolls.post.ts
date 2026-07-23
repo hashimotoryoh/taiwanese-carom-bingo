@@ -24,25 +24,20 @@ export default defineEventHandler(async (event): Promise<RollResult> => {
     }
 
     const now = Date.now()
-    const wasCompleted = countCompletedLines(card.punched)
+    const wasCompleted = countCompletedLines(buildPunched(card))
+
+    // 対応マスが今回初めて開くか（同じ出目がまだ記録されておらず、カード上に存在する）を先に判定する
+    const cell = findCell(card.numbers, value)
+    const alreadyRolled = card.rolls.some((r) => r.value === value)
+    const punchedCell: { col: ColumnKey; row: number } | null = cell && !alreadyRolled ? cell : null
 
     // すべての出目を履歴に記録する
     card.rolls.push({ id: crypto.randomUUID(), value, rolledAt: now })
-
-    // 対応マスが未パンチなら穴を開ける（既開・カード外は記録のみ）
-    let punchedCell: { col: ColumnKey; row: number } | null = null
-    const cell = findCell(card.numbers, value)
-    if (cell && !card.punched[cell.col][cell.row]) {
-      card.punched[cell.col][cell.row] = true
-      card.punchedAt[cell.col][cell.row] = now
-      punchedCell = cell
-    }
-
     card.updatedAt = now
 
     // 1ラインでも成立したらそのカードは終了。自動アーカイブする
     let achievedNow = false
-    const nowCompleted = countCompletedLines(card.punched)
+    const nowCompleted = countCompletedLines(buildPunched(card))
     if (wasCompleted === 0 && nowCompleted >= 1) {
       card.archived = true
       card.bingoAchieved = true

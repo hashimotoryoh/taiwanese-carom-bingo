@@ -17,23 +17,14 @@ export default defineEventHandler(async (event): Promise<BingoCard> => {
       throw createError({ statusCode: 409, message: 'アーカイブ済みのカードは変更できません。' })
     }
 
-    const target = card.rolls.find((r) => r.id === rollId)
-    if (!target) {
+    const exists = card.rolls.some((r) => r.id === rollId)
+    if (!exists) {
       throw createError({ statusCode: 404, message: '指定された記録が見つかりませんでした。' })
     }
 
+    // パンチ状態は rolls から導出するため、記録を除去するだけでよい。
+    // （同じ出目が他の記録に残っていれば、そのマスは引き続きパンチ済みとして導出される）
     card.rolls = card.rolls.filter((r) => r.id !== rollId)
-
-    // 同じ出目が他の記録に残っていなければ、対応マスをアンパンチする
-    const stillRolled = card.rolls.some((r) => r.value === target.value)
-    if (!stillRolled) {
-      const cell = findCell(card.numbers, target.value)
-      if (cell) {
-        card.punched[cell.col][cell.row] = false
-        card.punchedAt[cell.col][cell.row] = null
-      }
-    }
-
     card.updatedAt = Date.now()
     await saveCard(card)
     return card

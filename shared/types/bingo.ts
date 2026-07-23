@@ -27,10 +27,7 @@ export interface BingoCard {
   updatedAt: number
   /** 各列5マスの番号。N列の中央はセンター固定値 */
   numbers: Record<ColumnKey, number[]>
-  punched: Record<ColumnKey, boolean[]>
-  /** 穴を開けた日時（未開はnull） */
-  punchedAt: Record<ColumnKey, (number | null)[]>
-  /** 記録した出目の履歴（記録順） */
+  /** 記録した出目の履歴（記録順）。パンチ状態はこの履歴から導出する */
   rolls: Roll[]
   archived: boolean
   bingoAchieved: boolean
