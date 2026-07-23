@@ -3,13 +3,14 @@ const props = defineProps<{ busy?: boolean }>()
 
 const emit = defineEmits<{ record: [value: number] }>()
 
-const raw = ref('')
+// <input type="number"> の v-model は Vue が値を数値化するため、number か空文字が入る
+const raw = ref<number | string>('')
 const error = ref('')
 
 function submit() {
   if (props.busy) return
-  const value = parseInt(raw.value, 10)
-  if (raw.value.trim() === '' || Number.isNaN(value)) {
+  const value = typeof raw.value === 'number' ? raw.value : Number.parseInt(raw.value, 10)
+  if (raw.value === '' || Number.isNaN(value)) {
     error.value = '出目を入力してください。'
     return
   }
