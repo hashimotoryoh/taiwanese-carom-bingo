@@ -1,4 +1,5 @@
-import type { BingoCard, ColumnDef, ColumnKey, DraftCard } from '../types/bingo'
+import type { BingoCard, ColumnDef, ColumnKey, DraftCard, Roll } from '../types/bingo'
+import { fmtDate } from './date'
 
 export const COLUMNS: ColumnDef[] = [
   { key: 'B', label: 'B', min: 1, max: 24 },
@@ -15,6 +16,37 @@ export const FREE_VALUE = 101
 
 export const GRID_SIZE = 5
 
+/** 出目の最小値・最大値（各列レンジの下限〜上限） */
+export const MIN_ROLL = 1
+export const MAX_ROLL = 120
+
+/** 出目として妥当な値か（1〜120の整数） */
+export function isValidRoll(value: unknown): value is number {
+  return Number.isInteger(value) && (value as number) >= MIN_ROLL && (value as number) <= MAX_ROLL
+}
+
+/** 出目に対応するカード上のマスを探す（値は一意なので最大1つ。無ければnull） */
+export function findCell(
+  numbers: Record<ColumnKey, number[]>,
+  value: number,
+): { col: ColumnKey; row: number } | null {
+  for (const col of COLUMNS) {
+    const row = numbers[col.key].indexOf(value)
+    if (row !== -1) return { col: col.key, row }
+  }
+  return null
+}
+
+/** マスの表示ラベル（列アルファベット + 1始まりの行番号。例: N2） */
+export function cellLabel(col: ColumnKey, row: number): string {
+  return `${col}${row + 1}`
+}
+
+/** ゾロ目判定：十進表記が2桁以上かつ全桁が同一の数字（例: 11, 77, 111）。1桁は含めない */
+export function isZorome(value: number): boolean {
+  return /^(\d)\1+$/.test(String(value))
+}
+
 function emptyColumns<T>(fill: T): Record<ColumnKey, T[]> {
   return Object.fromEntries(
     COLUMNS.map((c) => [c.key, Array.from({ length: GRID_SIZE }, () => fill)]),
@@ -25,8 +57,32 @@ export function emptyPunched(): Record<ColumnKey, boolean[]> {
   return emptyColumns(false)
 }
 
-export function emptyPunchedAt(): Record<ColumnKey, (number | null)[]> {
-  return emptyColumns<number | null>(null)
+/** 出目履歴からカードの各マスのパンチ状態を導出する（そのマスの番号が記録済みならパンチ済み） */
+export function buildPunched(card: BingoCard): Record<ColumnKey, boolean[]> {
+  const values = new Set(card.rolls.map((r) => r.value))
+  const punched = emptyPunched()
+  for (const col of COLUMNS) {
+    for (let r = 0; r < GRID_SIZE; r++) {
+      punched[col.key][r] = values.has(card.numbers[col.key][r]!)
+    }
+  }
+  return punched
+}
+
+/** 出目履歴から各マスのパンチ日時（同一番号の最先記録時刻。未パンチはnull）を導出する */
+export function buildPunchedAt(card: BingoCard): Record<ColumnKey, (number | null)[]> {
+  const earliest = new Map<number, number>()
+  for (const roll of card.rolls) {
+    const prev = earliest.get(roll.value)
+    if (prev === undefined || roll.rolledAt < prev) earliest.set(roll.value, roll.rolledAt)
+  }
+  const at = emptyColumns<number | null>(null)
+  for (const col of COLUMNS) {
+    for (let r = 0; r < GRID_SIZE; r++) {
+      at[col.key][r] = earliest.get(card.numbers[col.key][r]!) ?? null
+    }
+  }
+  return at
 }
 
 export function blankDraft(): DraftCard {
@@ -160,6 +216,7 @@ export function draftToNumbers(draft: DraftCard): Record<ColumnKey, number[]> {
 
 /** カードから一覧表示用サマリーを組み立てる */
 export function toSummary(card: BingoCard) {
+  const punched = buildPunched(card)
   return {
     id: card.id,
     name: card.name,
@@ -168,7 +225,84 @@ export function toSummary(card: BingoCard) {
     archived: card.archived,
     bingoAchieved: card.bingoAchieved,
     bingoAchievedAt: card.bingoAchievedAt,
-    punchedCount: countPunched(card.punched),
-    reachCount: countReachLines(card.punched),
+    punchedCount: countPunched(punched),
+    reachCount: countReachLines(punched),
+    rollCount: card.rolls.length,
+  }
+}
+
+/** 履歴テーブル1行分の表示データ */
+export interface RollHistoryRow {
+  roll: Roll
+  /** この記録で穴が開いたマスのラベル（重複・カード外はnull） */
+  label: string | null
+}
+
+/**
+ * 出目履歴を表示用に整形する（新しい順）。
+ * 各出目について、カード上にあり、かつ同一出目の中で最先に記録されたレコードにのみマスラベルを付ける。
+ * （2回目以降の同一出目は「記録のみ」なのでラベルなし）
+ */
+export function rollHistory(card: BingoCard): RollHistoryRow[] {
+  // 記録順（rolledAt昇順・同時刻は配列順）で各出目の最先レコードidを求める
+  const ordered = card.rolls
+    .map((roll, index) => ({ roll, index }))
+    .sort((a, b) => a.roll.rolledAt - b.roll.rolledAt || a.index - b.index)
+  const firstIdByValue = new Map<number, string>()
+  for (const { roll } of ordered) {
+    if (!firstIdByValue.has(roll.value)) firstIdByValue.set(roll.value, roll.id)
+  }
+
+  return card.rolls
+    .map((roll) => {
+      const cell = findCell(card.numbers, roll.value)
+      const isFirst = firstIdByValue.get(roll.value) === roll.id
+      return {
+        roll,
+        label: cell && isFirst ? cellLabel(cell.col, cell.row) : null,
+      }
+    })
+    .sort((a, b) => b.roll.rolledAt - a.roll.rolledAt)
+}
+
+/** サマリー表示用の集計結果 */
+export interface RollStats {
+  /** 総カイルン回数（記録した出目の総数） */
+  totalRolls: number
+  /** 出目の平均値（ゾロ目はマイナスとして計算） */
+  averageValue: number
+  /** 同日平均カイルン回数（記録を日付でまとめた1日あたりの平均） */
+  avgRollsPerDay: number
+  /** 総ゾロ目回数 */
+  totalZorome: number
+  /** パンチ率の百分率（パンチ数 / 記録数 × 100） */
+  punchRatePercent: number
+}
+
+/** 出目履歴からサマリー統計を計算する */
+export function computeRollStats(card: BingoCard): RollStats {
+  const rolls = card.rolls
+  const totalRolls = rolls.length
+  if (totalRolls === 0) {
+    return {
+      totalRolls: 0,
+      averageValue: 0,
+      avgRollsPerDay: 0,
+      totalZorome: 0,
+      punchRatePercent: 0,
+    }
+  }
+
+  const signedSum = rolls.reduce((sum, r) => sum + (isZorome(r.value) ? -r.value : r.value), 0)
+  const totalZorome = rolls.filter((r) => isZorome(r.value)).length
+  const distinctDays = new Set(rolls.map((r) => fmtDate(r.rolledAt))).size
+  const punchedCount = countPunched(buildPunched(card))
+
+  return {
+    totalRolls,
+    averageValue: signedSum / totalRolls,
+    avgRollsPerDay: distinctDays === 0 ? 0 : totalRolls / distinctDays,
+    totalZorome,
+    punchRatePercent: (punchedCount / totalRolls) * 100,
   }
 }

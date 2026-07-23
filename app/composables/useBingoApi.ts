@@ -1,4 +1,4 @@
-import type { BingoCard, BingoCardSummary, DraftCard, PunchResult } from '#shared/types/bingo'
+import type { BingoCard, BingoCardSummary, DraftCard, RollResult } from '#shared/types/bingo'
 
 /** サーバーAPI呼び出しの薄いラッパー */
 export function useBingoApi() {
@@ -7,8 +7,10 @@ export function useBingoApi() {
     fetchCard: (id: string) => $fetch<BingoCard>(`/api/cards/${id}`),
     createCard: (draft: DraftCard) =>
       $fetch<BingoCard>('/api/cards', { method: 'POST', body: draft }),
-    punch: (id: string, col: string, row: number) =>
-      $fetch<PunchResult>(`/api/cards/${id}/punch`, { method: 'POST', body: { col, row } }),
+    recordRoll: (id: string, value: number) =>
+      $fetch<RollResult>(`/api/cards/${id}/rolls`, { method: 'POST', body: { value } }),
+    deleteRoll: (id: string, rollId: string) =>
+      $fetch<BingoCard>(`/api/cards/${id}/rolls/${rollId}`, { method: 'DELETE' }),
     archive: (id: string) => $fetch<BingoCard>(`/api/cards/${id}/archive`, { method: 'POST' }),
     deleteCard: (id: string) => $fetch(`/api/cards/${id}`, { method: 'DELETE' }),
   }

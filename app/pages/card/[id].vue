@@ -22,25 +22,57 @@ const now = Date.now()
 
 const locked = computed(() => !!card.value?.archived)
 const reachCount = computed(() =>
-  card.value && !card.value.archived ? countReachLines(card.value.punched) : 0,
+  card.value && !card.value.archived ? countReachLines(buildPunched(card.value)) : 0,
 )
 
 const justAchievedBingo = ref(false)
 const confirmingArchive = ref(false)
 const busy = ref(false)
 
-async function onToggle(col: ColumnKey, row: number) {
+// 出目記録時に穴が開いたマスへパーティクル演出を出すためのマス指定
+const flashCell = ref<{ col: ColumnKey; row: number } | null>(null)
+let flashTimer: ReturnType<typeof setTimeout> | null = null
+
+// 削除確認中の記録ID
+const pendingDeleteRollId = ref<string | null>(null)
+
+onBeforeUnmount(() => {
+  if (flashTimer) clearTimeout(flashTimer)
+})
+
+async function onRecord(value: number) {
   if (!card.value || card.value.archived || busy.value) return
   busy.value = true
   try {
-    const res = await api.punch(id, col, row)
+    const res = await api.recordRoll(id, value)
     card.value = res.card
+    if (res.punchedCell) {
+      flashCell.value = res.punchedCell
+      if (flashTimer) clearTimeout(flashTimer)
+      flashTimer = setTimeout(() => {
+        flashCell.value = null
+      }, 900)
+    }
     if (res.achievedNow) {
       justAchievedBingo.value = true
       confetti.fire()
     }
   } catch {
     // 他の端末でアーカイブ済みなどの競合時は最新状態を取り直す
+    await refresh()
+  } finally {
+    busy.value = false
+  }
+}
+
+async function onDeleteRoll() {
+  const rollId = pendingDeleteRollId.value
+  pendingDeleteRollId.value = null
+  if (!rollId || !card.value || card.value.archived || busy.value) return
+  busy.value = true
+  try {
+    card.value = await api.deleteRoll(id, rollId)
+  } catch {
     await refresh()
   } finally {
     busy.value = false
@@ -86,10 +118,22 @@ function gotoCreateNew() {
         🔥 リーチ {{ reachCount }} 本！光っているマスが開けばビンゴ！
       </div>
 
-      <PunchGrid :card="card" :busy="busy" @toggle="onToggle" />
-      <p v-if="!locked" class="punch-legend">
-        マスをタップして穴を開ける・もう一度タップで元に戻せます
-      </p>
+      <PunchGrid :card="card" :flash-cell="flashCell" />
+
+      <RollInput v-if="!locked" :busy="busy" @record="onRecord" />
+
+      <section class="roll-section">
+        <h3 class="roll-section-title">記録サマリー</h3>
+        <RollSummary :card="card" />
+        <h3 class="roll-section-title">出目の履歴</h3>
+        <p v-if="card.rolls.length === 0" class="roll-empty">まだ出目が記録されていません。</p>
+        <RollHistoryTable
+          v-else
+          :card="card"
+          :locked="locked"
+          @delete="pendingDeleteRollId = $event"
+        />
+      </section>
 
       <div class="row" style="margin-top: 22px">
         <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
@@ -122,6 +166,14 @@ function gotoCreateNew() {
         ok-label="アーカイブする"
         @confirm="doArchive"
         @cancel="confirmingArchive = false"
+      />
+
+      <ConfirmDialog
+        v-if="pendingDeleteRollId"
+        message="この出目の記録を削除します。対応するマスの穴は（同じ出目が他に無ければ）閉じられます。よろしいですか？"
+        ok-label="削除する"
+        @confirm="onDeleteRoll"
+        @cancel="pendingDeleteRollId = null"
       />
     </template>
   </div>
