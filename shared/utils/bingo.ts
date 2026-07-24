@@ -275,13 +275,14 @@ export interface RollStats {
   avgRollsPerDay: number
   /** 総ゾロ目回数 */
   totalZorome: number
+  /** ゾロ目割合の百分率（総ゾロ目回数 / 記録数 × 100） */
+  zoromeRatePercent: number
   /** パンチ率の百分率（パンチ数 / 記録数 × 100） */
   punchRatePercent: number
 }
 
-/** 出目履歴からサマリー統計を計算する */
-export function computeRollStats(card: BingoCard): RollStats {
-  const rolls = card.rolls
+/** 出目履歴とパンチ数からサマリー統計を計算する（1人・複数カード分の集計いずれにも使う） */
+function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollStats {
   const totalRolls = rolls.length
   if (totalRolls === 0) {
     return {
@@ -289,6 +290,7 @@ export function computeRollStats(card: BingoCard): RollStats {
       averageValue: 0,
       avgRollsPerDay: 0,
       totalZorome: 0,
+      zoromeRatePercent: 0,
       punchRatePercent: 0,
     }
   }
@@ -296,13 +298,28 @@ export function computeRollStats(card: BingoCard): RollStats {
   const signedSum = rolls.reduce((sum, r) => sum + (isZorome(r.value) ? -r.value : r.value), 0)
   const totalZorome = rolls.filter((r) => isZorome(r.value)).length
   const distinctDays = new Set(rolls.map((r) => fmtDate(r.rolledAt))).size
-  const punchedCount = countPunched(buildPunched(card))
 
   return {
     totalRolls,
     averageValue: signedSum / totalRolls,
     avgRollsPerDay: distinctDays === 0 ? 0 : totalRolls / distinctDays,
     totalZorome,
+    zoromeRatePercent: (totalZorome / totalRolls) * 100,
     punchRatePercent: (punchedCount / totalRolls) * 100,
   }
+}
+
+/** 出目履歴からサマリー統計を計算する */
+export function computeRollStats(card: BingoCard): RollStats {
+  return computeRollStatsFromRolls(card.rolls, countPunched(buildPunched(card)))
+}
+
+/**
+ * 複数カード分の出目履歴をまとめてサマリー統計を計算する。
+ * 同じ人物が持つ複数のビンゴカード（進行中・アーカイブ済み問わず）を横断集計する用途。
+ */
+export function aggregateRollStats(cards: BingoCard[]): RollStats {
+  const rolls = cards.flatMap((c) => c.rolls)
+  const punchedCount = cards.reduce((sum, c) => sum + countPunched(buildPunched(c)), 0)
+  return computeRollStatsFromRolls(rolls, punchedCount)
 }
