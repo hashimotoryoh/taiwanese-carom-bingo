@@ -7,7 +7,6 @@
   X-Content-Type-Options: nosniff
   # 他サイトの iframe への埋め込みを禁止する（クリックジャッキング対策）
   X-Frame-Options: DENY
-
   # Content Security Policy（多層防御）。
   # まずは Report-Only で運用し、正規リソースを誤ってブロックしないか検証する。
   # 違反は訪問者ブラウザのコンソールに報告されるのみで、実際のブロックは行わない。
