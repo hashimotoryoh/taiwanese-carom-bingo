@@ -98,6 +98,14 @@ Prettierでフォーマットする:
 npm run format
 ```
 
+## テスト
+
+Vitestでテストを実行する:
+
+```bash
+npm run test
+```
+
 ## クリーンアップ
 
 生成ファイルと依存パッケージを削除する:
