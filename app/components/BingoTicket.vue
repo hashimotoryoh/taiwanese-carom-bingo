@@ -35,8 +35,8 @@ const bingoDays = computed(() => {
     <template v-else>
       <h3>{{ summary.name }}</h3>
       <div class="meta">
-        最終更新 {{ fmtDate(summary.updatedAt ?? summary.createdAt) }} ・ 作成から
-        {{ daysBetween(summary.createdAt, now) }} 日経過
+        最終更新 {{ fmtDate(summary.updatedAt ?? summary.createdAt) }} ・
+        プレイ{{ daysBetween(summary.createdAt, now) }}日目
       </div>
       <div class="stat-row">
         <span class="stat-chip">穴 {{ summary.punchedCount }} 個</span>
