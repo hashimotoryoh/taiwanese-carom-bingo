@@ -1,3 +1,18 @@
+import { execSync } from 'node:child_process'
+
+// ビルド時のコミットハッシュを解決する。
+// Netlify などの CI では COMMIT_REF が渡されるためそれを優先し、
+// ローカルなど未設定の場合は git から短縮ハッシュを取得する。
+function resolveCommitHash(): string {
+  const fromEnv = process.env.COMMIT_REF
+  if (fromEnv) return fromEnv.slice(0, 7)
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim()
+  } catch {
+    return 'unknown'
+  }
+}
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -9,14 +24,17 @@ export default defineNuxtConfig({
     strict: true,
   },
   css: ['~/assets/css/main.css'],
+  runtimeConfig: {
+    public: {
+      // フッター等で表示するビルド時のコミットハッシュ
+      commitHash: resolveCommitHash(),
+    },
+  },
   app: {
     head: {
       htmlAttrs: { lang: 'ja' },
       title: 'カイルンBINGO',
-      meta: [
-        { name: 'x-app-version', content: process.env.APP_VERSION },
-        { name: 'robots', content: 'noindex, nofollow, noarchive, nosnippet' },
-      ],
+      meta: [{ name: 'robots', content: 'noindex, nofollow, noarchive, nosnippet' }],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
