@@ -7,7 +7,11 @@ const name = route.params.name as string
 useHead({ title: `${name}の統計データ | カイルンBINGO` })
 
 const api = useBingoApi()
-const { data: cards, status } = useAsyncData<BingoCard[]>('records-all', () => api.fetchAllCards())
+const {
+  data: cards,
+  status,
+  refresh,
+} = useAsyncData<BingoCard[]>('records-all', () => api.fetchAllCards())
 
 const personCards = computed(() =>
   (cards.value ?? []).filter((c) => c.name === name).sort((a, b) => b.createdAt - a.createdAt),
@@ -16,9 +20,14 @@ const personCards = computed(() =>
 const stats = computed(() => aggregateRollStats(personCards.value))
 const bingoCount = computed(() => personCards.value.filter((c) => c.bingoAchieved).length)
 
-const cardRows = computed(() =>
-  personCards.value.map((c) => ({ card: c, stats: computeRollStats(c) })),
-)
+const pendingDeleteId = ref<string | null>(null)
+
+async function confirmDelete() {
+  if (!pendingDeleteId.value) return
+  await api.deleteCard(pendingDeleteId.value)
+  pendingDeleteId.value = null
+  await refresh()
+}
 </script>
 
 <template>
@@ -42,26 +51,21 @@ const cardRows = computed(() =>
 
       <h3 class="roll-section-title">ビンゴカード一覧</h3>
       <div class="ticket-grid">
-        <RecordTicket
-          v-for="{ card: c, stats: cardStats } in cardRows"
+        <BingoTicket
+          v-for="c in personCards"
           :key="c.id"
-          :to="`/card/${c.id}`"
-          :title="`${fmtDate(c.createdAt)} 作成`"
-          :meta="`最終更新 ${fmtDate(c.updatedAt ?? c.createdAt)}`"
-          :badge="
-            c.bingoAchieved
-              ? { text: '🎉 ビンゴ達成', kind: 'bingo' }
-              : c.archived
-                ? { text: 'アーカイブ済み', kind: 'archived' }
-                : null
-          "
-          :chips="[
-            `カイルン ${cardStats.totalRolls} 回`,
-            `ゾロ目割合 ${cardStats.zoromeRatePercent.toFixed(1)}%`,
-            `パンチ率 ${cardStats.punchRatePercent.toFixed(1)}%`,
-          ]"
+          :summary="toSummary(c)"
+          @delete="pendingDeleteId = $event"
         />
       </div>
     </template>
+
+    <ConfirmDialog
+      v-if="pendingDeleteId"
+      message="このビンゴカードを完全に削除します。この操作は元に戻せません。よろしいですか？"
+      ok-label="削除する"
+      @confirm="confirmDelete"
+      @cancel="pendingDeleteId = null"
+    />
   </div>
 </template>

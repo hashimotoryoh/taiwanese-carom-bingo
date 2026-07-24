@@ -13,7 +13,9 @@ interface PersonRow {
   cardCount: number
   bingoCount: number
   latestActivity: number
-  stats: ReturnType<typeof aggregateRollStats>
+  punchedCount: number
+  rollCount: number
+  reachCount: number
 }
 
 const persons = computed<PersonRow[]>(() => {
@@ -24,13 +26,27 @@ const persons = computed<PersonRow[]>(() => {
     else byName.set(card.name, [card])
   }
   return [...byName.entries()]
-    .map(([name, group]) => ({
-      name,
-      cardCount: group.length,
-      bingoCount: group.filter((c) => c.bingoAchieved).length,
-      latestActivity: Math.max(...group.map((c) => c.updatedAt ?? c.createdAt)),
-      stats: aggregateRollStats(group),
-    }))
+    .map(([name, group]) => {
+      let punchedCount = 0
+      let rollCount = 0
+      let reachCount = 0
+      for (const card of group) {
+        const summary = toSummary(card)
+        punchedCount += summary.punchedCount
+        rollCount += summary.rollCount
+        // アーカイブ済みカードはリーチ表示の対象外（進行中カードのみ集計）
+        if (!card.archived) reachCount += summary.reachCount
+      }
+      return {
+        name,
+        cardCount: group.length,
+        bingoCount: group.filter((c) => c.bingoAchieved).length,
+        latestActivity: Math.max(...group.map((c) => c.updatedAt ?? c.createdAt)),
+        punchedCount,
+        rollCount,
+        reachCount,
+      }
+    })
     .sort((a, b) => b.latestActivity - a.latestActivity)
 })
 </script>
@@ -60,9 +76,9 @@ const persons = computed<PersonRow[]>(() => {
           :meta="`ビンゴカード ${p.cardCount} 枚 ・ 最終更新 ${fmtDate(p.latestActivity)}`"
           :badge="p.bingoCount > 0 ? { text: `${p.bingoCount}回ビンゴ達成`, kind: 'bingo' } : null"
           :chips="[
-            `カイルン ${p.stats.totalRolls} 回`,
-            `ゾロ目割合 ${p.stats.zoromeRatePercent.toFixed(1)}%`,
-            `パンチ率 ${p.stats.punchRatePercent.toFixed(1)}%`,
+            { text: `穴 ${p.punchedCount} 個` },
+            { text: `カイルン ${p.rollCount} 回` },
+            ...(p.reachCount > 0 ? [{ text: `リーチ ${p.reachCount} 本`, reach: true }] : []),
           ]"
         />
       </div>
