@@ -70,4 +70,47 @@ describe('POST /api/cards', () => {
     const card = await postHandler(makeEvent({}, validBody()))
     expect(card.name).toBe('新規太郎')
   })
+
+  describe('parseDraftの防御的な正規化（不正なリクエストボディ）', () => {
+    it('bodyがnullでも例外にならず、未入力エラーの400を返す', async () => {
+      const err: HttpError = await postHandler(makeEvent({}, null)).catch((e) => e)
+      expect(err.statusCode).toBe(400)
+      expect(globalThis.saveCard).not.toHaveBeenCalled()
+    })
+
+    it('nameが文字列でない場合は空文字として扱われ、未入力エラーになる', async () => {
+      const err: HttpError = await postHandler(
+        makeEvent({}, { name: 12345, columns: validBody().columns }),
+      ).catch((e) => e)
+      expect(err.statusCode).toBe(400)
+      expect((err.data as { errors: string[] }).errors.some((e) => e.includes('お名前'))).toBe(true)
+    })
+
+    it('columnsが未指定・オブジェクトでない場合も例外にならず、全マス未入力エラーになる', async () => {
+      const err: HttpError = await postHandler(
+        makeEvent({}, { name: '花子', columns: 'not-an-object' }),
+      ).catch((e) => e)
+      expect(err.statusCode).toBe(400)
+      const errors = (err.data as { errors: string[] }).errors
+      expect(errors.some((e) => e.includes('未入力'))).toBe(true)
+    })
+
+    it('列の値が配列でない場合はそのマス全体を未入力として扱う', async () => {
+      const body = validBody()
+      // @ts-expect-error 不正なリクエストボディを意図的に渡す
+      body.columns.B = 'not-an-array'
+      const err: HttpError = await postHandler(makeEvent({}, body)).catch((e) => e)
+      expect(err.statusCode).toBe(400)
+      expect((err.data as { errors: string[] }).errors.some((e) => e.includes('B列'))).toBe(true)
+    })
+
+    it('マスの値が数値でない・有限でない場合はnullとして扱う（文字列・NaN・Infinity）', async () => {
+      const body = validBody()
+      // @ts-expect-error 不正なリクエストボディを意図的に渡す
+      body.columns.I = [25, 'x', Number.NaN, Number.POSITIVE_INFINITY, 29]
+      const err: HttpError = await postHandler(makeEvent({}, body)).catch((e) => e)
+      expect(err.statusCode).toBe(400)
+      expect((err.data as { errors: string[] }).errors.some((e) => e.includes('I列'))).toBe(true)
+    })
+  })
 })

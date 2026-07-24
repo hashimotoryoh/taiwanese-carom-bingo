@@ -157,6 +157,14 @@ describe('buildPunchedAt', () => {
     const at = buildPunchedAt(card)
     expect(at.B[0]).toBeNull()
   })
+
+  it('後から来た記録が既存の記録より遅い場合は上書きしない', () => {
+    const card = makeCard({
+      rolls: [makeRoll(1, 100, 'earlier'), makeRoll(1, 500, 'later')],
+    })
+    const at = buildPunchedAt(card)
+    expect(at.B[0]).toBe(100)
+  })
 })
 
 describe('blankDraft', () => {
