@@ -275,6 +275,8 @@ export interface RollStats {
   avgRollsPerDay: number
   /** 総ゾロ目回数 */
   totalZorome: number
+  /** ゾロ目割合の百分率（ゾロ目回数 / 記録数 × 100） */
+  zoromeRatioPercent: number
   /** パンチ率の百分率（パンチ数 / 記録数 × 100） */
   punchRatePercent: number
 }
@@ -289,6 +291,7 @@ export function computeRollStats(card: BingoCard): RollStats {
       averageValue: 0,
       avgRollsPerDay: 0,
       totalZorome: 0,
+      zoromeRatioPercent: 0,
       punchRatePercent: 0,
     }
   }
@@ -303,6 +306,7 @@ export function computeRollStats(card: BingoCard): RollStats {
     averageValue: signedSum / totalRolls,
     avgRollsPerDay: distinctDays === 0 ? 0 : totalRolls / distinctDays,
     totalZorome,
+    zoromeRatioPercent: (totalZorome / totalRolls) * 100,
     punchRatePercent: (punchedCount / totalRolls) * 100,
   }
 }
