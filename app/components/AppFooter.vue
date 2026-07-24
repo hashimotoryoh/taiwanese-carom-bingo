@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const currentYear = new Date().getFullYear()
 const commitHash = useRuntimeConfig().public.commitHash
+// コミットハッシュが取得できなかった場合はリンクにしない
+const hasCommitHash = commitHash !== 'unknown'
 // コミットハッシュから GitHub のコミットページ URL を組み立てる
 const commitUrl = `https://github.com/hashimotoryoh/taiwanese-carom-bingo/commit/${commitHash}`
 </script>
@@ -14,7 +16,10 @@ const commitUrl = `https://github.com/hashimotoryoh/taiwanese-carom-bingo/commit
       >.
     </p>
     <p class="version">
-      <a :href="commitUrl" target="_blank" rel="noopener noreferrer">{{ commitHash }}</a>
+      <a v-if="hasCommitHash" :href="commitUrl" target="_blank" rel="noopener noreferrer">{{
+        commitHash
+      }}</a>
+      <template v-else>{{ commitHash }}</template>
     </p>
   </footer>
 </template>
