@@ -388,6 +388,14 @@ describe('computeRollStats / aggregateRollStats', () => {
     expect(stats.zoromeRatioPercent).toBe(50)
   })
 
+  it('100は平均値の計算で200として計上される', () => {
+    const day = new Date(2026, 0, 1).getTime()
+    const card = makeCard({ rolls: [makeRoll(100, day), makeRoll(1, day)] })
+    const stats = computeRollStats(card)
+    expect(stats.totalRolls).toBe(2)
+    expect(stats.averageValue).toBe((200 + 1) / 2)
+  })
+
   it('パンチ率は パンチ数/記録数 * 100', () => {
     const card = makeCard({ rolls: [makeRoll(1, 0), makeRoll(999, 0)] })
     const stats = computeRollStats(card)
