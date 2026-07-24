@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { BingoCard } from '#shared/types/bingo'
 
-useHead({ title: '全記録サマリー | カイルンBINGO' })
+useHead({ title: '全統計データ | カイルンBINGO' })
 
 const api = useBingoApi()
 const { data: cards, status } = useAsyncData<BingoCard[]>('records-all', () => api.fetchAllCards())
@@ -37,7 +37,7 @@ const persons = computed<PersonRow[]>(() => {
 
 <template>
   <div>
-    <h2 class="page-title">全記録サマリー</h2>
+    <h2 class="page-title">全統計データ</h2>
     <p class="page-sub">これまでに記録された全員分のカイルンを集計しています</p>
     <div class="row" style="margin-bottom: 20px">
       <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
@@ -52,23 +52,19 @@ const persons = computed<PersonRow[]>(() => {
         <p>まだ記録がありません。</p>
       </div>
       <div v-else class="ticket-grid">
-        <div
+        <RecordTicket
           v-for="p in persons"
           :key="p.name"
-          class="ticket"
-          @click="navigateTo(`/records/${encodeURIComponent(p.name)}`)"
-        >
-          <span v-if="p.bingoCount > 0" class="badge bingo">{{ p.bingoCount }}回ビンゴ達成</span>
-          <h3>{{ p.name }}</h3>
-          <div class="meta">
-            ビンゴカード {{ p.cardCount }} 枚 ・ 最終更新 {{ fmtDate(p.latestActivity) }}
-          </div>
-          <div class="stat-row">
-            <span class="stat-chip">カイルン {{ p.stats.totalRolls }} 回</span>
-            <span class="stat-chip">ゾロ目割合 {{ p.stats.zoromeRatePercent.toFixed(1) }}%</span>
-            <span class="stat-chip">パンチ率 {{ p.stats.punchRatePercent.toFixed(1) }}%</span>
-          </div>
-        </div>
+          :to="`/records/${encodeURIComponent(p.name)}`"
+          :title="p.name"
+          :meta="`ビンゴカード ${p.cardCount} 枚 ・ 最終更新 ${fmtDate(p.latestActivity)}`"
+          :badge="p.bingoCount > 0 ? { text: `${p.bingoCount}回ビンゴ達成`, kind: 'bingo' } : null"
+          :chips="[
+            `カイルン ${p.stats.totalRolls} 回`,
+            `ゾロ目割合 ${p.stats.zoromeRatePercent.toFixed(1)}%`,
+            `パンチ率 ${p.stats.punchRatePercent.toFixed(1)}%`,
+          ]"
+        />
       </div>
     </template>
   </div>

@@ -24,7 +24,7 @@ function gotoCreate() {
     <div class="row between" style="margin-bottom: 20px">
       <div class="row">
         <NuxtLink class="btn btn-secondary" to="/card/archived">アーカイブ一覧を見る</NuxtLink>
-        <NuxtLink class="btn btn-secondary" to="/records">みんなの記録サマリーを見る</NuxtLink>
+        <NuxtLink class="btn btn-secondary" to="/records">みんなの統計データを見る</NuxtLink>
       </div>
       <button class="btn btn-primary" @click="gotoCreate">+ 新しいビンゴカードを作成</button>
     </div>
