@@ -72,6 +72,27 @@ jobs:
         if: always()
         run: echo "failed=${{ steps.check.outcome == 'failure' }}" >> "$GITHUB_OUTPUT"
 
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test
+
   autofix:
     if: >-
       always() &&

@@ -16,7 +16,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test": "vitest run"
   },
   "dependencies": {
     "@netlify/database": "^1.1.0",
@@ -30,10 +31,12 @@
     "eslint": "^10.7.0",
     "netlify-cli": "^26.2.0",
     "prettier": "^3.9.6",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
   },
   "overrides": {
     "@opentelemetry/core": "^2.10.0",
+    "@opentelemetry/api": "1.8.0",
     "esbuild": "^0.28.1",
     "sharp": "^0.35.3"
   },
