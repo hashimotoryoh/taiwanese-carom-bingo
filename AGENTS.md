@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このリポジトリで作業するAIコーディングエージェント（Claude Code、GitHub Copilot など）向けの共通ガイド。`CLAUDE.md` と `.github/copilot-instructions.md` はこのファイルへのシンボリックリンクであり、実体は本ファイル一つに保つこと。特定のツール固有の記述は避け、どのエージェントが読んでも成立する内容にする。
 
 ## AIエージェントへの指示
 
