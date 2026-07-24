@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const currentYear = new Date().getFullYear()
 const commitHash = useRuntimeConfig().public.commitHash
+// コミットハッシュから GitHub のコミットページ URL を組み立てる
+const commitUrl = `https://github.com/hashimotoryoh/taiwanese-carom-bingo/commit/${commitHash}`
 </script>
 
 <template>
@@ -11,7 +13,9 @@ const commitHash = useRuntimeConfig().public.commitHash
         >Ryoh Hashimoto</a
       >.
     </p>
-    <p class="version">{{ commitHash }}</p>
+    <p class="version">
+      <a :href="commitUrl" target="_blank" rel="noopener noreferrer">{{ commitHash }}</a>
+    </p>
   </footer>
 </template>
 
@@ -42,5 +46,12 @@ const commitHash = useRuntimeConfig().public.commitHash
 .version {
   font-family: 'JetBrains Mono', monospace;
   letter-spacing: 0.02em;
+}
+.version a {
+  color: inherit;
+  text-decoration: none;
+}
+.version a:hover {
+  text-decoration: underline;
 }
 </style>
