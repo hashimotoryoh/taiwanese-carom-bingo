@@ -29,7 +29,7 @@ function fmtNum(n: number): string {
     </div>
     <div class="summary-item">
       <span class="summary-label">ゾロ目割合</span>
-      <span class="summary-value">{{ fmtNum(stats.zoromeRatePercent) }}%</span>
+      <span class="summary-value">{{ fmtNum(stats.zoromeRatioPercent) }}%</span>
     </div>
     <div class="summary-item">
       <span class="summary-label">パンチ率</span>
