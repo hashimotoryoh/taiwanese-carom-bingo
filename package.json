@@ -4,7 +4,11 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
+    "netlify:login": "netlify login",
+    "netlify:link": "netlify link",
     "db:status": "netlify database status",
+    "db:connect": "netlify database connect",
+    "db:reset": "netlify database reset",
     "db:migrate": "netlify database migrations apply",
     "dev": "nuxt dev",
     "dev:host": "nuxt dev --host",

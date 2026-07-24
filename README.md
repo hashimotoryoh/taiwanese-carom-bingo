@@ -32,8 +32,8 @@ npm install
 初回のみ Netlify CLI でログインし、Netlify 上のサイトと紐付ける:
 
 ```bash
-npx netlify login
-npx netlify link
+npm run netlify:login
+npm run netlify:link
 ```
 
 開発サーバーを起動する（`http://localhost:8888`）。`netlify dev` がローカル Postgres を自動起動・接続し、マイグレーションも適用する:
@@ -47,15 +47,15 @@ npm run dev:netlify
 ローカル DB の補助コマンド:
 
 ```bash
-npx netlify database status
+npm run db:status
 ```
 
 ```bash
-npx netlify database connect
+npm run db:connect
 ```
 
 ```bash
-npx netlify database reset
+npm run db:reset
 ```
 
 ## ビルド
