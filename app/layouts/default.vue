@@ -5,7 +5,7 @@ const rules = useRulesModal()
 <template>
   <div class="app-shell">
     <header class="top">
-      <div class="brand">
+      <NuxtLink to="/" class="brand">
         <div class="balls" aria-hidden="true">
           <AppLogo />
         </div>
@@ -13,7 +13,7 @@ const rules = useRulesModal()
           <h1>カイルンBINGO</h1>
           <small>TAIWANESE CAROM BINGO</small>
         </div>
-      </div>
+      </NuxtLink>
       <button class="rules-btn" @click="rules.open()">ルール説明</button>
     </header>
 

@@ -23,7 +23,7 @@ async function confirmDelete() {
 <template>
   <div>
     <h2 class="page-title">アーカイブ済みのビンゴカード一覧</h2>
-    <p class="page-sub">ビンゴ達成、または手動でアーカイブされたカードです</p>
+    <p class="page-sub">ビンゴ達成、またはアーカイブされたカードです</p>
     <div class="row" style="margin-bottom: 20px">
       <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
     </div>

@@ -108,7 +108,7 @@ function gotoCreateNew() {
         </div>
         <h2>{{ card.name }}</h2>
         <p class="page-sub" style="margin-bottom: 6px">
-          作成日 {{ fmtDate(card.createdAt) }}（{{ daysBetween(card.createdAt, now) }} 日経過）・
+          作成日 {{ fmtDate(card.createdAt) }}（{{ daysBetween(card.createdAt, now) }} 日目）・
           {{ locked ? 'アーカイブ日' : '最終更新日' }}
           {{ fmtDate(card.updatedAt ?? card.createdAt) }}
         </p>
