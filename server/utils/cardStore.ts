@@ -59,6 +59,13 @@ export async function loadCardIndex(): Promise<BingoCardSummary[]> {
   return rows.map((row) => toSummary(rowToCard(row)))
 }
 
+/** 全カードを出目履歴込みで取得する（記録サマリーページの集計用） */
+export async function loadAllCards(): Promise<BingoCard[]> {
+  const { sql } = getDatabase()
+  const rows = await sql<CardRow>`SELECT * FROM cards ORDER BY created_at DESC`
+  return rows.map(rowToCard)
+}
+
 export async function loadCard(id: string): Promise<BingoCard | null> {
   // 非UUID文字列をUUID列に渡すとpgがエラーを投げるため、事前に弾いて404挙動を維持する
   if (!UUID_RE.test(id)) return null
