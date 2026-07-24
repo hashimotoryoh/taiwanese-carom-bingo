@@ -269,7 +269,7 @@ export function rollHistory(card: BingoCard): RollHistoryRow[] {
 export interface RollStats {
   /** 総カイルン回数（記録した出目の総数） */
   totalRolls: number
-  /** 出目の平均値（ゾロ目はマイナスとして計算） */
+  /** 出目の平均値（ゾロ目はマイナスとして計算、100は200として計算） */
   averageValue: number
   /** 同日平均カイルン回数（記録を日付でまとめた1日あたりの平均） */
   avgRollsPerDay: number
@@ -295,7 +295,10 @@ function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollSta
     }
   }
 
-  const signedSum = rolls.reduce((sum, r) => sum + (isZorome(r.value) ? -r.value : r.value), 0)
+  const signedSum = rolls.reduce(
+    (sum, r) => sum + (isZorome(r.value) ? -r.value : r.value === 100 ? 200 : r.value),
+    0,
+  )
   const totalZorome = rolls.filter((r) => isZorome(r.value)).length
   const distinctDays = new Set(rolls.map((r) => fmtDate(r.rolledAt))).size
 
