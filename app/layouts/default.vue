@@ -19,6 +19,8 @@ const rules = useRulesModal()
 
     <slot />
 
+    <AppFooter />
+
     <RulesModal v-if="rules.isOpen.value" @close="rules.close()" />
     <ConfettiLayer />
   </div>
