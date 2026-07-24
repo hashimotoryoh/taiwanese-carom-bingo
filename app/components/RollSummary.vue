@@ -30,6 +30,10 @@ function fmtNum(n: number): string {
       <span class="summary-value">{{ stats.totalZorome }}</span>
     </div>
     <div class="summary-item">
+      <span class="summary-label">ゾロ目割合</span>
+      <span class="summary-value">{{ fmtNum(stats.zoromeRatioPercent) }}%</span>
+    </div>
+    <div class="summary-item">
       <span class="summary-label">パンチ率</span>
       <span class="summary-value">{{ fmtNum(stats.punchRatePercent) }}%</span>
     </div>
