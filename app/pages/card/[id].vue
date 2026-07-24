@@ -100,6 +100,10 @@ function gotoCreateNew() {
       <NuxtLink class="btn btn-primary" to="/">一覧へ戻る</NuxtLink>
     </div>
     <template v-else>
+      <div class="row" style="margin-bottom: 20px">
+        <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
+      </div>
+
       <div class="card-head">
         <div class="status-row">
           <span v-if="card.bingoAchieved" class="status-pill bingo">🎉 ビンゴ達成</span>
@@ -135,10 +139,8 @@ function gotoCreateNew() {
         />
       </section>
 
-      <div class="row" style="margin-top: 22px">
-        <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
-        <div class="spacer" />
-        <button v-if="!locked" class="btn btn-danger" @click="confirmingArchive = true">
+      <div v-if="!locked" class="row" style="margin-top: 22px; justify-content: flex-end">
+        <button class="btn btn-danger" @click="confirmingArchive = true">
           このカードをアーカイブする
         </button>
       </div>

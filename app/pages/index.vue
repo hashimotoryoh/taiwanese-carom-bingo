@@ -22,10 +22,7 @@ function gotoCreate() {
     <h2 class="page-title">ビンゴカード一覧</h2>
     <p class="page-sub">カードを選んで進行状況を確認できます</p>
     <div class="row between" style="margin-bottom: 20px">
-      <div class="row">
-        <NuxtLink class="btn btn-secondary" to="/card/archived">アーカイブ一覧を見る</NuxtLink>
-        <NuxtLink class="btn btn-secondary" to="/records">みんなの統計データを見る</NuxtLink>
-      </div>
+      <NuxtLink class="btn btn-secondary" to="/records">みんなの統計データを見る</NuxtLink>
       <button class="btn btn-primary" @click="gotoCreate">+ 新しいビンゴカードを作成</button>
     </div>
 
@@ -36,6 +33,10 @@ function gotoCreate() {
     </div>
     <div v-else class="ticket-grid">
       <BingoTicket v-for="c in active" :key="c.id" :summary="c" />
+    </div>
+
+    <div class="row" style="margin-top: 22px; justify-content: flex-end">
+      <NuxtLink class="btn btn-secondary" to="/card/archived">アーカイブ一覧を見る</NuxtLink>
     </div>
   </div>
 </template>
