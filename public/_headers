@@ -1,0 +1,15 @@
+# Netlify のカスタムレスポンスヘッダ設定。
+# 全パスに適用する。ここでの設定はアクセス制御ではなく、多層防御と URL 漏洩の抑制が目的。
+/*
+  # アクセス元 URL を Referer ヘッダに載せない（外部フォント取得や外部リンク遷移時の URL 漏洩を抑制）
+  Referrer-Policy: no-referrer
+  # Content-Type を無視した MIME スニッフィングを禁止する
+  X-Content-Type-Options: nosniff
+  # 他サイトの iframe への埋め込みを禁止する（クリックジャッキング対策）
+  X-Frame-Options: DENY
+
+  # Content Security Policy（多層防御）。
+  # まずは Report-Only で運用し、正規リソースを誤ってブロックしないか検証する。
+  # 違反は訪問者ブラウザのコンソールに報告されるのみで、実際のブロックは行わない。
+  # 問題がないと確認できたら、ヘッダ名を Content-Security-Policy に変更して強制適用に切り替える。
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
