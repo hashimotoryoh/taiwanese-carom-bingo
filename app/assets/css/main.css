@@ -180,10 +180,14 @@ a.btn {
   opacity: 0.5;
   cursor: not-allowed;
 }
-/* 無効時はホバーの塗りつぶしを効かせず、再読み込み中のアイコンの視認性を保つ */
-.btn-secondary.btn-icon:disabled:hover {
+/* 枠も背景も持たない、アイコンだけのボタン */
+.btn-ghost {
   background: transparent;
   color: var(--ink);
+  border: none;
+}
+.btn-ghost:hover:not(:disabled) {
+  color: var(--stamp);
 }
 /* 再読み込み中はアイコンを回転させる */
 .btn-icon.is-loading svg {

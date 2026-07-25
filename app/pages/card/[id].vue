@@ -123,7 +123,7 @@ function gotoCreateNew() {
       <div class="row between" style="margin-bottom: 20px">
         <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
         <button
-          class="btn btn-secondary btn-icon"
+          class="btn btn-ghost btn-icon"
           :class="{ 'is-loading': reloading }"
           type="button"
           :disabled="reloading"
