@@ -27,6 +27,7 @@ const reachCount = computed(() =>
 
 const justAchievedBingo = ref(false)
 const confirmingArchive = ref(false)
+const confirmingDelete = ref(false)
 const busy = ref(false)
 
 // 出目記録時に穴が開いたマスへパーティクル演出を出すためのマス指定
@@ -85,6 +86,12 @@ async function doArchive() {
   card.value = await api.archive(id)
 }
 
+async function doDelete() {
+  confirmingDelete.value = false
+  await api.deleteCard(id)
+  await navigateTo('/')
+}
+
 function gotoCreateNew() {
   justAchievedBingo.value = false
   draft.value = null
@@ -100,6 +107,10 @@ function gotoCreateNew() {
       <NuxtLink class="btn btn-primary" to="/">一覧へ戻る</NuxtLink>
     </div>
     <template v-else>
+      <div class="row" style="margin-bottom: 20px">
+        <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
+      </div>
+
       <div class="card-head">
         <div class="status-row">
           <span v-if="card.bingoAchieved" class="status-pill bingo">🎉 ビンゴ達成</span>
@@ -108,7 +119,7 @@ function gotoCreateNew() {
         </div>
         <h2>{{ card.name }}</h2>
         <p class="page-sub" style="margin-bottom: 6px">
-          作成日 {{ fmtDate(card.createdAt) }}（{{ daysBetween(card.createdAt, now) }} 日経過）・
+          作成日 {{ fmtDate(card.createdAt) }}（{{ daysBetween(card.createdAt, now) }} 日目）・
           {{ locked ? 'アーカイブ日' : '最終更新日' }}
           {{ fmtDate(card.updatedAt ?? card.createdAt) }}
         </p>
@@ -135,11 +146,12 @@ function gotoCreateNew() {
         />
       </section>
 
-      <div class="row" style="margin-top: 22px">
-        <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
-        <div class="spacer" />
+      <div class="row" style="margin-top: 22px; justify-content: flex-end">
         <button v-if="!locked" class="btn btn-danger" @click="confirmingArchive = true">
           このカードをアーカイブする
+        </button>
+        <button v-else class="btn btn-danger" @click="confirmingDelete = true">
+          完全に削除する
         </button>
       </div>
 
@@ -166,6 +178,14 @@ function gotoCreateNew() {
         ok-label="アーカイブする"
         @confirm="doArchive"
         @cancel="confirmingArchive = false"
+      />
+
+      <ConfirmDialog
+        v-if="confirmingDelete"
+        message="このビンゴカードを完全に削除します。この操作は元に戻せません。よろしいですか？"
+        ok-label="削除する"
+        @confirm="doDelete"
+        @cancel="confirmingDelete = false"
       />
 
       <ConfirmDialog

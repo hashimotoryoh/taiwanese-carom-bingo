@@ -5,6 +5,7 @@ export function useBingoApi() {
   return {
     fetchSummaries: () => $fetch<BingoCardSummary[]>('/api/cards'),
     fetchCard: (id: string) => $fetch<BingoCard>(`/api/cards/${id}`),
+    fetchAllCards: () => $fetch<BingoCard[]>('/api/records'),
     createCard: (draft: DraftCard) =>
       $fetch<BingoCard>('/api/cards', { method: 'POST', body: draft }),
     recordRoll: (id: string, value: number) =>

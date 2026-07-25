@@ -88,6 +88,9 @@ function toConfirm() {
     <p class="page-sub">
       あなたのお名前を入力して、B・I・N・G・O 各列に好きな数字を設定してください
     </p>
+    <div class="row" style="margin-bottom: 20px">
+      <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
+    </div>
 
     <div v-if="errors.length > 0" class="errors">
       <strong>入力内容を確認してください</strong>
@@ -114,9 +117,7 @@ function toConfirm() {
 
     <NumberInputGrid :columns="draft.columns" @update="updateCell" />
 
-    <div class="row" style="margin-top: 22px">
-      <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
-      <div class="spacer" />
+    <div class="row" style="margin-top: 22px; justify-content: flex-end">
       <button class="btn btn-danger" @click="showClearConfirm = true">番号を全てクリアする</button>
       <button class="btn btn-secondary" @click="randomFill">ランダムに埋める</button>
       <button class="btn btn-primary" @click="toConfirm">確認へ進む</button>
