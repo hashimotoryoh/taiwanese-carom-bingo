@@ -15,6 +15,10 @@ const personCards = computed(() =>
 
 const stats = computed(() => aggregateRollStats(personCards.value))
 const bingoCount = computed(() => personCards.value.filter((c) => c.bingoAchieved).length)
+
+const hasRolls = computed(() => stats.value.totalRolls > 0)
+const averagePoints = computed(() => dailyRollAverages(personCards.value))
+const distribution = computed(() => rollDistribution(personCards.value))
 </script>
 
 <template>
@@ -35,6 +39,21 @@ const bingoCount = computed(() => personCards.value.filter((c) => c.bingoAchieve
       </div>
 
       <StatsSummary :stats="stats" />
+
+      <template v-if="hasRolls">
+        <h3 class="roll-section-title">出目の平均値の遷移</h3>
+        <RollAverageTrendChart :points="averagePoints" />
+
+        <h3 class="roll-section-title">出目の分布</h3>
+        <RollDistributionChart :bins="distribution" />
+
+        <h3 class="roll-section-title">出目の履歴</h3>
+        <CrossCardRollHistoryTable :cards="personCards" />
+      </template>
+      <template v-else>
+        <h3 class="roll-section-title">出目の記録</h3>
+        <p class="roll-empty">まだ出目が記録されていません。</p>
+      </template>
 
       <h3 class="roll-section-title">ビンゴカード一覧</h3>
       <div class="ticket-grid">

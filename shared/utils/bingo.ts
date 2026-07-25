@@ -1,4 +1,5 @@
 import type { BingoCard, ColumnDef, ColumnKey, DraftCard, Roll } from '../types/bingo'
+import { startOfDay } from './date'
 
 export const COLUMNS: ColumnDef[] = [
   { key: 'B', label: 'B', min: 1, max: 24 },
@@ -283,6 +284,15 @@ export function punchRatePercent(punchedCount: number, rollCount: number): numbe
   return rollCount === 0 ? 0 : (punchedCount / rollCount) * 100
 }
 
+/**
+ * 平均値の計算に使う出目の値。
+ * ゾロ目はマイナス、100（センターマス相当の大当たり）は200として扱うローカルルール。
+ */
+export function signedRollValue(value: number): number {
+  if (isZorome(value)) return -value
+  return value === 100 ? 200 : value
+}
+
 /** 出目履歴とパンチ数からサマリー統計を計算する（1人・複数カード分の集計いずれにも使う） */
 function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollStats {
   const totalRolls = rolls.length
@@ -296,10 +306,7 @@ function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollSta
     }
   }
 
-  const signedSum = rolls.reduce(
-    (sum, r) => sum + (isZorome(r.value) ? -r.value : r.value === 100 ? 200 : r.value),
-    0,
-  )
+  const signedSum = rolls.reduce((sum, r) => sum + signedRollValue(r.value), 0)
   const totalZorome = rolls.filter((r) => isZorome(r.value)).length
 
   return {
@@ -325,4 +332,96 @@ export function aggregateRollStats(cards: BingoCard[]): RollStats {
   const rolls = cards.flatMap((c) => c.rolls)
   const punchedCount = cards.reduce((sum, c) => sum + countPunched(buildPunched(c)), 0)
   return computeRollStatsFromRolls(rolls, punchedCount)
+}
+
+/** 出目の平均値の遷移グラフ1点分（1日分の集計） */
+export interface RollAveragePoint {
+  /** 対象日の0時（epoch ミリ秒） */
+  date: number
+  /** その日の記録数 */
+  count: number
+  /** その日の平均値 */
+  average: number
+  /** その日までの通算平均値 */
+  cumulativeAverage: number
+}
+
+/**
+ * 複数カード分の出目を記録日ごとにまとめ、平均値の推移を古い順に返す。
+ * 平均値は `signedRollValue`（ゾロ目はマイナス・100は200）に従う。記録の無い日は点を作らない。
+ */
+export function dailyRollAverages(cards: BingoCard[]): RollAveragePoint[] {
+  const byDate = new Map<number, { count: number; sum: number }>()
+  for (const roll of cards.flatMap((c) => c.rolls)) {
+    const date = startOfDay(roll.rolledAt)
+    const bucket = byDate.get(date) ?? { count: 0, sum: 0 }
+    bucket.count += 1
+    bucket.sum += signedRollValue(roll.value)
+    byDate.set(date, bucket)
+  }
+
+  let cumulativeCount = 0
+  let cumulativeSum = 0
+  return [...byDate.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([date, { count, sum }]) => {
+      cumulativeCount += count
+      cumulativeSum += sum
+      return {
+        date,
+        count,
+        average: sum / count,
+        cumulativeAverage: cumulativeSum / cumulativeCount,
+      }
+    })
+}
+
+/** 出目の分布図の区切り幅（1〜120を10刻みの12区間に分ける） */
+export const DISTRIBUTION_BIN_SIZE = 10
+
+/** 出目の分布図1本分 */
+export interface RollDistributionBin {
+  /** 区間の下限（含む） */
+  min: number
+  /** 区間の上限（含む） */
+  max: number
+  /** 区間に入った記録数 */
+  count: number
+}
+
+/** 複数カード分の出目を10刻みの区間ごとに数え、常に全区間（1〜120）を昇順で返す */
+export function rollDistribution(cards: BingoCard[]): RollDistributionBin[] {
+  const bins: RollDistributionBin[] = []
+  for (let min = MIN_ROLL; min <= MAX_ROLL; min += DISTRIBUTION_BIN_SIZE) {
+    bins.push({ min, max: min + DISTRIBUTION_BIN_SIZE - 1, count: 0 })
+  }
+  for (const roll of cards.flatMap((c) => c.rolls)) {
+    const index = Math.floor((roll.value - MIN_ROLL) / DISTRIBUTION_BIN_SIZE)
+    const bin = bins[index]
+    if (bin) bin.count += 1
+  }
+  return bins
+}
+
+/** 複数カードを横断した出目履歴の1行（どのカードの記録かを併せ持つ） */
+export interface CrossCardRollHistoryRow extends RollHistoryRow {
+  cardId: string
+  /** 記録元カードの作成日時（同一人物の複数カードを見分ける表示に使う） */
+  cardCreatedAt: number
+}
+
+/**
+ * 複数カード分の出目履歴をまとめて新しい順に返す。
+ * マスラベルの付け方はカード単位の `rollHistory` と同じ（カードごとに判定する）。
+ */
+export function crossCardRollHistory(cards: BingoCard[]): CrossCardRollHistoryRow[] {
+  return cards
+    .flatMap((card) =>
+      rollHistory(card).map((row) => ({
+        ...row,
+        cardId: card.id,
+        cardCreatedAt: card.createdAt,
+      })),
+    )
+    .sort((a, b) => b.roll.rolledAt - a.roll.rolledAt)
 }

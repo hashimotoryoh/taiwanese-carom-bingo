@@ -31,8 +31,13 @@ const BINGO_UTILS = [
   'toSummary',
   'rollHistory',
   'punchRatePercent',
+  'signedRollValue',
   'computeRollStats',
   'aggregateRollStats',
+  'dailyRollAverages',
+  'DISTRIBUTION_BIN_SIZE',
+  'rollDistribution',
+  'crossCardRollHistory',
 ]
 
 export default defineConfig({
@@ -46,7 +51,10 @@ export default defineConfig({
       imports: [
         'vue',
         { from: '#shared/utils/bingo', imports: BINGO_UTILS },
-        { from: '#shared/utils/date', imports: ['fmtDate', 'fmtDateTime', 'daysBetween'] },
+        {
+          from: '#shared/utils/date',
+          imports: ['fmtDate', 'fmtDateTime', 'fmtShortDate', 'startOfDay', 'daysBetween'],
+        },
         { from: '#shared/utils/number', imports: ['fmtNum'] },
         {
           from: '#test-stubs/nuxtStubs',
@@ -63,6 +71,8 @@ export default defineConfig({
         { from: '#composables/useConfetti', imports: ['useConfetti'] },
         { from: '#composables/useDraftCard', imports: ['useDraftCard'] },
         { from: '#composables/useRulesModal', imports: ['useRulesModal'] },
+        { from: '#composables/useElementWidth', imports: ['useElementWidth'] },
+        { from: '#utils/chart', imports: ['paddedDomain', 'niceTicks', 'sampledIndexes'] },
         { from: '#utils/markdown', imports: ['renderMarkdown', 'extractTitle'] },
         { from: '#utils/docs', imports: ['docList', 'getDoc'] },
       ],

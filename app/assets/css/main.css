@@ -832,6 +832,8 @@ a.btn {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
   color: var(--ink);
+  /* 出目とゾロ目タグを1行に保つ（列が増える個人統計データの履歴でも折り返さないように） */
+  white-space: nowrap;
 }
 .history-value.zorome {
   color: var(--stamp-dark);
@@ -870,6 +872,114 @@ a.btn {
 }
 .history-delete:hover {
   background: rgba(184, 57, 43, 0.12);
+}
+
+.history-card a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.history-card a:hover {
+  color: var(--stamp-dark);
+}
+.history-more {
+  text-align: center;
+  padding: 14px 0 2px;
+}
+
+/* ---------- charts (統計データのグラフ) ---------- */
+/* SVGのviewBoxは実寸（CSSピクセル）に合わせているため、文字サイズもpxでそのまま指定できる */
+.chart {
+  background: #fffaf0;
+  border: 1px solid rgba(35, 46, 61, 0.1);
+  border-radius: 10px;
+  padding: 12px 12px 8px;
+}
+.chart-svg {
+  display: block;
+  width: 100%;
+}
+.chart-grid line {
+  stroke: rgba(35, 46, 61, 0.12);
+}
+.chart-grid line.zero {
+  stroke: rgba(35, 46, 61, 0.35);
+  stroke-dasharray: 4 3;
+}
+.chart-baseline {
+  stroke: rgba(35, 46, 61, 0.35);
+}
+.chart-axis-label,
+.chart-tick-labels text,
+.chart-bar-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--ink-soft);
+}
+.chart-bar-value {
+  font-weight: 700;
+  fill: var(--ink);
+}
+.chart-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.chart-line.daily {
+  stroke: var(--stamp);
+  stroke-width: 2.4;
+}
+.chart-line.cumulative {
+  stroke: var(--teal);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+.chart-dots circle {
+  fill: var(--stamp);
+  stroke: #fffaf0;
+  stroke-width: 1.6;
+}
+.chart-bars rect {
+  fill: var(--teal);
+  opacity: 0.72;
+}
+.chart-bars rect.top {
+  fill: var(--gold-dark);
+  opacity: 1;
+}
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+  padding: 2px 2px 0;
+}
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.chart-legend-item::before {
+  content: '';
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+}
+.chart-legend-item.daily::before {
+  background: var(--stamp);
+}
+.chart-legend-item.cumulative::before {
+  background: repeating-linear-gradient(90deg, var(--teal) 0 6px, transparent 6px 10px);
+}
+.chart-note {
+  font-size: 0.66rem;
+  color: var(--ink-soft);
+  text-align: right;
+  margin: 2px 2px 0;
 }
 
 /* ---------- rules modal ---------- */
@@ -978,6 +1088,20 @@ a.btn {
 }
 
 @media (max-width: 480px) {
+  /* 列の多い履歴テーブル（個人統計データ）でも横に収まるよう詰める */
+  .history-table {
+    font-size: 0.76rem;
+  }
+  .history-table th,
+  .history-table td {
+    padding: 8px 5px;
+  }
+  .history-datetime {
+    font-size: 0.64rem;
+  }
+  .history-card a {
+    font-size: 0.62rem;
+  }
   .col-head {
     width: 30px;
     height: 30px;

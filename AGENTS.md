@@ -128,6 +128,7 @@ Node バージョンは `.node-version`（24.11.0）に従うこと。
 - ページは `app/pages/` にファイルベースルーティングで配置：一覧（`index.vue`）、カード作成〜確認（`card/create.vue` → `card/confirm.vue`、ドラフトは `useDraftCard`（`useState` によるページ間共有、リロードで消える）で受け渡し）、カード詳細・出目記録（`card/[id].vue`）、アーカイブ一覧（`card/archived.vue`）、個人ごとの記録集計（`stats/[name].vue`）と全体集計（`stats/index.vue`）。統計 API のパスは `/api/records` のまま。
 - `useBingoApi`（`app/composables/useBingoApi.ts`）が `server/api` への `$fetch` 呼び出しを薄くラップする唯一の窓口。新しい API エンドポイントを追加したら、対応するメソッドをここに足す。
 - `useConfetti` / `useRulesModal` はページ横断で共有する UI 状態（それぞれ紙吹雪演出のトリガー、ルール説明モーダルの開閉）を `useState` で保持する。
+- グラフ（`RollAverageTrendChart` / `RollDistributionChart`）はライブラリを使わずインライン SVG で描く。目盛りや間引きの計算は `app/utils/chart.ts` に切り出してある。SVG の `viewBox` は `useElementWidth`（`ResizeObserver`）で測った実寸に合わせており、1 単位 = 1 CSS ピクセルになるため文字サイズは CSS の `px` 指定がそのまま効く。
 
 ### テスト
 
