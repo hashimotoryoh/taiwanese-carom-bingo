@@ -38,7 +38,7 @@ describe('AppFooter', () => {
     const links = wrapper.findAll('.doc-nav a')
     expect(links).toHaveLength(docList.length)
     links.forEach((link, i) => {
-      expect(link.attributes('href')).toBe(`/${docList[i]!.slug}`)
+      expect(link.attributes('href')).toBe(`/doc/${docList[i]!.slug}`)
       expect(link.text()).toBe(docList[i]!.title)
     })
   })

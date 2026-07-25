@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import SlugPage from '../../app/pages/[slug].vue'
+import SlugPage from '../../app/pages/doc/[slug].vue'
 import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { useHead, useRoute } from '../setup/nuxtStubs'
 

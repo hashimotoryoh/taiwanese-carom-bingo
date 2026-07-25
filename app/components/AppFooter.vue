@@ -10,7 +10,7 @@ const commitUrl = `https://github.com/hashimotoryoh/taiwanese-carom-bingo/commit
 <template>
   <footer class="app-footer">
     <nav class="doc-nav" aria-label="ドキュメント">
-      <NuxtLink v-for="d in docList" :key="d.slug" :to="`/${d.slug}`">{{ d.title }}</NuxtLink>
+      <NuxtLink v-for="d in docList" :key="d.slug" :to="`/doc/${d.slug}`">{{ d.title }}</NuxtLink>
     </nav>
     <div class="app-footer-meta">
       <p class="copyright">
