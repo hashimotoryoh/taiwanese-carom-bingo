@@ -200,13 +200,27 @@ describe('seedTestCards', () => {
     })
   })
 
-  it('APIから返る出目の並びが定義と違えばエラーにする', async () => {
+  it('APIから返る出目の件数が定義と違えばエラーにする', async () => {
     const api = makeFakeApi()
     api.getCard = vi.fn(async (id: string) => ({
       id,
       rolls: [{ id: 'roll-x', value: 7, rolledAt: RECORDED_AT }],
       bingoAchieved: false,
     })) as typeof api.getCard
+
+    await expect(seedTestCards({ api, sql: makeFakeSql(), now: NOW })).rejects.toThrow(
+      '出目の件数が定義と一致しません',
+    )
+  })
+
+  it('APIから返る出目の並びが定義と違えばエラーにする', async () => {
+    const api = makeFakeApi()
+    const original = api.getCard
+    // 件数はそのままに、値だけ定義と食い違わせる
+    api.getCard = vi.fn(async (id: string) => {
+      const card = await original(id)
+      return { ...card, rolls: card.rolls.map((r) => ({ ...r, value: r.value + 1 })) }
+    }) as typeof api.getCard
 
     await expect(seedTestCards({ api, sql: makeFakeSql(), now: NOW })).rejects.toThrow(
       '出目の並びが定義と一致しません',

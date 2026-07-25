@@ -23,6 +23,11 @@ export async function removeAllCards(api, log = () => {}) {
  */
 async function applyCardDates(api, sql, spec, cardId) {
   const card = await api.getCard(cardId)
+  if (card.rolls.length !== spec.rolls.length) {
+    throw new Error(
+      `出目の件数が定義と一致しません（カード: ${spec.name}、定義 ${spec.rolls.length} 件 / 実際 ${card.rolls.length} 件）`,
+    )
+  }
   const rolls = card.rolls.map((roll, i) => {
     const planned = spec.rolls[i]
     if (!planned || planned.value !== roll.value) {
