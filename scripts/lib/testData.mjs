@@ -36,6 +36,13 @@ const ZOROME_VALUES = [11, 22, 33, 44, 55, 66, 77, 88, 99, 111]
  */
 const RESERVED_VALUES = [FREE_VALUE, 100]
 
+/** 出目の記録を始める時刻（19:00） */
+const ROLL_START_HOUR = 19
+/** 同じ日に記録する出目どうしの間隔 */
+const ROLL_INTERVAL_MS = 17 * 60 * 1_000
+/** カード作成日時を最初の出目より前にずらす幅 */
+const CARD_CREATED_OFFSET_MS = 30 * 60 * 1_000
+
 /** シードから決定的な擬似乱数を作る（mulberry32） */
 function createRandom(seed) {
   let state = seed >>> 0
@@ -107,6 +114,57 @@ function resolveRolls(columns, plan, random) {
   })
 }
 
+/** 指定した日数前の0時（ローカルタイムゾーン） */
+function startOfDay(now, daysAgo) {
+  const d = new Date(now)
+  d.setHours(0, 0, 0, 0)
+  d.setDate(d.getDate() - daysAgo)
+  return d.getTime()
+}
+
+/**
+ * ある1日に記録するcount件の時刻を返す。
+ * 基本は19:00から一定間隔で並べるが、当日ぶんが未来の時刻にならないよう、
+ * 収まらない場合は前へずらし、それでも足りなければ間隔を詰める。
+ */
+function timestampsInDay(now, daysAgo, count) {
+  const start = startOfDay(now, daysAgo)
+  const latest = Math.min(start + 23 * 3_600_000, now - 60_000)
+  let interval = ROLL_INTERVAL_MS
+  let first = start + ROLL_START_HOUR * 3_600_000
+  const span = () => (count - 1) * interval
+  if (first + span() > latest) first = latest - span()
+  if (first < start) {
+    first = start
+    interval = count > 1 ? Math.floor((latest - start) / (count - 1)) : 0
+  }
+  return Array.from({ length: count }, (_, i) => first + i * interval)
+}
+
+/**
+ * 出目の記録日時を `dayRange`（[何日前から, 何日前まで]）の期間へ日付をまたいで分散させる。
+ * 同日平均カイルン回数や日付ごとの履歴表示を確認できるようにするため。
+ * 出目は記録順（古い順）に並び、範囲の初日と最終日には必ず1件以上入る。
+ */
+function buildRolledAtList(count, [from, to], now) {
+  const days = from - to + 1
+  // 各出目をどの日に割り当てるか（古い日から順に埋める）
+  const assignment = Array.from({ length: count }, (_, i) => from - Math.floor((i * days) / count))
+  const countByDay = new Map()
+  for (const daysAgo of assignment) {
+    countByDay.set(daysAgo, (countByDay.get(daysAgo) ?? 0) + 1)
+  }
+  const timesByDay = new Map(
+    [...countByDay].map(([daysAgo, n]) => [daysAgo, timestampsInDay(now, daysAgo, n)]),
+  )
+  const usedByDay = new Map()
+  return assignment.map((daysAgo) => {
+    const index = usedByDay.get(daysAgo) ?? 0
+    usedByDay.set(daysAgo, index + 1)
+    return timesByDay.get(daysAgo)[index]
+  })
+}
+
 /**
  * 投入するカードの定義。上から順に作成される。
  * カード一覧・カード詳細・アーカイブ一覧・記録集計の各画面を一通り確認できるよう、
@@ -120,6 +178,7 @@ const FIXTURES = [
     name: `${TEST_CARD_NAME_PREFIX}未記録さん`,
     description: '出目をまだ1件も記録していない新品のカード',
     seed: 20260725,
+    dayRange: [2, 2],
     plan: [],
     archive: false,
   },
@@ -128,6 +187,7 @@ const FIXTURES = [
     name: `${TEST_CARD_NAME_PREFIX}進行中さん`,
     description: '穴あき・空振り・ゾロ目・重複記録・センターマス・出目100を含む進行中のカード',
     seed: 20260726,
+    dayRange: [4, 0],
     // 2回目の 'B0' は重複記録（履歴のマス目欄が「—」になる）、100は統計上200として扱われる出目
     plan: ['miss', 'B0', 'zorome', 'I3', 100, 'N2', 'B0', 'miss', 'G4', 'zorome', 'O2', 'miss'],
     archive: false,
@@ -137,6 +197,7 @@ const FIXTURES = [
     name: `${TEST_CARD_NAME_PREFIX}リーチさん`,
     description: '横1列があと1マスでビンゴになるリーチ状態のカード',
     seed: 20260727,
+    dayRange: [3, 0],
     plan: ['B0', 'miss', 'I0', 'zorome', 'N0', 'G0', 'miss', 'I0'],
     archive: false,
   },
@@ -145,6 +206,7 @@ const FIXTURES = [
     name: `${TEST_CARD_NAME_PREFIX}ダブルリーチさん`,
     description: '横1列と縦1列の2ラインが同時にリーチしているカード',
     seed: 20260728,
+    dayRange: [1, 0],
     plan: ['B0', 'I0', 'N0', 'G0', 'B1', 'B2', 'zorome', 'B3', 'miss'],
     archive: false,
   },
@@ -153,6 +215,7 @@ const FIXTURES = [
     name: `${TEST_CARD_NAME_PREFIX}ビンゴ達成さん`,
     description: '横ラインのビンゴ成立で自動アーカイブされたカード',
     seed: 20260729,
+    dayRange: [8, 4],
     // 最後の 'O1' でビンゴが成立し、以降は変更できなくなるため必ず末尾に置く
     plan: ['miss', 'G4', 'zorome', 'B1', 'I1', 100, 'N1', 'miss', 'G1', 'O1'],
     archive: false,
@@ -162,6 +225,7 @@ const FIXTURES = [
     name: `${TEST_CARD_NAME_PREFIX}アーカイブさん`,
     description: 'ビンゴ未達成のまま手動でアーカイブしたカード',
     seed: 20260730,
+    dayRange: [6, 5],
     plan: ['B3', 'miss', 'O0', 'zorome', 'B3', 100, 'miss'],
     archive: true,
   },
@@ -170,6 +234,7 @@ const FIXTURES = [
     name: `${TEST_CARD_NAME_PREFIX}やりこみさん`,
     description: '同名2枚のうち1枚目（斜めラインでビンゴ達成済み）。記録集計ページの確認用',
     seed: 20260731,
+    dayRange: [14, 10],
     // 'N2' はセンターマス（固定値）。最後の 'O4' で斜めラインが成立する
     plan: ['zorome', 'B0', 'miss', 'I1', 'N2', 'miss', 100, 'zorome', 'G3', 'miss', 'O4'],
     archive: false,
@@ -179,6 +244,7 @@ const FIXTURES = [
     name: `${TEST_CARD_NAME_PREFIX}やりこみさん`,
     description: '同名2枚のうち2枚目（進行中）。記録集計ページの確認用',
     seed: 20260732,
+    dayRange: [2, 0],
     plan: ['miss', 'B2', 'zorome', 'I4', 'miss', 'N1', 'miss', 'zorome'],
     archive: false,
   },
@@ -186,20 +252,26 @@ const FIXTURES = [
 
 /**
  * 投入用のテストデータを組み立てる。
+ * @param now 基準となる現在時刻（epoch ミリ秒）。出目の記録日時はここから遡って分散する
  * @returns 作成順のカード定義（draft はそのまま `POST /api/cards` のボディに使える）
  */
-export function buildTestCards() {
+export function buildTestCards(now = Date.now()) {
   return FIXTURES.map((fixture) => {
     const random = createRandom(fixture.seed)
     const columns = buildColumns(random)
+    const values = resolveRolls(columns, fixture.plan, random)
+    const rolledAtList = buildRolledAtList(values.length, fixture.dayRange, now)
+    const firstRolledAt =
+      rolledAtList[0] ?? startOfDay(now, fixture.dayRange[0]) + ROLL_START_HOUR * 3_600_000
     return {
       key: fixture.key,
       name: fixture.name,
       description: fixture.description,
       draft: { name: fixture.name, columns },
-      rolls: resolveRolls(columns, fixture.plan, random),
+      rolls: values.map((value, i) => ({ value, rolledAt: rolledAtList[i] })),
       // 解決前の出目プラン（テストから「どの出目がどの意図か」を検証するために公開する）
       plan: fixture.plan,
+      createdAt: firstRolledAt - CARD_CREATED_OFFSET_MS,
       archive: fixture.archive,
     }
   })

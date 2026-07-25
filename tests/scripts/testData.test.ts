@@ -14,11 +14,8 @@ import {
   validateDraft,
 } from '../../shared/utils/bingo'
 // @ts-expect-error スクリプトは型定義のない .mjs のため
-import {
-  TEST_CARD_NAME_PREFIX,
-  buildTestCards,
-  isTestCardName,
-} from '../../scripts/lib/testData.mjs'
+import { TEST_CARD_NAME_PREFIX, buildTestCards } from '../../scripts/lib/testData.mjs'
+import { fmtDate } from '../../shared/utils/date'
 import { makeCard, makeRoll } from '../setup/fixtures'
 
 interface TestCardSpec {
@@ -26,12 +23,16 @@ interface TestCardSpec {
   name: string
   description: string
   draft: { name: string; columns: Record<ColumnKey, number[]> }
-  rolls: number[]
+  rolls: { value: number; rolledAt: number }[]
   plan: (string | number)[]
+  createdAt: number
   archive: boolean
 }
 
-const cards = buildTestCards() as TestCardSpec[]
+/** 生成の基準時刻（2026/07/25 12:00 ローカル） */
+const NOW = new Date(2026, 6, 25, 12, 0, 0).getTime()
+
+const cards = buildTestCards(NOW) as TestCardSpec[]
 
 function byKey(key: string): TestCardSpec {
   const spec = cards.find((c) => c.key === key)
@@ -43,7 +44,9 @@ function byKey(key: string): TestCardSpec {
 function stateAfter(spec: TestCardSpec, count = spec.rolls.length) {
   const card: BingoCard = makeCard({
     numbers: spec.draft.columns,
-    rolls: spec.rolls.slice(0, count).map((value, i) => makeRoll(value, 1_000 + i, `roll-${i}`)),
+    rolls: spec.rolls
+      .slice(0, count)
+      .map(({ value, rolledAt }, i) => makeRoll(value, rolledAt, `roll-${i}`)),
   })
   const punched = buildPunched(card)
   return {
@@ -53,24 +56,15 @@ function stateAfter(spec: TestCardSpec, count = spec.rolls.length) {
   }
 }
 
-describe('isTestCardName', () => {
-  it('接頭辞付きの名前だけをテストデータと判定する', () => {
-    expect(isTestCardName(`${TEST_CARD_NAME_PREFIX}進行中さん`)).toBe(true)
-    expect(isTestCardName('進行中さん')).toBe(false)
-    expect(isTestCardName(`本番${TEST_CARD_NAME_PREFIX}さん`)).toBe(false)
-    expect(isTestCardName(undefined)).toBe(false)
-  })
-})
-
 describe('buildTestCards', () => {
-  it('毎回同じ内容を返す（決定的に生成される）', () => {
-    expect(buildTestCards()).toEqual(cards)
+  it('同じ基準時刻なら毎回同じ内容を返す（決定的に生成される）', () => {
+    expect(buildTestCards(NOW)).toEqual(cards)
   })
 
   it('すべてのカード名がテストデータの接頭辞で始まる', () => {
     expect(cards.length).toBeGreaterThan(0)
     for (const spec of cards) {
-      expect(isTestCardName(spec.name)).toBe(true)
+      expect(spec.name.startsWith(TEST_CARD_NAME_PREFIX)).toBe(true)
       expect(spec.draft.name).toBe(spec.name)
     }
   })
@@ -113,7 +107,7 @@ describe('buildTestCards', () => {
 
   it('出目がすべて記録可能な値になっている', () => {
     for (const spec of cards) {
-      for (const value of spec.rolls) {
+      for (const { value } of spec.rolls) {
         expect(isValidRoll(value)).toBe(true)
       }
     }
@@ -136,14 +130,15 @@ describe('buildTestCards', () => {
   it('ゾロ目・空振り・重複記録・出目100を含み、統計と履歴表示の確認に使える', () => {
     const inProgress = byKey('inProgress')
     const cardValues = new Set(COLUMNS.flatMap((col) => inProgress.draft.columns[col.key]))
-    expect(inProgress.rolls.some((v) => isZorome(v))).toBe(true)
+    const values = inProgress.rolls.map((r) => r.value)
+    expect(values.some((v) => isZorome(v))).toBe(true)
     // 空振り（カード外の出目）
-    expect(inProgress.rolls.some((v) => !cardValues.has(v))).toBe(true)
+    expect(values.some((v) => !cardValues.has(v))).toBe(true)
     // 同じ出目の重複記録（履歴のマス目欄が「—」になる行）
-    expect(new Set(inProgress.rolls).size).toBeLessThan(inProgress.rolls.length)
+    expect(new Set(values).size).toBeLessThan(values.length)
     // センターマス（固定値）と、統計上200として扱われる出目100
-    expect(inProgress.rolls).toContain(FREE_VALUE)
-    expect(inProgress.rolls).toContain(100)
+    expect(values).toContain(FREE_VALUE)
+    expect(values).toContain(100)
   })
 
   it('空振り指定の出目はカード外かつゾロ目・出目100と重ならない', () => {
@@ -151,7 +146,7 @@ describe('buildTestCards', () => {
       const cardValues = new Set(COLUMNS.flatMap((col) => spec.draft.columns[col.key]))
       spec.plan.forEach((entry, i) => {
         if (entry !== 'miss') return
-        const value = spec.rolls[i]!
+        const { value } = spec.rolls[i]!
         expect(cardValues.has(value)).toBe(false)
         expect(isZorome(value)).toBe(false)
         expect(value).not.toBe(100)
@@ -161,10 +156,37 @@ describe('buildTestCards', () => {
 
   it('出目100はどのカードにも配置されておらず、空振りとして記録される', () => {
     for (const spec of cards) {
-      if (!spec.rolls.includes(100)) continue
+      if (!spec.rolls.some((r) => r.value === 100)) continue
       const cardValues = new Set(COLUMNS.flatMap((col) => spec.draft.columns[col.key]))
       expect(cardValues.has(100)).toBe(false)
     }
+  })
+
+  it('出目の記録日時が記録順に並び、基準時刻より未来にならない', () => {
+    for (const spec of cards) {
+      const timestamps = spec.rolls.map((r) => r.rolledAt)
+      expect(timestamps).toEqual([...timestamps].sort((a, b) => a - b))
+      for (const ts of timestamps) expect(ts).toBeLessThanOrEqual(NOW)
+      // カードは最初の出目より前に作られている
+      expect(spec.createdAt).toBeLessThan(timestamps[0] ?? NOW)
+    }
+  })
+
+  it('出目の記録日時が複数日に分散する（同日平均カイルン回数の確認用）', () => {
+    const spreadDays = cards.map((spec) => new Set(spec.rolls.map((r) => fmtDate(r.rolledAt))).size)
+    // 出目のあるカードはすべて2日以上にまたがる
+    expect(spreadDays.filter((days) => days > 0).every((days) => days >= 2)).toBe(true)
+    // カードごとに日数が異なる（同日平均カイルン回数がカードごとに変わる）
+    expect(new Set(spreadDays).size).toBeGreaterThan(2)
+  })
+
+  it('カードごとに記録期間がずれており、全体では複数日にまたがる', () => {
+    const allDays = new Set(cards.flatMap((spec) => spec.rolls.map((r) => fmtDate(r.rolledAt))))
+    expect(allDays.size).toBeGreaterThanOrEqual(10)
+    // アーカイブ済みのカードは進行中のカードより古い時期に記録が終わっている
+    const lastRolledAt = (key: string) => byKey(key).rolls.at(-1)!.rolledAt
+    expect(lastRolledAt('veteranArchived')).toBeLessThan(lastRolledAt('bingo'))
+    expect(lastRolledAt('bingo')).toBeLessThan(lastRolledAt('inProgress'))
   })
 
   it('未記録・進行中・リーチ・ビンゴ達成・アーカイブの各状態を網羅している', () => {

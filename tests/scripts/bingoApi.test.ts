@@ -47,6 +47,7 @@ describe('createBingoApi', () => {
     const fetchMock = stubFetch(
       jsonResponse([{ id: 'a' }]),
       jsonResponse({ id: 'a' }),
+      jsonResponse({ id: 'a' }),
       jsonResponse({ card: {} }),
       jsonResponse({ id: 'a' }),
       jsonResponse({ ok: true }),
@@ -54,6 +55,7 @@ describe('createBingoApi', () => {
     const api = createBingoApi(BASE)
 
     await api.listCards()
+    await api.getCard('a')
     await api.createCard({ name: 'テスト' })
     await api.recordRoll('a', 42)
     await api.archiveCard('a')
@@ -61,13 +63,14 @@ describe('createBingoApi', () => {
 
     expect(fetchMock.mock.calls.map(([url, init]) => [url, init.method])).toEqual([
       [`${BASE}/api/cards`, 'GET'],
+      [`${BASE}/api/cards/a`, 'GET'],
       [`${BASE}/api/cards`, 'POST'],
       [`${BASE}/api/cards/a/rolls`, 'POST'],
       [`${BASE}/api/cards/a/archive`, 'POST'],
       [`${BASE}/api/cards/a`, 'DELETE'],
     ])
-    expect(fetchMock.mock.calls[1]![1].body).toBe(JSON.stringify({ name: 'テスト' }))
-    expect(fetchMock.mock.calls[2]![1].body).toBe(JSON.stringify({ value: 42 }))
+    expect(fetchMock.mock.calls[2]![1].body).toBe(JSON.stringify({ name: 'テスト' }))
+    expect(fetchMock.mock.calls[3]![1].body).toBe(JSON.stringify({ value: 42 }))
   })
 
   it('空のレスポンスボディはnullを返す', async () => {

@@ -78,6 +78,8 @@ export function createBingoApi(baseUrl = resolveBaseUrl(), { onRetry = () => {} 
     baseUrl,
     /** カード一覧（サマリー）を取得する */
     listCards: () => request('/api/cards'),
+    /** カード1枚を出目履歴込みで取得する */
+    getCard: (id) => request(`/api/cards/${id}`),
     /** ドラフトからカードを作成する */
     createCard: (draft) => request('/api/cards', { method: 'POST', body: draft }),
     /** 出目を1件記録する */
