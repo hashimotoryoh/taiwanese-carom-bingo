@@ -1051,6 +1051,10 @@ a.btn {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
 }
+.warning {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
 .modal-close {
   width: 100%;
   margin-top: 6px;
