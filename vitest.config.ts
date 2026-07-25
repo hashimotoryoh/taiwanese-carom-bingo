@@ -75,7 +75,7 @@ export default defineConfig({
         { from: '#composables/useElementWidth', imports: ['useElementWidth'] },
         { from: '#utils/chart', imports: ['paddedDomain', 'niceTicks', 'sampledIndexes'] },
         { from: '#utils/markdown', imports: ['renderMarkdown', 'extractTitle'] },
-        { from: '#utils/docs', imports: ['docList', 'getDoc'] },
+        { from: '#utils/docs', imports: ['docList', 'getDoc', 'EXPECTED_VALUE_DOC_PATH'] },
       ],
     }),
     vue(),

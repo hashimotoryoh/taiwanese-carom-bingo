@@ -783,13 +783,20 @@ a.btn {
   font-weight: 700;
   color: var(--ink);
 }
-/* 統計値に添える補足（出目の平均値に対する期待値など） */
+/* 統計値に添える補足（出目の平均値に対する期待値など）。計算の解説ページへのリンクにする */
 .summary-note {
+  align-self: flex-start;
   font-size: 0.6rem;
   font-weight: 600;
   color: var(--ink-soft);
   opacity: 0.75;
   margin-top: -2px;
+  text-decoration: none;
+  border-bottom: 1px dotted currentcolor;
+}
+.summary-note:hover {
+  color: var(--stamp-dark);
+  opacity: 1;
 }
 /* 個人統計データ用の控えめな見た目。グリッドは共通のまま、カードではなく罫線で区切る */
 .roll-summary.compact {
@@ -985,8 +992,14 @@ a.btn {
 .chart-legend-item.cumulative::before {
   background: var(--teal);
 }
+/* 期待値だけは計算の解説ページへのリンクにする */
 .chart-legend-item.expected {
   color: rgba(74, 90, 112, 0.75);
+  text-decoration: none;
+}
+.chart-legend-item.expected:hover {
+  color: var(--stamp-dark);
+  text-decoration: underline;
 }
 .chart-legend-item.expected::before {
   height: 2px;

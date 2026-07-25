@@ -25,7 +25,9 @@ withDefaults(
     <div class="summary-item">
       <span class="summary-label">出目の平均値</span>
       <span class="summary-value">{{ fmtNum(stats.averageValue) }}</span>
-      <span class="summary-note">期待値 {{ ROLL_EXPECTED_VALUE.toFixed(2) }}</span>
+      <NuxtLink class="summary-note" :to="EXPECTED_VALUE_DOC_PATH">
+        期待値 {{ ROLL_EXPECTED_VALUE.toFixed(2) }}
+      </NuxtLink>
     </div>
     <div class="summary-item">
       <span class="summary-label">{{ labelPrefix }}ゾロ目回数</span>

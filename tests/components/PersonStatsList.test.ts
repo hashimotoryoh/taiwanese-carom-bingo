@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import PersonStatsList from '../../app/components/PersonStatsList.vue'
 import StatsSummary from '../../app/components/StatsSummary.vue'
+import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { navigateTo } from '../setup/nuxtStubs'
 import type { RollStats } from '../../shared/utils/bingo'
 
-const global = { components: { StatsSummary } }
+const global = { components: { StatsSummary, NuxtLink: NuxtLinkStub } }
 
 function makeStats(overrides: Partial<RollStats> = {}): RollStats {
   return {
