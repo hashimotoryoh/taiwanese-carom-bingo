@@ -35,7 +35,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          fetch-depth: 1
+          # レビュー中にベースブランチとの差分をローカルで確認できるよう全履歴を取得する
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      # レビュー実行前に依存関係を用意しておく。
+      # postinstall の `nuxt prepare` が `.nuxt/eslint.config.mjs` を生成し、
+      # これが無いと `npm run lint` が解決できない。
+      - name: Install dependencies
+        run: npm ci
 
       - name: Run Claude Code Review
         id: claude-review
@@ -45,6 +58,10 @@ jobs:
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
           prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
+          # Bash はデフォルトで実行不可のため、レビュー時の検証に使うコマンドだけを明示的に許可する。
+          # コードを書き換えるコマンド（lint:fix / format など）は意図せぬ変更を防ぐため含めない。
+          claude_args: |
+            --allowedTools "Bash(npm ci),Bash(npm run lint),Bash(npm run format:check),Bash(npm run test),Bash(npm run test:coverage),Bash(npx vitest run:*),Bash(npm audit),Bash(npm audit:*),Bash(npm ls:*),Bash(npx tsc:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*)"
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
           track_progress: true
