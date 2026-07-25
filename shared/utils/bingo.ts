@@ -285,6 +285,12 @@ export function punchRatePercent(punchedCount: number, rollCount: number): numbe
 }
 
 /**
+ * 出目1回あたりの得点の期待値（6148 / 119 ≒ 51.66）。
+ * 導出は `app/content/docs/d120-expected-value.md` を参照。
+ */
+export const ROLL_EXPECTED_VALUE = 6148 / 119
+
+/**
  * 平均値の計算に使う出目の値。
  * ゾロ目はマイナス、100（センターマス相当の大当たり）は200として扱うローカルルール。
  */

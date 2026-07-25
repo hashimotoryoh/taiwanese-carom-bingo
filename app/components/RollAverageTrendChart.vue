@@ -11,8 +11,12 @@ const PAD = { top: 16, right: 14, bottom: 34, left: 46 }
 const plotW = computed(() => Math.max(80, width.value - PAD.left - PAD.right))
 const plotH = H - PAD.top - PAD.bottom
 
+// 期待値の基準線が必ず収まるよう、表示レンジの計算にも期待値を含める
 const domain = computed(() =>
-  paddedDomain(props.points.flatMap((p) => [p.average, p.cumulativeAverage])),
+  paddedDomain([
+    ...props.points.flatMap((p) => [p.average, p.cumulativeAverage]),
+    ROLL_EXPECTED_VALUE,
+  ]),
 )
 
 /** 点のインデックス → X座標（点は日付の間隔によらず等間隔に置く） */
@@ -73,6 +77,15 @@ const dateLabels = computed(() => {
         </g>
       </g>
 
+      <!-- 出目の期待値の基準線 -->
+      <line
+        class="chart-expected"
+        :x1="PAD.left"
+        :x2="width - PAD.right"
+        :y1="toY(ROLL_EXPECTED_VALUE)"
+        :y2="toY(ROLL_EXPECTED_VALUE)"
+      />
+
       <!-- 控えめな日ごとの平均を先に描き、主役の通算平均を上に重ねる -->
       <polyline class="chart-line daily" :points="dailyLine" />
 
@@ -102,6 +115,7 @@ const dateLabels = computed(() => {
     <div class="chart-legend">
       <span class="chart-legend-item daily">日ごとの平均</span>
       <span class="chart-legend-item cumulative">通算平均</span>
+      <span class="chart-legend-item expected">期待値 {{ ROLL_EXPECTED_VALUE.toFixed(2) }}</span>
     </div>
   </div>
 </template>

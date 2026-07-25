@@ -783,6 +783,14 @@ a.btn {
   font-weight: 700;
   color: var(--ink);
 }
+/* 統計値に添える補足（出目の平均値に対する期待値など） */
+.summary-note {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  opacity: 0.75;
+  margin-top: -2px;
+}
 /* 個人統計データ用の控えめな見た目。グリッドは共通のまま、カードではなく罫線で区切る */
 .roll-summary.compact {
   gap: 8px 12px;
@@ -802,6 +810,10 @@ a.btn {
 .roll-summary.compact .summary-value {
   font-size: 1rem;
   color: var(--ink-soft);
+}
+/* 人別一覧は一覧性を優先し、補足は省く */
+.roll-summary.compact .summary-note {
+  display: none;
 }
 .person-stats:hover .roll-summary.compact .summary-item {
   border-left-color: var(--gold);
@@ -901,6 +913,12 @@ a.btn {
 .chart-baseline {
   stroke: rgba(35, 46, 61, 0.35);
 }
+/* 期待値の基準線。折れ線の邪魔をしないよう細い点線で薄く引く */
+.chart-expected {
+  stroke: rgba(35, 46, 61, 0.3);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
 .chart-axis-label,
 .chart-tick-labels text,
 .chart-bar-value {
@@ -966,6 +984,13 @@ a.btn {
 }
 .chart-legend-item.cumulative::before {
   background: var(--teal);
+}
+.chart-legend-item.expected {
+  color: rgba(74, 90, 112, 0.75);
+}
+.chart-legend-item.expected::before {
+  height: 2px;
+  background: repeating-linear-gradient(90deg, rgba(35, 46, 61, 0.35) 0 2px, transparent 2px 5px);
 }
 .chart-note {
   font-size: 0.66rem;

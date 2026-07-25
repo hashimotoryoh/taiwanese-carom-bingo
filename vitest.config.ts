@@ -31,6 +31,7 @@ const BINGO_UTILS = [
   'toSummary',
   'rollHistory',
   'punchRatePercent',
+  'ROLL_EXPECTED_VALUE',
   'signedRollValue',
   'computeRollStats',
   'aggregateRollStats',

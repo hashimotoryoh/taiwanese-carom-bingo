@@ -61,6 +61,21 @@ describe('RollAverageTrendChart', () => {
     expect(Number(dots[0]!.attributes('cx'))).toBeGreaterThan(0)
   })
 
+  it('期待値の基準線を引き、凡例に値を表示する', () => {
+    const wrapper = mount(RollAverageTrendChart, { props: { points } })
+    expect(wrapper.find('.chart-expected').exists()).toBe(true)
+    expect(wrapper.find('.chart-legend-item.expected').text()).toBe('期待値 51.66')
+  })
+
+  it('平均値が期待値から離れていても基準線はグラフ内に収まる', () => {
+    const far = [makePoint({ average: 200, cumulativeAverage: 200 })]
+    const wrapper = mount(RollAverageTrendChart, { props: { points: far } })
+    const y = Number(wrapper.find('.chart-expected').attributes('y1'))
+    const dotY = Number(wrapper.find('.chart-dots circle').attributes('cy'))
+    expect(y).toBeGreaterThan(dotY)
+    expect(y).toBeLessThan(240)
+  })
+
   it('マイナスを含むレンジでは0の基準線を強調する', () => {
     const withMinus = [
       makePoint({ average: -20, cumulativeAverage: -20 }),

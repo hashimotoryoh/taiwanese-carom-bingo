@@ -39,6 +39,15 @@ describe('StatsSummary', () => {
     ])
   })
 
+  it('出目の平均値の枠内に期待値を添える', () => {
+    const wrapper = mount(StatsSummary, { props: { stats: makeStats() } })
+    const notes = wrapper.findAll('.summary-note')
+    expect(notes).toHaveLength(1)
+    expect(notes[0]!.text()).toBe('期待値 51.66')
+    // 「出目の平均値」の枠内にあること
+    expect(wrapper.findAll('.summary-item')[1]!.find('.summary-note').exists()).toBe(true)
+  })
+
   it('compactを指定したときだけグリッドにcompactクラスを付ける', () => {
     const normal = mount(StatsSummary, { props: { stats: makeStats() } })
     expect(normal.find('.roll-summary').classes()).not.toContain('compact')
