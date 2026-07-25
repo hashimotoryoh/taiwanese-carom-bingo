@@ -53,7 +53,7 @@ onBeforeUnmount(() => {
 })
 
 async function onRecord(value: number) {
-  if (!card.value || card.value.archived || busy.value) return
+  if (!card.value || card.value.archived || busy.value || reloading.value) return
   busy.value = true
   try {
     const res = await api.recordRoll(id, value)
@@ -77,9 +77,10 @@ async function onRecord(value: number) {
   }
 }
 
-// カードの最新状態をサーバーから取り直す
+// カードの最新状態をサーバーから取り直す。
+// 記録・削除と同時に走ると、古い取得結果が後から新しい状態を上書きしうるため互いに排他する
 async function onReload() {
-  if (reloading.value) return
+  if (reloading.value || busy.value) return
   reloading.value = true
   try {
     await reloadCard()
@@ -91,7 +92,7 @@ async function onReload() {
 async function onDeleteRoll() {
   const rollId = pendingDeleteRollId.value
   pendingDeleteRollId.value = null
-  if (!rollId || !card.value || card.value.archived || busy.value) return
+  if (!rollId || !card.value || card.value.archived || busy.value || reloading.value) return
   busy.value = true
   try {
     card.value = await api.deleteRoll(id, rollId)
@@ -136,7 +137,7 @@ function gotoCreateNew() {
           class="btn btn-ghost btn-icon"
           :class="{ 'is-loading': reloading }"
           type="button"
-          :disabled="reloading"
+          :disabled="reloading || busy"
           title="再読み込み"
           aria-label="再読み込み"
           @click="onReload"
@@ -179,7 +180,7 @@ function gotoCreateNew() {
 
       <PunchGrid :card="card" :flash-cell="flashCell" />
 
-      <RollInput v-if="!locked" :busy="busy" @record="onRecord" />
+      <RollInput v-if="!locked" :busy="busy || reloading" @record="onRecord" />
 
       <section class="roll-section">
         <h3 class="roll-section-title">記録サマリー</h3>

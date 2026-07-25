@@ -347,6 +347,71 @@ describe('card/[id].vue', () => {
     expect(wrapper.text()).not.toContain('見つかりませんでした')
   })
 
+  it('再読み込み中は出目の記録を受け付けない（古い取得結果での上書きを防ぐ）', async () => {
+    const card = makeCard()
+    let resolveRefresh: (() => void) | undefined
+    const refresh = vi.fn().mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveRefresh = resolve
+        }),
+    )
+    const recordRoll = vi.fn()
+    vi.mocked(useBingoApi).mockReturnValue({ recordRoll } as unknown as ReturnType<
+      typeof useBingoApi
+    >)
+    vi.mocked(useFetch).mockReturnValue({
+      data: ref(card),
+      status: ref('success'),
+      refresh,
+      error: ref(null),
+    })
+    const wrapper = mount(CardIdPage, { global })
+
+    wrapper.find('button[aria-label="再読み込み"]').trigger('click')
+    await vi.waitFor(() => expect(refresh).toHaveBeenCalled())
+
+    // 再読み込みの応答が返る前は記録ボタンを無効化し、記録も走らせない
+    expect(wrapper.findComponent(RollInput).props('busy')).toBe(true)
+    await wrapper.findComponent(RollInput).vm.$emit('record', 5)
+    expect(recordRoll).not.toHaveBeenCalled()
+
+    resolveRefresh?.()
+    await vi.waitFor(() => expect(wrapper.findComponent(RollInput).props('busy')).toBe(false))
+  })
+
+  it('出目の記録中は再読み込みボタンを無効化する', async () => {
+    const card = makeCard()
+    const refresh = vi.fn()
+    let resolveRecord: ((value: unknown) => void) | undefined
+    const recordRoll = vi.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveRecord = resolve
+        }),
+    )
+    vi.mocked(useBingoApi).mockReturnValue({ recordRoll } as unknown as ReturnType<
+      typeof useBingoApi
+    >)
+    vi.mocked(useFetch).mockReturnValue({
+      data: ref(card),
+      status: ref('success'),
+      refresh,
+      error: ref(null),
+    })
+    const wrapper = mount(CardIdPage, { global })
+
+    wrapper.findComponent(RollInput).vm.$emit('record', 5)
+    await vi.waitFor(() => expect(recordRoll).toHaveBeenCalled())
+
+    const button = wrapper.find('button[aria-label="再読み込み"]')
+    expect(button.attributes('disabled')).toBeDefined()
+    await button.trigger('click')
+    expect(refresh).not.toHaveBeenCalled()
+
+    resolveRecord?.({ card, achievedNow: false, punchedCell: null })
+  })
+
   it('再読み込みが404ならカードを保持せず見つからない表示にする', async () => {
     const card = makeCard()
     const data = ref<ReturnType<typeof makeCard> | undefined>(card)
