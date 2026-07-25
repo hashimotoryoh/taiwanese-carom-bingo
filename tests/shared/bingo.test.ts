@@ -437,4 +437,22 @@ describe('computeRollStats / aggregateRollStats', () => {
     expect(stats.totalRolls).toBe(3)
     expect(stats.punchRatePercent).toBeCloseTo((2 / 3) * 100)
   })
+
+  it('aggregateRollStatsの同日平均カイルン回数は人数でも割る', () => {
+    const d1 = new Date(2026, 0, 1).getTime()
+    const d2 = new Date(2026, 0, 2).getTime()
+    const cardA = makeCard({ id: 'a', name: '太郎', rolls: [makeRoll(1, d1), makeRoll(2, d1)] })
+    const cardB = makeCard({ id: 'b', name: '次郎', rolls: [makeRoll(3, d1), makeRoll(4, d2)] })
+    const stats = aggregateRollStats([cardA, cardB])
+    // 記録のある日数2日 × 2人 = 延べ4人日で、記録は4件
+    expect(stats.avgRollsPerDay).toBe(4 / 4)
+  })
+
+  it('aggregateRollStatsは同名のカードを同一人物として1人と数える', () => {
+    const day = new Date(2026, 0, 1).getTime()
+    const cardA = makeCard({ id: 'a', name: '太郎', rolls: [makeRoll(1, day), makeRoll(2, day)] })
+    const cardB = makeCard({ id: 'b', name: '太郎', rolls: [makeRoll(3, day)] })
+    const stats = aggregateRollStats([cardA, cardB])
+    expect(stats.avgRollsPerDay).toBe(3)
+  })
 })

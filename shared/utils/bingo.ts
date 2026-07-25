@@ -271,7 +271,7 @@ export interface RollStats {
   totalRolls: number
   /** 出目の平均値（ゾロ目はマイナスとして計算、100は200として計算） */
   averageValue: number
-  /** 同日平均カイルン回数（記録を日付でまとめた1日あたりの平均） */
+  /** 同日平均カイルン回数（1日に1人が平均何回カイルンしているか。記録のある日数と人数で割る） */
   avgRollsPerDay: number
   /** 総ゾロ目回数 */
   totalZorome: number
@@ -286,8 +286,15 @@ export function punchRatePercent(punchedCount: number, rollCount: number): numbe
   return rollCount === 0 ? 0 : (punchedCount / rollCount) * 100
 }
 
-/** 出目履歴とパンチ数からサマリー統計を計算する（1人・複数カード分の集計いずれにも使う） */
-function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollStats {
+/**
+ * 出目履歴とパンチ数からサマリー統計を計算する（1人・複数カード分の集計いずれにも使う）。
+ * `personCount` は同日平均カイルン回数を「1人あたり」に均すための人数。
+ */
+function computeRollStatsFromRolls(
+  rolls: Roll[],
+  punchedCount: number,
+  personCount: number,
+): RollStats {
   const totalRolls = rolls.length
   if (totalRolls === 0) {
     return {
@@ -306,11 +313,13 @@ function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollSta
   )
   const totalZorome = rolls.filter((r) => isZorome(r.value)).length
   const distinctDays = new Set(rolls.map((r) => fmtDate(r.rolledAt))).size
+  // 「1日に1人あたり何回か」を出すため、記録のある日数だけでなく人数でも割る
+  const personDays = distinctDays * personCount
 
   return {
     totalRolls,
     averageValue: signedSum / totalRolls,
-    avgRollsPerDay: distinctDays === 0 ? 0 : totalRolls / distinctDays,
+    avgRollsPerDay: personDays === 0 ? 0 : totalRolls / personDays,
     totalZorome,
     zoromeRatioPercent: (totalZorome / totalRolls) * 100,
     punchRatePercent: punchRatePercent(punchedCount, totalRolls),
@@ -319,15 +328,18 @@ function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollSta
 
 /** 出目履歴からサマリー統計を計算する */
 export function computeRollStats(card: BingoCard): RollStats {
-  return computeRollStatsFromRolls(card.rolls, countPunched(buildPunched(card)))
+  return computeRollStatsFromRolls(card.rolls, countPunched(buildPunched(card)), 1)
 }
 
 /**
  * 複数カード分の出目履歴をまとめてサマリー統計を計算する。
- * 同じ人物が持つ複数のビンゴカード（進行中・アーカイブ済み問わず）を横断集計する用途。
+ * 同じ人物が持つ複数のビンゴカード（進行中・アーカイブ済み問わず）や、
+ * 全員分のカードを横断集計する用途。
+ * 人数はカード名で数える（同名のカードは同一人物とみなす）。
  */
 export function aggregateRollStats(cards: BingoCard[]): RollStats {
   const rolls = cards.flatMap((c) => c.rolls)
   const punchedCount = cards.reduce((sum, c) => sum + countPunched(buildPunched(c)), 0)
-  return computeRollStatsFromRolls(rolls, punchedCount)
+  const personCount = new Set(cards.map((c) => c.name)).size
+  return computeRollStatsFromRolls(rolls, punchedCount, personCount)
 }
