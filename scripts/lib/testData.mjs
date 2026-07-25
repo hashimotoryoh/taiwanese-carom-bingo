@@ -87,7 +87,10 @@ function resolveRolls(columns, plan, random) {
   const cardValues = new Set(Object.values(columns).flat())
   const missPool = []
   for (let v = MIN_ROLL; v <= MAX_ROLL; v++) {
-    if (!cardValues.has(v)) missPool.push(v)
+    // ゾロ目と特別扱いの出目は 'zorome' / 数値指定でのみ現れるようにし、
+    // 「空振りが何件・ゾロ目が何件」を定義から一意に読めるようにする
+    if (cardValues.has(v) || ZOROME_VALUES.includes(v) || RESERVED_VALUES.includes(v)) continue
+    missPool.push(v)
   }
   shuffle(missPool, random)
   const zoromePool = ZOROME_VALUES.filter((v) => !cardValues.has(v))
@@ -195,6 +198,8 @@ export function buildTestCards() {
       description: fixture.description,
       draft: { name: fixture.name, columns },
       rolls: resolveRolls(columns, fixture.plan, random),
+      // 解決前の出目プラン（テストから「どの出目がどの意図か」を検証するために公開する）
+      plan: fixture.plan,
       archive: fixture.archive,
     }
   })

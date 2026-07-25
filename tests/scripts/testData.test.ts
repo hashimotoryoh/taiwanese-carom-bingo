@@ -27,6 +27,7 @@ interface TestCardSpec {
   description: string
   draft: { name: string; columns: Record<ColumnKey, number[]> }
   rolls: number[]
+  plan: (string | number)[]
   archive: boolean
 }
 
@@ -143,6 +144,19 @@ describe('buildTestCards', () => {
     // センターマス（固定値）と、統計上200として扱われる出目100
     expect(inProgress.rolls).toContain(FREE_VALUE)
     expect(inProgress.rolls).toContain(100)
+  })
+
+  it('空振り指定の出目はカード外かつゾロ目・出目100と重ならない', () => {
+    for (const spec of cards) {
+      const cardValues = new Set(COLUMNS.flatMap((col) => spec.draft.columns[col.key]))
+      spec.plan.forEach((entry, i) => {
+        if (entry !== 'miss') return
+        const value = spec.rolls[i]!
+        expect(cardValues.has(value)).toBe(false)
+        expect(isZorome(value)).toBe(false)
+        expect(value).not.toBe(100)
+      })
+    }
   })
 
   it('出目100はどのカードにも配置されておらず、空振りとして記録される', () => {
