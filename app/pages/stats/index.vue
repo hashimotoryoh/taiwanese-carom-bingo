@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import type { BingoCard } from '#shared/types/bingo'
 
-useHead({ title: '全統計データ | カイルンBINGO' })
+useHead({ title: '全員の統計データ | カイルンBINGO' })
 
 const api = useBingoApi()
 const { data: cards, status } = useAsyncData<BingoCard[]>('stats-all', () => api.fetchAllCards())
 
 const overallStats = computed(() => aggregateRollStats(cards.value ?? []))
+
+const hasRolls = computed(() => overallStats.value.totalRolls > 0)
+const averagePoints = computed(() => dailyRollAverages(cards.value ?? []))
 
 const persons = computed(() => {
   const byName = new Map<string, BingoCard[]>()
@@ -23,7 +26,7 @@ const persons = computed(() => {
       stats: aggregateRollStats(group),
     }))
     .sort(
-      // 総カイルン回数の多い順。同数なら最終更新が新しい順にする
+      // 通算カイルン回数の多い順。同数なら最終更新が新しい順にする
       (a, b) => b.stats.totalRolls - a.stats.totalRolls || b.latestActivity - a.latestActivity,
     )
 })
@@ -31,7 +34,7 @@ const persons = computed(() => {
 
 <template>
   <div>
-    <h2 class="page-title">全統計データ</h2>
+    <h2 class="page-title">全員の統計データ</h2>
     <p class="page-sub">これまでに記録された全員分のカイルンを集計しています</p>
     <div class="row" style="margin-bottom: 20px">
       <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
@@ -40,6 +43,11 @@ const persons = computed(() => {
     <div v-if="status === 'pending'" class="loading">読み込み中...</div>
     <template v-else>
       <StatsSummary :stats="overallStats" />
+
+      <template v-if="hasRolls">
+        <h3 class="roll-section-title">出目の平均値の遷移</h3>
+        <RollAverageTrendChart :points="averagePoints" />
+      </template>
 
       <h3 class="roll-section-title">個人統計データ</h3>
       <div v-if="persons.length === 0" class="empty">
