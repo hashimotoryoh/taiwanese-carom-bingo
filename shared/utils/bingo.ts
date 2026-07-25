@@ -382,27 +382,6 @@ export function dailyRollAverages(cards: BingoCard[]): RollAveragePoint[] {
     })
 }
 
-/** 出目の分布図1本分（出目1つ分） */
-export interface RollDistributionBin {
-  /** 出目 */
-  value: number
-  /** その出目が出た記録数 */
-  count: number
-}
-
-/** 複数カード分の出目を1目ずつ数え、常に全出目（1〜120）を昇順で返す */
-export function rollDistribution(cards: BingoCard[]): RollDistributionBin[] {
-  const bins: RollDistributionBin[] = []
-  for (let value = MIN_ROLL; value <= MAX_ROLL; value++) {
-    bins.push({ value, count: 0 })
-  }
-  for (const roll of cards.flatMap((c) => c.rolls)) {
-    const bin = bins[roll.value - MIN_ROLL]
-    if (bin) bin.count += 1
-  }
-  return bins
-}
-
 /** 複数カード分の出目をまとめて新しい順に返す */
 export function crossCardRolls(cards: BingoCard[]): Roll[] {
   return cards.flatMap((card) => card.rolls).sort((a, b) => b.rolledAt - a.rolledAt)

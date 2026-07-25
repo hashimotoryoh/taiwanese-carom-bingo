@@ -910,23 +910,12 @@ a.btn {
   display: block;
   width: 100%;
 }
-/* 棒が多いグラフはここだけ横スクロールさせる（ページ全体は横に伸ばさない） */
-.chart-scroll {
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-}
-.chart-scroll .chart-svg {
-  width: auto;
-}
 .chart-grid line {
   stroke: rgba(35, 46, 61, 0.12);
 }
 .chart-grid line.zero {
   stroke: rgba(35, 46, 61, 0.35);
   stroke-dasharray: 4 3;
-}
-.chart-baseline {
-  stroke: rgba(35, 46, 61, 0.35);
 }
 /* 期待値の基準線。罫線と見分けが付くよう、金色の破線で少し強めに引く */
 .chart-expected {
@@ -936,16 +925,11 @@ a.btn {
   opacity: 0.85;
 }
 .chart-axis-label,
-.chart-tick-labels text,
-.chart-bar-value {
+.chart-tick-labels text {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   font-weight: 600;
   fill: var(--ink-soft);
-}
-.chart-bar-value {
-  font-weight: 700;
-  fill: var(--ink);
 }
 .chart-line {
   fill: none;
@@ -966,15 +950,6 @@ a.btn {
   fill: rgba(184, 57, 43, 0.45);
   stroke: #fffaf0;
   stroke-width: 1.4;
-}
-/* 偏差の棒。期待より多い区間と少ない区間を色で分ける */
-.chart-bars rect {
-  fill: var(--teal);
-  opacity: 0.72;
-}
-.chart-bars rect.negative {
-  fill: var(--stamp);
-  opacity: 0.55;
 }
 .chart-legend {
   display: flex;
@@ -1013,12 +988,6 @@ a.btn {
 }
 .chart-legend-item.expected::before {
   background: repeating-linear-gradient(90deg, var(--gold-dark) 0 5px, transparent 5px 9px);
-}
-.chart-note {
-  font-size: 0.66rem;
-  color: var(--ink-soft);
-  text-align: right;
-  margin: 2px 2px 0;
 }
 
 /* ---------- rules modal ---------- */
@@ -1137,10 +1106,6 @@ a.btn {
   }
   .history-datetime {
     font-size: 0.64rem;
-  }
-  /* 棒が細くなるぶん、偏差の値も小さくして隣とぶつからないようにする */
-  .chart-bar-value {
-    font-size: 9px;
   }
   .col-head {
     width: 30px;

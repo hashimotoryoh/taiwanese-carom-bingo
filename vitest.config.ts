@@ -36,7 +36,6 @@ const BINGO_UTILS = [
   'computeRollStats',
   'aggregateRollStats',
   'dailyRollAverages',
-  'rollDistribution',
   'crossCardRolls',
 ]
 

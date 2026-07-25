@@ -10,7 +10,6 @@ const overallStats = computed(() => aggregateRollStats(cards.value ?? []))
 
 const hasRolls = computed(() => overallStats.value.totalRolls > 0)
 const averagePoints = computed(() => dailyRollAverages(cards.value ?? []))
-const distribution = computed(() => rollDistribution(cards.value ?? []))
 
 const persons = computed(() => {
   const byName = new Map<string, BingoCard[]>()
@@ -48,9 +47,6 @@ const persons = computed(() => {
       <template v-if="hasRolls">
         <h3 class="roll-section-title">出目の平均値の遷移</h3>
         <RollAverageTrendChart :points="averagePoints" />
-
-        <h3 class="roll-section-title">出目の分布</h3>
-        <RollDistributionChart :bins="distribution" />
       </template>
 
       <h3 class="roll-section-title">個人統計データ</h3>

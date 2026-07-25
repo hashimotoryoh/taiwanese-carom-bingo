@@ -26,7 +26,6 @@ import {
   punchRatePercent,
   randomUnique,
   reachCells,
-  rollDistribution,
   rollHistory,
   signedRollValue,
   toSummary,
@@ -489,32 +488,6 @@ describe('dailyRollAverages', () => {
   it('平均値はゾロ目をマイナス・100を200として計算する', () => {
     const card = makeCard({ rolls: [makeRoll(11, day1), makeRoll(100, day1)] })
     expect(dailyRollAverages([card])[0]!.average).toBe((-11 + 200) / 2)
-  })
-})
-
-describe('rollDistribution', () => {
-  it('記録が無くても1〜120の全出目を返す', () => {
-    const bins = rollDistribution([makeCard()])
-    expect(bins).toHaveLength(120)
-    expect(bins[0]).toEqual({ value: 1, count: 0 })
-    expect(bins[119]).toEqual({ value: 120, count: 0 })
-  })
-
-  it('出目ごとに記録数を数える', () => {
-    const card = makeCard({
-      rolls: [makeRoll(1, 0), makeRoll(1, 1), makeRoll(11, 2), makeRoll(120, 3)],
-    })
-    const bins = rollDistribution([card])
-    expect(bins[0]!.count).toBe(2)
-    expect(bins[10]!.count).toBe(1)
-    expect(bins[119]!.count).toBe(1)
-    expect(bins[1]!.count).toBe(0)
-  })
-
-  it('複数カードの記録を合算する', () => {
-    const cardA = makeCard({ id: 'a', rolls: [makeRoll(5, 0)] })
-    const cardB = makeCard({ id: 'b', rolls: [makeRoll(5, 1)] })
-    expect(rollDistribution([cardA, cardB])[4]!.count).toBe(2)
   })
 })
 
