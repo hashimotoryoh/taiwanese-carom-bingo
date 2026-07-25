@@ -53,7 +53,10 @@ describe('stats/index.vue', () => {
     // 全員分（2人・2日）をまとめて集計する
     expect(wrapper.findComponent(RollAverageTrendChart).props('points')).toHaveLength(2)
     const bins = wrapper.findComponent(RollDistributionChart).props('bins')
-    expect(bins[0]!.count).toBe(2)
+    expect(bins).toHaveLength(120)
+    // 出目1（太郎）と出目2（花子）がそれぞれ1回ずつ数えられる
+    expect(bins[0]!.count).toBe(1)
+    expect(bins[1]!.count).toBe(1)
   })
 
   it('出目が無ければグラフを表示しない', () => {

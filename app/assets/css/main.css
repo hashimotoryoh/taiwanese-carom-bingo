@@ -910,6 +910,14 @@ a.btn {
   display: block;
   width: 100%;
 }
+/* 棒が多いグラフはここだけ横スクロールさせる（ページ全体は横に伸ばさない） */
+.chart-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.chart-scroll .chart-svg {
+  width: auto;
+}
 .chart-grid line {
   stroke: rgba(35, 46, 61, 0.12);
 }
@@ -920,11 +928,12 @@ a.btn {
 .chart-baseline {
   stroke: rgba(35, 46, 61, 0.35);
 }
-/* 期待値の基準線。折れ線の邪魔をしないよう細い点線で薄く引く */
+/* 期待値の基準線。罫線と見分けが付くよう、金色の破線で少し強めに引く */
 .chart-expected {
-  stroke: rgba(35, 46, 61, 0.3);
-  stroke-width: 1;
-  stroke-dasharray: 2 3;
+  stroke: var(--gold-dark);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 4;
+  opacity: 0.85;
 }
 .chart-axis-label,
 .chart-tick-labels text,
@@ -995,7 +1004,7 @@ a.btn {
 }
 /* 期待値だけは計算の解説ページへのリンクにする */
 .chart-legend-item.expected {
-  color: rgba(74, 90, 112, 0.75);
+  color: var(--gold-dark);
   text-decoration: none;
 }
 .chart-legend-item.expected:hover {
@@ -1003,8 +1012,7 @@ a.btn {
   text-decoration: underline;
 }
 .chart-legend-item.expected::before {
-  height: 2px;
-  background: repeating-linear-gradient(90deg, rgba(35, 46, 61, 0.35) 0 2px, transparent 2px 5px);
+  background: repeating-linear-gradient(90deg, var(--gold-dark) 0 5px, transparent 5px 9px);
 }
 .chart-note {
   font-size: 0.66rem;

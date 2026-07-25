@@ -39,6 +39,17 @@ describe('niceTicks', () => {
     expect(ticks).toContain(0)
   })
 
+  it('刻みが粗すぎて1本になる場合は1つ細かい刻みを使う', () => {
+    // 刻み5だと 0 しか入らないレンジ。刻み2に落として複数本を確保する
+    expect(niceTicks(-4.15, 4.15)).toEqual([-4, -2, 0, 2, 4])
+  })
+
+  it('どのレンジでも目盛りは2本以上返す', () => {
+    for (const limit of [0.4, 1.2, 4.15, 7.5, 26, 118, 940]) {
+      expect(niceTicks(-limit, limit).length).toBeGreaterThanOrEqual(2)
+    }
+  })
+
   it('-0 ではなく 0 を返す', () => {
     expect(Object.is(niceTicks(-0.5, 2, 4)[0], -0)).toBe(false)
   })

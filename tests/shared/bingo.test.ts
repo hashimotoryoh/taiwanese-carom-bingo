@@ -493,27 +493,28 @@ describe('dailyRollAverages', () => {
 })
 
 describe('rollDistribution', () => {
-  it('記録が無くても1〜120の全12区間を返す', () => {
+  it('記録が無くても1〜120の全出目を返す', () => {
     const bins = rollDistribution([makeCard()])
-    expect(bins).toHaveLength(12)
-    expect(bins[0]).toEqual({ min: 1, max: 10, count: 0 })
-    expect(bins[11]).toEqual({ min: 111, max: 120, count: 0 })
+    expect(bins).toHaveLength(120)
+    expect(bins[0]).toEqual({ value: 1, count: 0 })
+    expect(bins[119]).toEqual({ value: 120, count: 0 })
   })
 
-  it('出目を10刻みの区間ごとに数える', () => {
+  it('出目ごとに記録数を数える', () => {
     const card = makeCard({
-      rolls: [makeRoll(1, 0), makeRoll(10, 1), makeRoll(11, 2), makeRoll(120, 3)],
+      rolls: [makeRoll(1, 0), makeRoll(1, 1), makeRoll(11, 2), makeRoll(120, 3)],
     })
     const bins = rollDistribution([card])
     expect(bins[0]!.count).toBe(2)
-    expect(bins[1]!.count).toBe(1)
-    expect(bins[11]!.count).toBe(1)
+    expect(bins[10]!.count).toBe(1)
+    expect(bins[119]!.count).toBe(1)
+    expect(bins[1]!.count).toBe(0)
   })
 
   it('複数カードの記録を合算する', () => {
     const cardA = makeCard({ id: 'a', rolls: [makeRoll(5, 0)] })
-    const cardB = makeCard({ id: 'b', rolls: [makeRoll(7, 1)] })
-    expect(rollDistribution([cardA, cardB])[0]!.count).toBe(2)
+    const cardB = makeCard({ id: 'b', rolls: [makeRoll(5, 1)] })
+    expect(rollDistribution([cardA, cardB])[4]!.count).toBe(2)
   })
 })
 

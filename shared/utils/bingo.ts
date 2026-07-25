@@ -382,28 +382,22 @@ export function dailyRollAverages(cards: BingoCard[]): RollAveragePoint[] {
     })
 }
 
-/** 出目の分布図の区切り幅（1〜120を10刻みの12区間に分ける） */
-export const DISTRIBUTION_BIN_SIZE = 10
-
-/** 出目の分布図1本分 */
+/** 出目の分布図1本分（出目1つ分） */
 export interface RollDistributionBin {
-  /** 区間の下限（含む） */
-  min: number
-  /** 区間の上限（含む） */
-  max: number
-  /** 区間に入った記録数 */
+  /** 出目 */
+  value: number
+  /** その出目が出た記録数 */
   count: number
 }
 
-/** 複数カード分の出目を10刻みの区間ごとに数え、常に全区間（1〜120）を昇順で返す */
+/** 複数カード分の出目を1目ずつ数え、常に全出目（1〜120）を昇順で返す */
 export function rollDistribution(cards: BingoCard[]): RollDistributionBin[] {
   const bins: RollDistributionBin[] = []
-  for (let min = MIN_ROLL; min <= MAX_ROLL; min += DISTRIBUTION_BIN_SIZE) {
-    bins.push({ min, max: min + DISTRIBUTION_BIN_SIZE - 1, count: 0 })
+  for (let value = MIN_ROLL; value <= MAX_ROLL; value++) {
+    bins.push({ value, count: 0 })
   }
   for (const roll of cards.flatMap((c) => c.rolls)) {
-    const index = Math.floor((roll.value - MIN_ROLL) / DISTRIBUTION_BIN_SIZE)
-    const bin = bins[index]
+    const bin = bins[roll.value - MIN_ROLL]
     if (bin) bin.count += 1
   }
   return bins
