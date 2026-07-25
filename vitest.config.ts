@@ -30,6 +30,7 @@ const BINGO_UTILS = [
   'draftToNumbers',
   'toSummary',
   'rollHistory',
+  'punchRatePercent',
   'computeRollStats',
   'aggregateRollStats',
 ]
@@ -46,6 +47,7 @@ export default defineConfig({
         'vue',
         { from: '#shared/utils/bingo', imports: BINGO_UTILS },
         { from: '#shared/utils/date', imports: ['fmtDate', 'fmtDateTime', 'daysBetween'] },
+        { from: '#shared/utils/number', imports: ['fmtNum'] },
         {
           from: '#test-stubs/nuxtStubs',
           imports: [

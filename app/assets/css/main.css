@@ -242,11 +242,6 @@ a.btn {
   font-weight: 800;
   padding-right: 70px;
 }
-.ticket .meta {
-  font-size: 0.72rem;
-  color: var(--ink-soft);
-  margin-bottom: 12px;
-}
 .stat-row {
   display: flex;
   gap: 6px;
@@ -284,22 +279,34 @@ a.btn {
   background: var(--ink-soft);
   color: var(--paper);
 }
-.delete-btn {
-  margin-top: 12px;
-  width: 100%;
-  font-family: inherit;
-  font-weight: 700;
-  font-size: 0.74rem;
-  background: transparent;
-  color: var(--stamp-dark);
-  border: 1.5px solid var(--stamp-dark);
-  border-radius: 8px;
-  padding: 8px 10px;
+
+/* ---------- person stats list (全統計データの人別一覧) ---------- */
+/* 枠線・影は持たせず、全体集計と同じ .roll-summary のタイルだけを見せる */
+.person-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.person-stats {
   cursor: pointer;
 }
-.delete-btn:hover {
-  background: var(--stamp-dark);
-  color: var(--paper);
+.person-stats-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+.person-stats-name::after {
+  content: '›';
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--ink-soft);
+}
+.person-stats:hover .person-stats-name {
+  color: var(--stamp-dark);
 }
 
 /* ---------- create page grid ---------- */
@@ -735,6 +742,29 @@ a.btn {
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--ink);
+}
+/* 個人データ用の控えめな見た目。グリッドは共通のまま、カードではなく罫線で区切る */
+.roll-summary.compact {
+  gap: 8px 12px;
+}
+.roll-summary.compact .summary-item {
+  background: none;
+  border: none;
+  border-left: 3px solid var(--paper-dark);
+  border-radius: 0;
+  padding: 3px 0 3px 10px;
+  gap: 1px;
+}
+.roll-summary.compact .summary-label {
+  font-size: 0.64rem;
+  font-weight: 500;
+}
+.roll-summary.compact .summary-value {
+  font-size: 1rem;
+  color: var(--ink-soft);
+}
+.person-stats:hover .roll-summary.compact .summary-item {
+  border-left-color: var(--gold);
 }
 .history-table {
   width: 100%;

@@ -71,9 +71,10 @@ describe('card/[id].vue', () => {
     expect(wrapper.findComponent(RollInput).exists()).toBe(true)
     expect(wrapper.text()).toContain('進行中')
     expect(wrapper.text()).toContain('このカードをアーカイブする')
+    expect(wrapper.text()).not.toContain('完全に削除する')
   })
 
-  it('アーカイブ済みカードは出目入力欄を表示しない', () => {
+  it('アーカイブ済みカードは出目入力欄の代わりに完全削除ボタンを表示する', () => {
     const card = makeCard({ archived: true })
     vi.mocked(useFetch).mockReturnValue({
       data: ref(card),
@@ -83,6 +84,46 @@ describe('card/[id].vue', () => {
     const wrapper = mount(CardIdPage, { global })
     expect(wrapper.findComponent(RollInput).exists()).toBe(false)
     expect(wrapper.text()).toContain('アーカイブ済み')
+    expect(wrapper.text()).toContain('完全に削除する')
+    expect(wrapper.text()).not.toContain('このカードをアーカイブする')
+  })
+
+  it('完全削除の確認ダイアログのOKでdeleteCardを呼び一覧へ遷移する', async () => {
+    const card = makeCard({ archived: true })
+    const deleteCard = vi.fn().mockResolvedValue(undefined)
+    vi.mocked(useBingoApi).mockReturnValue({ deleteCard } as unknown as ReturnType<
+      typeof useBingoApi
+    >)
+    vi.mocked(useFetch).mockReturnValue({
+      data: ref(card),
+      status: ref('success'),
+      refresh: vi.fn(),
+    })
+    const wrapper = mount(CardIdPage, { global })
+
+    await wrapper.find('.btn-danger').trigger('click')
+    await wrapper.find('.confirm-ok').trigger('click')
+    await vi.waitFor(() => expect(deleteCard).toHaveBeenCalledWith(card.id))
+    expect(navigateTo).toHaveBeenCalledWith('/')
+  })
+
+  it('完全削除の確認ダイアログをキャンセルするとdeleteCardを呼ばない', async () => {
+    const card = makeCard({ archived: true })
+    const deleteCard = vi.fn()
+    vi.mocked(useBingoApi).mockReturnValue({ deleteCard } as unknown as ReturnType<
+      typeof useBingoApi
+    >)
+    vi.mocked(useFetch).mockReturnValue({
+      data: ref(card),
+      status: ref('success'),
+      refresh: vi.fn(),
+    })
+    const wrapper = mount(CardIdPage, { global })
+
+    await wrapper.find('.btn-danger').trigger('click')
+    await wrapper.findComponent(ConfirmDialog).find('.btn-secondary').trigger('click')
+    expect(deleteCard).not.toHaveBeenCalled()
+    expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
   })
 
   it('リーチがあればリーチ本数バナーを表示する', () => {

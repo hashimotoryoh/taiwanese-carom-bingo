@@ -20,6 +20,7 @@ import {
   isValidRoll,
   isZorome,
   lineList,
+  punchRatePercent,
   randomUnique,
   reachCells,
   rollHistory,
@@ -370,6 +371,17 @@ describe('rollHistory', () => {
     expect(history.find((h) => h.roll.id === 'r1')!.label).toBe('B1')
     expect(history.find((h) => h.roll.id === 'r2')!.label).toBeNull()
     expect(history.find((h) => h.roll.id === 'r3')!.label).toBeNull()
+  })
+})
+
+describe('punchRatePercent', () => {
+  it('パンチ数 / 記録数 の百分率を返す', () => {
+    expect(punchRatePercent(1, 2)).toBe(50)
+    expect(punchRatePercent(2, 3)).toBeCloseTo((2 / 3) * 100)
+  })
+
+  it('記録数が0なら0を返す（0除算しない）', () => {
+    expect(punchRatePercent(0, 0)).toBe(0)
   })
 })
 

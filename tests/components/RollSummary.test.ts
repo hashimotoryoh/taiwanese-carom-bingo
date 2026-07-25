@@ -11,7 +11,8 @@ describe('RollSummary', () => {
       props: { card },
       global: { components: { StatsSummary } },
     })
-    expect(wrapper.text()).toContain('総カイルン回数')
-    expect(wrapper.text()).toContain('2')
+    // カード単体のページではラベルを「カイルン回数」にする
+    expect(wrapper.findAll('.summary-label')[0]!.text()).toBe('カイルン回数')
+    expect(wrapper.findAll('.summary-value')[0]!.text()).toBe('2')
   })
 })
