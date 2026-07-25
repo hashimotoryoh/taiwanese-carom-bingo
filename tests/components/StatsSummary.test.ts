@@ -16,13 +16,35 @@ function makeStats(overrides: Partial<RollStats> = {}): RollStats {
 }
 
 describe('StatsSummary', () => {
+  it('決められた順番のラベルで表示する', () => {
+    const wrapper = mount(StatsSummary, { props: { stats: makeStats() } })
+    expect(wrapper.findAll('.summary-label').map((l) => l.text())).toEqual([
+      '総カイルン回数',
+      '同日平均カイルン回数',
+      '出目の平均値',
+      'ゾロ目回数',
+      'ゾロ目割合',
+      'ビンゴカードパンチ率',
+    ])
+  })
+
+  it('totalRollsLabelでカイルン総数のラベルを差し替えられる', () => {
+    const wrapper = mount(StatsSummary, {
+      props: { stats: makeStats(), totalRollsLabel: 'カイルン回数' },
+    })
+    expect(wrapper.findAll('.summary-label')[0]!.text()).toBe('カイルン回数')
+  })
+
   it('整数値はそのまま、小数値は小数第1位までを表示する', () => {
     const wrapper = mount(StatsSummary, {
-      props: { stats: makeStats({ averageValue: 60.456, totalRolls: 10, zoromeRatioPercent: 10 }) },
+      props: {
+        stats: makeStats({ totalRolls: 10, avgRollsPerDay: 2.34, averageValue: 60.456 }),
+      },
     })
     const values = wrapper.findAll('.summary-value').map((v) => v.text())
-    expect(values[0]).toBe('60.5')
-    expect(values[1]).toBe('10')
+    expect(values[0]).toBe('10')
+    expect(values[1]).toBe('2.3')
+    expect(values[2]).toBe('60.5')
     expect(values[4]).toBe('10%')
   })
 })

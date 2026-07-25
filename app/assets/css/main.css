@@ -242,11 +242,6 @@ a.btn {
   font-weight: 800;
   padding-right: 70px;
 }
-.ticket .meta {
-  font-size: 0.72rem;
-  color: var(--ink-soft);
-  margin-bottom: 12px;
-}
 .stat-row {
   display: flex;
   gap: 6px;
@@ -284,22 +279,54 @@ a.btn {
   background: var(--ink-soft);
   color: var(--paper);
 }
-.delete-btn {
-  margin-top: 12px;
+
+/* ---------- person stats table (全統計データの人別一覧) ---------- */
+.stats-table-wrap {
+  overflow-x: auto;
+  background: linear-gradient(180deg, #fff8ea, var(--paper) 60%);
+  border: 1px solid rgba(35, 46, 61, 0.08);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+.stats-table {
   width: 100%;
-  font-family: inherit;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.stats-table th,
+.stats-table td {
+  padding: 10px 12px;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(35, 46, 61, 0.1);
+}
+.stats-table thead th {
+  font-size: 0.68rem;
+  color: var(--ink-soft);
   font-weight: 700;
-  font-size: 0.74rem;
-  background: transparent;
-  color: var(--stamp-dark);
-  border: 1.5px solid var(--stamp-dark);
-  border-radius: 8px;
-  padding: 8px 10px;
+}
+.stats-table tbody tr:last-child th,
+.stats-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.stats-table td {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--ink);
+}
+.stats-table th:first-child,
+.stats-table .stats-name {
+  text-align: left;
+}
+.stats-name {
+  font-weight: 800;
+  color: var(--ink);
+}
+.stats-row {
   cursor: pointer;
 }
-.delete-btn:hover {
-  background: var(--stamp-dark);
-  color: var(--paper);
+.stats-row:hover {
+  background: rgba(212, 167, 61, 0.14);
 }
 
 /* ---------- create page grid ---------- */

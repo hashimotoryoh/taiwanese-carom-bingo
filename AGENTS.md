@@ -125,7 +125,7 @@ Node バージョンは `.node-version`（24.11.0）に従うこと。
 
 ### フロントエンド
 
-- ページは `app/pages/` にファイルベースルーティングで配置：一覧（`index.vue`）、カード作成〜確認（`card/create.vue` → `card/confirm.vue`、ドラフトは `useDraftCard`（`useState` によるページ間共有、リロードで消える）で受け渡し）、カード詳細・出目記録（`card/[id].vue`）、アーカイブ一覧（`card/archived.vue`）、個人ごとの記録集計（`records/[name].vue`）と全体集計（`records/index.vue`）。
+- ページは `app/pages/` にファイルベースルーティングで配置：一覧（`index.vue`）、カード作成〜確認（`card/create.vue` → `card/confirm.vue`、ドラフトは `useDraftCard`（`useState` によるページ間共有、リロードで消える）で受け渡し）、カード詳細・出目記録（`card/[id].vue`）、アーカイブ一覧（`card/archived.vue`）、個人ごとの記録集計（`stats/[name].vue`）と全体集計（`stats/index.vue`）。統計 API のパスは `/api/records` のまま。
 - `useBingoApi`（`app/composables/useBingoApi.ts`）が `server/api` への `$fetch` 呼び出しを薄くラップする唯一の窓口。新しい API エンドポイントを追加したら、対応するメソッドをここに足す。
 - `useConfetti` / `useRulesModal` はページ横断で共有する UI 状態（それぞれ紙吹雪演出のトリガー、ルール説明モーダルの開閉）を `useState` で保持する。
 

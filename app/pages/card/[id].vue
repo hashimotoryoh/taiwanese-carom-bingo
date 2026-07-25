@@ -27,6 +27,7 @@ const reachCount = computed(() =>
 
 const justAchievedBingo = ref(false)
 const confirmingArchive = ref(false)
+const confirmingDelete = ref(false)
 const busy = ref(false)
 
 // 出目記録時に穴が開いたマスへパーティクル演出を出すためのマス指定
@@ -85,6 +86,12 @@ async function doArchive() {
   card.value = await api.archive(id)
 }
 
+async function doDelete() {
+  confirmingDelete.value = false
+  await api.deleteCard(id)
+  await navigateTo('/')
+}
+
 function gotoCreateNew() {
   justAchievedBingo.value = false
   draft.value = null
@@ -139,9 +146,12 @@ function gotoCreateNew() {
         />
       </section>
 
-      <div v-if="!locked" class="row" style="margin-top: 22px; justify-content: flex-end">
-        <button class="btn btn-danger" @click="confirmingArchive = true">
+      <div class="row" style="margin-top: 22px; justify-content: flex-end">
+        <button v-if="!locked" class="btn btn-danger" @click="confirmingArchive = true">
           このカードをアーカイブする
+        </button>
+        <button v-else class="btn btn-danger" @click="confirmingDelete = true">
+          完全に削除する
         </button>
       </div>
 
@@ -168,6 +178,14 @@ function gotoCreateNew() {
         ok-label="アーカイブする"
         @confirm="doArchive"
         @cancel="confirmingArchive = false"
+      />
+
+      <ConfirmDialog
+        v-if="confirmingDelete"
+        message="このビンゴカードを完全に削除します。この操作は元に戻せません。よろしいですか？"
+        ok-label="削除する"
+        @confirm="doDelete"
+        @cancel="confirmingDelete = false"
       />
 
       <ConfirmDialog

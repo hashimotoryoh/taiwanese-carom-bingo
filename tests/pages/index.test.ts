@@ -46,6 +46,13 @@ describe('index.vue', () => {
     expect(tickets[1]!.props('summary').id).toBe('old')
   })
 
+  it('統計データへのリンクは /stats を指す', () => {
+    vi.mocked(useFetch).mockReturnValue({ data: ref([]), status: ref('success') })
+    const wrapper = mount(IndexPage, { global })
+    const hrefs = wrapper.findAll('a').map((a) => a.attributes('href'))
+    expect(hrefs).toContain('/stats')
+  })
+
   it('作成ボタンでドラフトをクリアしてから作成ページへ遷移する', async () => {
     vi.mocked(useFetch).mockReturnValue({ data: ref([]), status: ref('success') })
     const wrapper = mount(IndexPage, { global })
