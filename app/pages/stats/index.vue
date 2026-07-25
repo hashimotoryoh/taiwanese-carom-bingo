@@ -42,7 +42,7 @@ const persons = computed(() => {
       <div v-if="persons.length === 0" class="empty">
         <p>まだ記録がありません。</p>
       </div>
-      <PersonStatsTable v-else :rows="persons" />
+      <PersonStatsList v-else :rows="persons" />
     </template>
   </div>
 </template>

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { ref } from 'vue'
 import StatsIndexPage from '../../app/pages/stats/index.vue'
-import PersonStatsTable from '../../app/components/PersonStatsTable.vue'
+import PersonStatsList from '../../app/components/PersonStatsList.vue'
 import StatsSummary from '../../app/components/StatsSummary.vue'
 import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { useAsyncData } from '../setup/nuxtStubs'
@@ -12,7 +12,7 @@ import { makeCard, makeRoll } from '../setup/fixtures'
 
 vi.mock('../../app/composables/useBingoApi', () => ({ useBingoApi: vi.fn() }))
 
-const global = { components: { PersonStatsTable, StatsSummary, NuxtLink: NuxtLinkStub } }
+const global = { components: { PersonStatsList, StatsSummary, NuxtLink: NuxtLinkStub } }
 
 beforeEach(() => {
   resetTestState()
@@ -30,7 +30,7 @@ describe('stats/index.vue', () => {
     vi.mocked(useAsyncData).mockReturnValue({ data: ref([]), status: ref('success') })
     const wrapper = mount(StatsIndexPage, { global })
     expect(wrapper.find('.empty').exists()).toBe(true)
-    expect(wrapper.findComponent(PersonStatsTable).exists()).toBe(false)
+    expect(wrapper.findComponent(PersonStatsList).exists()).toBe(false)
   })
 
   it('同名カードを1人にまとめて統計を集計し最終更新順に並べる', () => {
@@ -41,7 +41,7 @@ describe('stats/index.vue', () => {
     ]
     vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
     const wrapper = mount(StatsIndexPage, { global })
-    const rows = wrapper.findComponent(PersonStatsTable).props('rows') as {
+    const rows = wrapper.findComponent(PersonStatsList).props('rows') as {
       name: string
       stats: { totalRolls: number }
     }[]
@@ -55,9 +55,9 @@ describe('stats/index.vue', () => {
     const cards = [makeCard({ id: 'a1', name: '太郎', updatedAt: 100 })]
     vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
     const wrapper = mount(StatsIndexPage, { global })
-    const table = wrapper.findComponent(PersonStatsTable)
+    const list = wrapper.findComponent(PersonStatsList)
     // 「ビンゴカードパンチ率」は残るので、枚数表記と最終更新日が無いことで確認する
-    expect(table.text()).not.toContain('枚')
-    expect(table.text()).not.toContain('最終更新')
+    expect(list.text()).not.toContain('枚')
+    expect(list.text()).not.toContain('最終更新')
   })
 })
