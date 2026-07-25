@@ -33,7 +33,7 @@ describe('stats/index.vue', () => {
     expect(wrapper.findComponent(PersonStatsList).exists()).toBe(false)
   })
 
-  it('同名カードを1人にまとめて統計を集計し最終更新順に並べる', () => {
+  it('同名カードを1人にまとめて統計を集計し総カイルン回数の多い順に並べる', () => {
     const cards = [
       makeCard({ id: 'a1', name: '太郎', createdAt: 1, updatedAt: 100, rolls: [makeRoll(1, 1)] }),
       makeCard({ id: 'a2', name: '太郎', createdAt: 2, updatedAt: 300, rolls: [makeRoll(2, 2)] }),
@@ -49,6 +49,35 @@ describe('stats/index.vue', () => {
     // 太郎は2枚分の出目を合算する
     expect(rows[0]!.stats.totalRolls).toBe(2)
     expect(rows[1]!.stats.totalRolls).toBe(0)
+  })
+
+  it('総カイルン回数が多ければ最終更新が古くても先に並べる', () => {
+    const cards = [
+      makeCard({ id: 'a1', name: '太郎', createdAt: 1, updatedAt: 100, rolls: [makeRoll(1, 1)] }),
+      makeCard({ id: 'b1', name: '花子', createdAt: 2, updatedAt: 900, rolls: [] }),
+      makeCard({
+        id: 'c1',
+        name: '次郎',
+        createdAt: 3,
+        updatedAt: 200,
+        rolls: [makeRoll(2, 2), makeRoll(3, 3)],
+      }),
+    ]
+    vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
+    const wrapper = mount(StatsIndexPage, { global })
+    const rows = wrapper.findComponent(PersonStatsList).props('rows') as { name: string }[]
+    expect(rows.map((r) => r.name)).toEqual(['次郎', '太郎', '花子'])
+  })
+
+  it('総カイルン回数が同数なら最終更新が新しい順に並べる', () => {
+    const cards = [
+      makeCard({ id: 'a1', name: '太郎', createdAt: 1, updatedAt: 100, rolls: [makeRoll(1, 1)] }),
+      makeCard({ id: 'b1', name: '花子', createdAt: 2, updatedAt: 300, rolls: [makeRoll(2, 2)] }),
+    ]
+    vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
+    const wrapper = mount(StatsIndexPage, { global })
+    const rows = wrapper.findComponent(PersonStatsList).props('rows') as { name: string }[]
+    expect(rows.map((r) => r.name)).toEqual(['花子', '太郎'])
   })
 
   it('個人統計データの見出しを表示する', () => {
