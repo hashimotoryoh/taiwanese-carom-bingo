@@ -26,6 +26,7 @@ const reachCount = computed(() =>
 )
 
 const justAchievedBingo = ref(false)
+const reloading = ref(false)
 const confirmingArchive = ref(false)
 const confirmingDelete = ref(false)
 const busy = ref(false)
@@ -66,6 +67,17 @@ async function onRecord(value: number) {
   }
 }
 
+// カードの最新状態をサーバーから取り直す
+async function onReload() {
+  if (reloading.value) return
+  reloading.value = true
+  try {
+    await refresh()
+  } finally {
+    reloading.value = false
+  }
+}
+
 async function onDeleteRoll() {
   const rollId = pendingDeleteRollId.value
   pendingDeleteRollId.value = null
@@ -101,14 +113,40 @@ function gotoCreateNew() {
 
 <template>
   <div>
-    <div v-if="status === 'pending'" class="loading">読み込み中...</div>
+    <!-- 再読み込み時はボタンごと消えてしまうため、初回読み込み（カード未取得）に限り全面のローディングを出す -->
+    <div v-if="!card && status === 'pending'" class="loading">読み込み中...</div>
     <div v-else-if="!card" class="empty">
       <p>指定されたビンゴカードが見つかりませんでした。</p>
       <NuxtLink class="btn btn-primary" to="/">一覧へ戻る</NuxtLink>
     </div>
     <template v-else>
-      <div class="row" style="margin-bottom: 20px">
+      <div class="row between" style="margin-bottom: 20px">
         <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
+        <button
+          class="btn btn-secondary btn-icon"
+          :class="{ 'is-loading': reloading }"
+          type="button"
+          :disabled="reloading"
+          title="再読み込み"
+          aria-label="再読み込み"
+          @click="onReload"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M20 12a8 8 0 1 1-2.34-5.66"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+            />
+            <path
+              d="M20 3.5V9h-5.5"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
       </div>
 
       <div class="card-head">
