@@ -38,6 +38,15 @@ describe('PersonStatsList', () => {
     expect(wrapper.findAll('.roll-summary')).toHaveLength(2)
   })
 
+  it('全体集計と区別するため控えめな見た目（compact）で表示する', () => {
+    const wrapper = mount(PersonStatsList, {
+      props: { rows: [{ name: '太郎', stats: makeStats() }] },
+      global,
+    })
+    expect(wrapper.findComponent(StatsSummary).props('compact')).toBe(true)
+    expect(wrapper.find('.roll-summary').classes()).toContain('compact')
+  })
+
   it('全体集計と同じ順番・名称のラベルを表示する', () => {
     const wrapper = mount(PersonStatsList, {
       props: { rows: [{ name: '太郎', stats: makeStats() }] },

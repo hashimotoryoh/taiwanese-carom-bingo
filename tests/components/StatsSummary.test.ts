@@ -35,6 +35,14 @@ describe('StatsSummary', () => {
     expect(wrapper.findAll('.summary-label')[0]!.text()).toBe('カイルン回数')
   })
 
+  it('compactを指定したときだけグリッドにcompactクラスを付ける', () => {
+    const normal = mount(StatsSummary, { props: { stats: makeStats() } })
+    expect(normal.find('.roll-summary').classes()).not.toContain('compact')
+
+    const compact = mount(StatsSummary, { props: { stats: makeStats(), compact: true } })
+    expect(compact.find('.roll-summary').classes()).toContain('compact')
+  })
+
   it('整数値はそのまま、小数値は小数第1位までを表示する', () => {
     const wrapper = mount(StatsSummary, {
       props: {

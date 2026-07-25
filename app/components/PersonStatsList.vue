@@ -6,7 +6,7 @@ defineProps<{ rows: { name: string; stats: RollStats }[] }>()
 
 <template>
   <div class="person-stats-list">
-    <!-- 全体集計と同じタイルグリッド（StatsSummary）を人ごとに並べる -->
+    <!-- グリッドは全体集計と共通のまま、compact で控えめな見た目にして区別する -->
     <section
       v-for="row in rows"
       :key="row.name"
@@ -14,7 +14,7 @@ defineProps<{ rows: { name: string; stats: RollStats }[] }>()
       @click="navigateTo(`/stats/${encodeURIComponent(row.name)}`)"
     >
       <h4 class="person-stats-name">{{ row.name }}</h4>
-      <StatsSummary :stats="row.stats" />
+      <StatsSummary :stats="row.stats" compact />
     </section>
   </div>
 </template>

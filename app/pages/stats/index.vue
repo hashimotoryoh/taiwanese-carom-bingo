@@ -38,7 +38,7 @@ const persons = computed(() => {
     <template v-else>
       <StatsSummary :stats="overallStats" />
 
-      <h3 class="roll-section-title">人別の記録</h3>
+      <h3 class="roll-section-title">個人データ</h3>
       <div v-if="persons.length === 0" class="empty">
         <p>まだ記録がありません。</p>
       </div>
