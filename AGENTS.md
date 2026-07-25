@@ -60,6 +60,15 @@ npx netlify database connect
 npx netlify database reset
 ```
 
+開発環境へのテストデータ投入（`npm run dev:netlify` の起動中に実行する。詳細は `README.md`）:
+
+```bash
+npm run db:seed         # テストデータを投入する（投入前に既存のテストデータを削除する）
+npm run db:seed:clean   # テストデータを削除する
+```
+
+シーダーは DB を直接触らず開発サーバーの API 経由でデータを作成する。カード名は `【テストデータ】` 始まりで、削除もこの接頭辞に一致するカードだけを対象にする。投入するカードの定義は `scripts/lib/testData.mjs`。
+
 本番ビルド・プレビュー:
 
 ```bash
