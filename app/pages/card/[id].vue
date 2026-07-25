@@ -12,6 +12,14 @@ const {
   key: `card-${id}`,
 })
 
+// useFetch は失敗すると card を undefined に戻すため、そのままだとカードが存在するのに
+// 「見つかりませんでした」表示に化ける。取得できなかった場合は直前の内容を保持する
+async function reloadCard() {
+  const previous = card.value
+  await refresh()
+  if (!card.value) card.value = previous
+}
+
 useHead(() => ({ title: card.value ? `${card.value.name} | カイルンBINGO` : 'カイルンBINGO' }))
 
 const api = useBingoApi()
@@ -61,7 +69,7 @@ async function onRecord(value: number) {
     }
   } catch {
     // 他の端末でアーカイブ済みなどの競合時は最新状態を取り直す
-    await refresh()
+    await reloadCard()
   } finally {
     busy.value = false
   }
@@ -72,7 +80,7 @@ async function onReload() {
   if (reloading.value) return
   reloading.value = true
   try {
-    await refresh()
+    await reloadCard()
   } finally {
     reloading.value = false
   }
@@ -86,7 +94,7 @@ async function onDeleteRoll() {
   try {
     card.value = await api.deleteRoll(id, rollId)
   } catch {
-    await refresh()
+    await reloadCard()
   } finally {
     busy.value = false
   }

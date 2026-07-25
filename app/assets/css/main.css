@@ -193,6 +193,11 @@ a.btn {
 .btn-icon.is-loading svg {
   animation: btn-icon-spin 0.8s linear infinite;
 }
+@media (prefers-reduced-motion: reduce) {
+  .btn-icon.is-loading svg {
+    animation: none;
+  }
+}
 @keyframes btn-icon-spin {
   to {
     transform: rotate(360deg);
