@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { ColumnKey } from '../../shared/types/bingo'
 // @ts-expect-error スクリプトは型定義のない .mjs のため
-import { removeTestCards, seedTestCards } from '../../scripts/lib/seedRunner.mjs'
+import { removeAllCards, seedTestCards } from '../../scripts/lib/seedRunner.mjs'
 // @ts-expect-error スクリプトは型定義のない .mjs のため
 import { buildTestCards } from '../../scripts/lib/testData.mjs'
 
@@ -86,24 +86,24 @@ function dateUpdates(sql: ReturnType<typeof makeFakeSql>) {
   }))
 }
 
-describe('removeTestCards', () => {
-  it('テストデータのカードだけを削除し、手動で作ったカードは残す', async () => {
+describe('removeAllCards', () => {
+  it('テストデータ以外も含めてすべてのカードを削除する', async () => {
     const api = makeFakeApi([
       { id: 'a', name: '【テストデータ】進行中さん' },
       { id: 'b', name: '手動で作ったカード' },
     ])
 
-    const removed = await removeTestCards(api)
+    const removed = await removeAllCards(api)
 
-    expect(removed).toBe(1)
-    expect(api.deleted).toEqual(['a'])
-    expect([...api.cards.keys()]).toEqual(['b'])
+    expect(removed).toBe(2)
+    expect(api.deleted).toEqual(['a', 'b'])
+    expect(api.cards.size).toBe(0)
   })
 
-  it('テストデータが無ければ何も削除しない', async () => {
+  it('カードが無ければ何も削除しない', async () => {
     const api = makeFakeApi()
 
-    expect(await removeTestCards(api)).toBe(0)
+    expect(await removeAllCards(api)).toBe(0)
     expect(api.deleteCard).not.toHaveBeenCalled()
   })
 
@@ -111,7 +111,7 @@ describe('removeTestCards', () => {
     const api = makeFakeApi([{ id: 'a', name: '【テストデータ】進行中さん' }])
     const log = vi.fn()
 
-    await removeTestCards(api, log)
+    await removeAllCards(api, log)
 
     expect(log).toHaveBeenCalledTimes(1)
     expect(log.mock.calls[0]![0]).toContain('【テストデータ】進行中さん')
@@ -119,7 +119,7 @@ describe('removeTestCards', () => {
 })
 
 describe('seedTestCards', () => {
-  it('投入前に既存のテストデータを削除する（毎回クリーンな状態になる）', async () => {
+  it('投入前に既存のカードをすべて削除する', async () => {
     const api = makeFakeApi([
       { id: 'old', name: '【テストデータ】進行中さん' },
       { id: 'manual', name: '手動で作ったカード' },
@@ -127,8 +127,7 @@ describe('seedTestCards', () => {
 
     await seedTestCards({ api, sql: makeFakeSql(), now: NOW })
 
-    expect(api.deleted).toEqual(['old'])
-    expect(api.cards.get('manual')).toBeDefined()
+    expect(api.deleted).toEqual(['old', 'manual'])
   })
 
   it('定義どおりのカードと出目を作成する', async () => {

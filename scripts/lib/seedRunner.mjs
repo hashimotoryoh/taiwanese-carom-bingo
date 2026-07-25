@@ -1,21 +1,20 @@
 // テストデータの投入・削除の手順。エントリポイント（scripts/seed.mjs・scripts/unseed.mjs）から呼ぶ。
 
-import { buildTestCards, isTestCardName } from './testData.mjs'
+import { buildTestCards } from './testData.mjs'
 import { updateCardDates } from './cardDb.mjs'
 
 /**
- * テストデータのカードをすべて削除する。
- * 削除対象は名前が接頭辞に一致するカードのみで、手動で作ったカードには触れない。
+ * 開発環境のカードをすべて削除する。
+ * クリーンな状態からテストデータを投入できるようにするため、テストデータ以外も消す。
  * @returns 削除した件数
  */
-export async function removeTestCards(api, log = () => {}) {
+export async function removeAllCards(api, log = () => {}) {
   const summaries = await api.listCards()
-  const targets = summaries.filter((card) => isTestCardName(card.name))
-  for (const card of targets) {
+  for (const card of summaries) {
     await api.deleteCard(card.id)
     log(`  削除: ${card.name}（${card.id}）`)
   }
-  return targets.length
+  return summaries.length
 }
 
 /**
@@ -43,12 +42,13 @@ async function applyCardDates(api, sql, spec, cardId) {
 }
 
 /**
- * テストデータを投入する。既存のテストデータは事前に削除するため、常にクリーンな状態になる。
+ * テストデータを投入する。
+ * 投入前に開発環境のカードをすべて削除するため、常にクリーンな状態になる。
  * @returns 作成したカード件数
  */
 export async function seedTestCards({ api, sql, log = () => {}, now = Date.now() }) {
-  log('既存のテストデータを削除しています...')
-  const removed = await removeTestCards(api, log)
+  log('既存のカードを削除しています...')
+  const removed = await removeAllCards(api, log)
   log(`  ${removed} 件削除しました`)
 
   log('テストデータを投入しています...')

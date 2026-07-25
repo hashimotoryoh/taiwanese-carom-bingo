@@ -12,6 +12,20 @@ export function resolveBaseUrl(env = process.env) {
 }
 
 /**
+ * 接続先がローカルの開発環境であることを確認する。
+ * シーダーは開発環境のカードをすべて削除するため、誤って他の環境へ向けないようにする。
+ */
+export function assertLocalBaseUrl(baseUrl) {
+  const { hostname } = new URL(baseUrl)
+  if (!['localhost', '127.0.0.1', '[::1]', '::1'].includes(hostname)) {
+    throw new Error(
+      `ローカルの開発環境以外へは実行できません（接続先: ${baseUrl}）。` +
+        'このコマンドは接続先のカードをすべて削除します。',
+    )
+  }
+}
+
+/**
  * サーバーエラー時の試行回数（初回を含む）。
  * ローカルDBの接続枯渇は接続がアイドルタイムアウトで解放されるまで続くため、
  * 待ち時間の合計（1+2+4+8=15秒）がその解放を待てる長さになるようにしている。

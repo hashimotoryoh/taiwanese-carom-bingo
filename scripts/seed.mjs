@@ -1,9 +1,9 @@
 // 開発環境（`npm run dev:netlify`）へテストデータを投入する。
 // 実行: npm run db:seed
-// 投入前に既存のテストデータを削除するため、常にクリーンな状態になる。
+// 投入前に開発環境のカードをすべて削除するため、常にクリーンな状態になる。
 // 接続先は環境変数 BINGO_BASE_URL で変更できる（既定: http://localhost:8888）。
 
-import { createLoggingBingoApi, resolveBaseUrl } from './lib/bingoApi.mjs'
+import { assertLocalBaseUrl, createLoggingBingoApi, resolveBaseUrl } from './lib/bingoApi.mjs'
 import { connectDatabase, resolveConnectionString } from './lib/cardDb.mjs'
 import { seedTestCards } from './lib/seedRunner.mjs'
 
@@ -11,6 +11,7 @@ const log = (message) => process.stdout.write(`${message}\n`)
 
 async function main() {
   const baseUrl = resolveBaseUrl()
+  assertLocalBaseUrl(baseUrl)
 
   // 出目の記録日時は API では指定できないため、投入後に日時だけDBへ書き戻す
   const connectionString = await resolveConnectionString()

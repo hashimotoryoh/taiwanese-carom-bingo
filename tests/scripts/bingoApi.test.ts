@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   DEFAULT_BASE_URL,
   MAX_ATTEMPTS,
+  assertLocalBaseUrl,
   createBingoApi,
   createLoggingBingoApi,
   resolveBaseUrl,
@@ -38,6 +39,19 @@ describe('resolveBaseUrl', () => {
   it('環境変数で上書きでき、末尾のスラッシュを取り除く', () => {
     expect(resolveBaseUrl({ BINGO_BASE_URL: 'http://127.0.0.1:3000//' })).toBe(
       'http://127.0.0.1:3000',
+    )
+  })
+})
+
+describe('assertLocalBaseUrl', () => {
+  it('ローカルの接続先なら通す', () => {
+    expect(() => assertLocalBaseUrl('http://localhost:8888')).not.toThrow()
+    expect(() => assertLocalBaseUrl('http://127.0.0.1:3000')).not.toThrow()
+  })
+
+  it('ローカル以外の接続先はエラーにする（全削除を伴うため）', () => {
+    expect(() => assertLocalBaseUrl('https://taiwanese-carom-bingo.netlify.app')).toThrow(
+      'ローカルの開発環境以外へは実行できません',
     )
   })
 })

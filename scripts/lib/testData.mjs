@@ -2,13 +2,8 @@
 // カード名には必ず TEST_CARD_NAME_PREFIX を付け、本番のカードと一目で区別できるようにする。
 // 生成は擬似乱数のシードから決定的に行うため、何度投入しても同じ盤面になる。
 
-/** テストデータのカード名に付ける接頭辞。この接頭辞の有無だけで削除対象を判別する */
+/** テストデータのカード名に付ける接頭辞。本番のカードと一目で区別するために必ず付ける */
 export const TEST_CARD_NAME_PREFIX = '【テストデータ】'
-
-/** テストデータとして投入されたカードか（＝シーダーが削除してよいカードか） */
-export function isTestCardName(name) {
-  return typeof name === 'string' && name.startsWith(TEST_CARD_NAME_PREFIX)
-}
 
 // shared/utils/bingo.ts の COLUMNS / GRID_SIZE / FREE_ROW / FREE_VALUE / MIN_ROLL / MAX_ROLL と
 // 揃えること（スクリプトは .mjs のため TypeScript の定義を直接 import できない）。
