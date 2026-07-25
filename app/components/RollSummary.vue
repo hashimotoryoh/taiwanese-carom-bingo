@@ -7,5 +7,6 @@ const stats = computed(() => computeRollStats(props.card))
 </script>
 
 <template>
-  <StatsSummary :stats="stats" total-rolls-label="カイルン回数" />
+  <!-- カード単体のページでは「通算」を付けず「カイルン回数」などにする -->
+  <StatsSummary :stats="stats" label-prefix="" />
 </template>

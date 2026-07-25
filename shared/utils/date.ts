@@ -12,6 +12,19 @@ export function fmtDateTime(ts: number): string {
   return `${fmtDate(ts)} ${hh}:${mm}`
 }
 
+/** epoch ミリ秒を M/D 形式にフォーマットする（グラフの軸ラベルなど省スペース用途） */
+export function fmtShortDate(ts: number): string {
+  const d = new Date(ts)
+  return `${d.getMonth() + 1}/${d.getDate()}`
+}
+
+/** epoch ミリ秒をその日の0時（ローカルタイム）に丸めた epoch ミリ秒を返す */
+export function startOfDay(ts: number): number {
+  const d = new Date(ts)
+  d.setHours(0, 0, 0, 0)
+  return d.getTime()
+}
+
 /** 2つの日時の間の日数（最小1日） */
 export function daysBetween(tsStart: number, tsEnd: number): number {
   return Math.max(1, Math.round((tsEnd - tsStart) / 86400000))

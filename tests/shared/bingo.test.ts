@@ -5,6 +5,7 @@ import {
   FREE_ROW,
   FREE_VALUE,
   GRID_SIZE,
+  ROLL_EXPECTED_VALUE,
   aggregateRollStats,
   blankDraft,
   buildPunched,
@@ -14,6 +15,8 @@ import {
   countCompletedLines,
   countPunched,
   countReachLines,
+  crossCardRolls,
+  dailyRollAverages,
   draftToNumbers,
   emptyPunched,
   findCell,
@@ -24,6 +27,7 @@ import {
   randomUnique,
   reachCells,
   rollHistory,
+  signedRollValue,
   toSummary,
   validateDraft,
 } from '../../shared/utils/bingo'
@@ -391,7 +395,6 @@ describe('computeRollStats / aggregateRollStats', () => {
     expect(stats).toEqual({
       totalRolls: 0,
       averageValue: 0,
-      avgRollsPerDay: 0,
       totalZorome: 0,
       zoromeRatioPercent: 0,
       punchRatePercent: 0,
@@ -422,19 +425,80 @@ describe('computeRollStats / aggregateRollStats', () => {
     expect(stats.punchRatePercent).toBe(50)
   })
 
-  it('日をまたぐ記録では同日平均カイルン回数を按分する', () => {
-    const d1 = new Date(2026, 0, 1).getTime()
-    const d2 = new Date(2026, 0, 2).getTime()
-    const card = makeCard({ rolls: [makeRoll(1, d1), makeRoll(2, d1), makeRoll(3, d2)] })
-    const stats = computeRollStats(card)
-    expect(stats.avgRollsPerDay).toBe(3 / 2)
-  })
-
   it('aggregateRollStatsは複数カードを横断集計する', () => {
     const cardA = makeCard({ id: 'a', rolls: [makeRoll(1, 0)] })
     const cardB = makeCard({ id: 'b', rolls: [makeRoll(2, 0), makeRoll(999, 0)] })
     const stats = aggregateRollStats([cardA, cardB])
     expect(stats.totalRolls).toBe(3)
     expect(stats.punchRatePercent).toBeCloseTo((2 / 3) * 100)
+  })
+})
+
+describe('ROLL_EXPECTED_VALUE', () => {
+  it('出目1回あたりの得点の期待値 6148/119（≒51.7）', () => {
+    expect(ROLL_EXPECTED_VALUE).toBe(6148 / 119)
+    expect(ROLL_EXPECTED_VALUE.toFixed(1)).toBe('51.7')
+  })
+})
+
+describe('signedRollValue', () => {
+  it('通常の出目はそのままの値を返す', () => {
+    expect(signedRollValue(37)).toBe(37)
+  })
+
+  it('ゾロ目はマイナスにする', () => {
+    expect(signedRollValue(11)).toBe(-11)
+    expect(signedRollValue(111)).toBe(-111)
+  })
+
+  it('100は200として扱う', () => {
+    expect(signedRollValue(100)).toBe(200)
+  })
+})
+
+describe('dailyRollAverages', () => {
+  const day1 = new Date(2026, 0, 1, 10).getTime()
+  const day1Night = new Date(2026, 0, 1, 22).getTime()
+  const day2 = new Date(2026, 0, 3, 9).getTime()
+
+  it('記録が無ければ空配列を返す', () => {
+    expect(dailyRollAverages([makeCard()])).toEqual([])
+  })
+
+  it('同じ日の記録をまとめ、日ごとの平均と通算平均を古い順に返す', () => {
+    const card = makeCard({
+      rolls: [makeRoll(60, day1Night), makeRoll(20, day1), makeRoll(10, day2)],
+    })
+    const points = dailyRollAverages([card])
+    expect(points).toHaveLength(2)
+    expect(points[0]).toMatchObject({ count: 2, average: 40, cumulativeAverage: 40 })
+    expect(points[1]).toMatchObject({ count: 1, average: 10, cumulativeAverage: 30 })
+    expect(points[0]!.date).toBe(new Date(2026, 0, 1).getTime())
+    expect(points[1]!.date).toBe(new Date(2026, 0, 3).getTime())
+  })
+
+  it('複数カードの記録を横断して集計する', () => {
+    const cardA = makeCard({ id: 'a', rolls: [makeRoll(20, day1)] })
+    const cardB = makeCard({ id: 'b', rolls: [makeRoll(60, day1Night)] })
+    const points = dailyRollAverages([cardA, cardB])
+    expect(points).toHaveLength(1)
+    expect(points[0]!.average).toBe(40)
+  })
+
+  it('平均値はゾロ目をマイナス・100を200として計算する', () => {
+    const card = makeCard({ rolls: [makeRoll(11, day1), makeRoll(100, day1)] })
+    expect(dailyRollAverages([card])[0]!.average).toBe((-11 + 200) / 2)
+  })
+})
+
+describe('crossCardRolls', () => {
+  it('複数カードの出目を新しい順にまとめる', () => {
+    const cardA = makeCard({ id: 'a', rolls: [makeRoll(1, 10, 'r1'), makeRoll(3, 50, 'r3')] })
+    const cardB = makeCard({ id: 'b', rolls: [makeRoll(2, 30, 'r2')] })
+    expect(crossCardRolls([cardA, cardB]).map((r) => r.id)).toEqual(['r3', 'r2', 'r1'])
+  })
+
+  it('記録が無ければ空配列を返す', () => {
+    expect(crossCardRolls([makeCard()])).toEqual([])
   })
 })

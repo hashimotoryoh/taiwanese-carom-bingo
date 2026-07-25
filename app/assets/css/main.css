@@ -163,6 +163,46 @@ a.btn {
   background: var(--stamp-dark);
   color: var(--paper);
 }
+/* アイコンのみのボタン（正方形に近い余白でアイコンを中央寄せする） */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px;
+  line-height: 0;
+}
+.btn-icon svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+.btn-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* 枠も背景も持たない、アイコンだけのボタン */
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: none;
+}
+.btn-ghost:hover:not(:disabled) {
+  color: var(--stamp);
+}
+/* 再読み込み中はアイコンを回転させる */
+.btn-icon.is-loading svg {
+  animation: btn-icon-spin 0.8s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-icon.is-loading svg {
+    animation: none;
+  }
+}
+@keyframes btn-icon-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 .row {
   display: flex;
   gap: 10px;
@@ -280,7 +320,7 @@ a.btn {
   color: var(--paper);
 }
 
-/* ---------- person stats list (全統計データの人別一覧) ---------- */
+/* ---------- person stats list (全員の統計データの人別一覧) ---------- */
 /* 枠線・影は持たせず、全体集計と同じ .roll-summary のタイルだけを見せる */
 .person-stats-list {
   display: flex;
@@ -743,7 +783,22 @@ a.btn {
   font-weight: 700;
   color: var(--ink);
 }
-/* 個人データ用の控えめな見た目。グリッドは共通のまま、カードではなく罫線で区切る */
+/* 統計値に添える補足（出目の平均値に対する期待値など）。計算の解説ページへのリンクにする */
+.summary-note {
+  align-self: flex-start;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  opacity: 0.75;
+  margin-top: -2px;
+  text-decoration: none;
+  border-bottom: 1px dotted currentcolor;
+}
+.summary-note:hover {
+  color: var(--stamp-dark);
+  opacity: 1;
+}
+/* 個人統計データ用の控えめな見た目。グリッドは共通のまま、カードではなく罫線で区切る */
 .roll-summary.compact {
   gap: 8px 12px;
 }
@@ -762,6 +817,10 @@ a.btn {
 .roll-summary.compact .summary-value {
   font-size: 1rem;
   color: var(--ink-soft);
+}
+/* 人別一覧は一覧性を優先し、補足は省く */
+.roll-summary.compact .summary-note {
+  display: none;
 }
 .person-stats:hover .roll-summary.compact .summary-item {
   border-left-color: var(--gold);
@@ -792,6 +851,8 @@ a.btn {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
   color: var(--ink);
+  /* 出目とゾロ目タグを1行に保つ（列が増える個人統計データの履歴でも折り返さないように） */
+  white-space: nowrap;
 }
 .history-value.zorome {
   color: var(--stamp-dark);
@@ -830,6 +891,103 @@ a.btn {
 }
 .history-delete:hover {
   background: rgba(184, 57, 43, 0.12);
+}
+
+.history-more {
+  text-align: center;
+  padding: 14px 0 2px;
+}
+
+/* ---------- charts (統計データのグラフ) ---------- */
+/* SVGのviewBoxは実寸（CSSピクセル）に合わせているため、文字サイズもpxでそのまま指定できる */
+.chart {
+  background: #fffaf0;
+  border: 1px solid rgba(35, 46, 61, 0.1);
+  border-radius: 10px;
+  padding: 12px 12px 8px;
+}
+.chart-svg {
+  display: block;
+  width: 100%;
+}
+.chart-grid line {
+  stroke: rgba(35, 46, 61, 0.12);
+}
+.chart-grid line.zero {
+  stroke: rgba(35, 46, 61, 0.35);
+  stroke-dasharray: 4 3;
+}
+/* 期待値の基準線。罫線と見分けが付くよう、金色の破線で少し強めに引く */
+.chart-expected {
+  stroke: var(--gold-dark);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 4;
+  opacity: 0.85;
+}
+.chart-axis-label,
+.chart-tick-labels text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--ink-soft);
+}
+.chart-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* 日ごとの平均は参考値なので、破線＋薄い色で通算平均より控えめに見せる */
+.chart-line.daily {
+  stroke: rgba(184, 57, 43, 0.42);
+  stroke-width: 1.8;
+  stroke-dasharray: 6 4;
+}
+.chart-line.cumulative {
+  stroke: var(--teal);
+  stroke-width: 2.4;
+}
+.chart-dots circle {
+  fill: rgba(184, 57, 43, 0.45);
+  stroke: #fffaf0;
+  stroke-width: 1.4;
+}
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+  padding: 2px 2px 0;
+}
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.chart-legend-item::before {
+  content: '';
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+}
+.chart-legend-item.daily::before {
+  background: repeating-linear-gradient(90deg, rgba(184, 57, 43, 0.42) 0 6px, transparent 6px 10px);
+}
+.chart-legend-item.cumulative::before {
+  background: var(--teal);
+}
+/* 期待値だけは計算の解説ページへのリンクにする */
+.chart-legend-item.expected {
+  color: var(--gold-dark);
+  text-decoration: none;
+}
+.chart-legend-item.expected:hover {
+  color: var(--stamp-dark);
+  text-decoration: underline;
+}
+.chart-legend-item.expected::before {
+  background: repeating-linear-gradient(90deg, var(--gold-dark) 0 5px, transparent 5px 9px);
 }
 
 /* ---------- rules modal ---------- */
@@ -893,6 +1051,10 @@ a.btn {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
 }
+.warning {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
 .modal-close {
   width: 100%;
   margin-top: 6px;
@@ -938,6 +1100,17 @@ a.btn {
 }
 
 @media (max-width: 480px) {
+  /* 履歴テーブルが横に収まるよう詰める */
+  .history-table {
+    font-size: 0.76rem;
+  }
+  .history-table th,
+  .history-table td {
+    padding: 8px 5px;
+  }
+  .history-datetime {
+    font-size: 0.64rem;
+  }
   .col-head {
     width: 30px;
     height: 30px;

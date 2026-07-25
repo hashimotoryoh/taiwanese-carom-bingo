@@ -1,5 +1,5 @@
 import type { BingoCard, ColumnDef, ColumnKey, DraftCard, Roll } from '../types/bingo'
-import { fmtDate } from './date'
+import { startOfDay } from './date'
 
 export const COLUMNS: ColumnDef[] = [
   { key: 'B', label: 'B', min: 1, max: 24 },
@@ -271,8 +271,6 @@ export interface RollStats {
   totalRolls: number
   /** 出目の平均値（ゾロ目はマイナスとして計算、100は200として計算） */
   averageValue: number
-  /** 同日平均カイルン回数（記録を日付でまとめた1日あたりの平均） */
-  avgRollsPerDay: number
   /** 総ゾロ目回数 */
   totalZorome: number
   /** ゾロ目割合の百分率（ゾロ目回数 / 記録数 × 100） */
@@ -286,6 +284,21 @@ export function punchRatePercent(punchedCount: number, rollCount: number): numbe
   return rollCount === 0 ? 0 : (punchedCount / rollCount) * 100
 }
 
+/**
+ * 出目1回あたりの得点の期待値（6148 / 119 ≒ 51.7）。
+ * 導出は `app/content/docs/d120-expected-value.md` を参照。
+ */
+export const ROLL_EXPECTED_VALUE = 6148 / 119
+
+/**
+ * 平均値の計算に使う出目の値。
+ * ゾロ目はマイナス、100（センターマス相当の大当たり）は200として扱うローカルルール。
+ */
+export function signedRollValue(value: number): number {
+  if (isZorome(value)) return -value
+  return value === 100 ? 200 : value
+}
+
 /** 出目履歴とパンチ数からサマリー統計を計算する（1人・複数カード分の集計いずれにも使う） */
 function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollStats {
   const totalRolls = rolls.length
@@ -293,24 +306,18 @@ function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollSta
     return {
       totalRolls: 0,
       averageValue: 0,
-      avgRollsPerDay: 0,
       totalZorome: 0,
       zoromeRatioPercent: 0,
       punchRatePercent: 0,
     }
   }
 
-  const signedSum = rolls.reduce(
-    (sum, r) => sum + (isZorome(r.value) ? -r.value : r.value === 100 ? 200 : r.value),
-    0,
-  )
+  const signedSum = rolls.reduce((sum, r) => sum + signedRollValue(r.value), 0)
   const totalZorome = rolls.filter((r) => isZorome(r.value)).length
-  const distinctDays = new Set(rolls.map((r) => fmtDate(r.rolledAt))).size
 
   return {
     totalRolls,
     averageValue: signedSum / totalRolls,
-    avgRollsPerDay: distinctDays === 0 ? 0 : totalRolls / distinctDays,
     totalZorome,
     zoromeRatioPercent: (totalZorome / totalRolls) * 100,
     punchRatePercent: punchRatePercent(punchedCount, totalRolls),
@@ -324,10 +331,58 @@ export function computeRollStats(card: BingoCard): RollStats {
 
 /**
  * 複数カード分の出目履歴をまとめてサマリー統計を計算する。
- * 同じ人物が持つ複数のビンゴカード（進行中・アーカイブ済み問わず）を横断集計する用途。
+ * 同じ人物が持つ複数のビンゴカード（進行中・アーカイブ済み問わず）や、
+ * 全員分のカードを横断集計する用途。
  */
 export function aggregateRollStats(cards: BingoCard[]): RollStats {
   const rolls = cards.flatMap((c) => c.rolls)
   const punchedCount = cards.reduce((sum, c) => sum + countPunched(buildPunched(c)), 0)
   return computeRollStatsFromRolls(rolls, punchedCount)
+}
+
+/** 出目の平均値の遷移グラフ1点分（1日分の集計） */
+export interface RollAveragePoint {
+  /** 対象日の0時（epoch ミリ秒） */
+  date: number
+  /** その日の記録数 */
+  count: number
+  /** その日の平均値 */
+  average: number
+  /** その日までの通算平均値 */
+  cumulativeAverage: number
+}
+
+/**
+ * 複数カード分の出目を記録日ごとにまとめ、平均値の推移を古い順に返す。
+ * 平均値は `signedRollValue`（ゾロ目はマイナス・100は200）に従う。記録の無い日は点を作らない。
+ */
+export function dailyRollAverages(cards: BingoCard[]): RollAveragePoint[] {
+  const byDate = new Map<number, { count: number; sum: number }>()
+  for (const roll of cards.flatMap((c) => c.rolls)) {
+    const date = startOfDay(roll.rolledAt)
+    const bucket = byDate.get(date) ?? { count: 0, sum: 0 }
+    bucket.count += 1
+    bucket.sum += signedRollValue(roll.value)
+    byDate.set(date, bucket)
+  }
+
+  let cumulativeCount = 0
+  let cumulativeSum = 0
+  return [...byDate.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([date, { count, sum }]) => {
+      cumulativeCount += count
+      cumulativeSum += sum
+      return {
+        date,
+        count,
+        average: sum / count,
+        cumulativeAverage: cumulativeSum / cumulativeCount,
+      }
+    })
+}
+
+/** 複数カード分の出目をまとめて新しい順に返す */
+export function crossCardRolls(cards: BingoCard[]): Roll[] {
+  return cards.flatMap((card) => card.rolls).sort((a, b) => b.rolledAt - a.rolledAt)
 }

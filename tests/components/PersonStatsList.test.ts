@@ -2,16 +2,16 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import PersonStatsList from '../../app/components/PersonStatsList.vue'
 import StatsSummary from '../../app/components/StatsSummary.vue'
+import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { navigateTo } from '../setup/nuxtStubs'
 import type { RollStats } from '../../shared/utils/bingo'
 
-const global = { components: { StatsSummary } }
+const global = { components: { StatsSummary, NuxtLink: NuxtLinkStub } }
 
 function makeStats(overrides: Partial<RollStats> = {}): RollStats {
   return {
     averageValue: 60,
     totalRolls: 10,
-    avgRollsPerDay: 2,
     totalZorome: 1,
     zoromeRatioPercent: 10,
     punchRatePercent: 50,
@@ -53,12 +53,11 @@ describe('PersonStatsList', () => {
       global,
     })
     expect(wrapper.findAll('.summary-label').map((l) => l.text())).toEqual([
-      '総カイルン回数',
-      '同日平均カイルン回数',
+      '通算カイルン回数',
       '出目の平均値',
-      'ゾロ目回数',
-      'ゾロ目割合',
-      'ビンゴカードパンチ率',
+      '通算ゾロ目回数',
+      '通算ゾロ目割合',
+      '通算ビンゴカードパンチ率',
     ])
   })
 
@@ -70,7 +69,6 @@ describe('PersonStatsList', () => {
             name: '太郎',
             stats: makeStats({
               totalRolls: 12,
-              avgRollsPerDay: 2.34,
               averageValue: 60.44,
               totalZorome: 3,
               zoromeRatioPercent: 25,
@@ -83,7 +81,6 @@ describe('PersonStatsList', () => {
     })
     expect(wrapper.findAll('.summary-value').map((v) => v.text())).toEqual([
       '12',
-      '2.3',
       '60.4',
       '3',
       '25%',

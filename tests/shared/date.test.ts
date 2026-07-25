@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { daysBetween, fmtDate, fmtDateTime } from '../../shared/utils/date'
+import {
+  daysBetween,
+  fmtDate,
+  fmtDateTime,
+  fmtShortDate,
+  startOfDay,
+} from '../../shared/utils/date'
 
 describe('fmtDate', () => {
   it('YYYY/MM/DD 形式にフォーマットする', () => {
@@ -20,6 +26,26 @@ describe('fmtDateTime', () => {
   it('時・分を2桁にゼロ埋めする', () => {
     const ts = new Date(2026, 6, 24, 23, 59).getTime()
     expect(fmtDateTime(ts)).toBe('2026/07/24 23:59')
+  })
+})
+
+describe('fmtShortDate', () => {
+  it('M/D 形式にフォーマットする（ゼロ埋めしない）', () => {
+    expect(fmtShortDate(new Date(2026, 0, 5).getTime())).toBe('1/5')
+    expect(fmtShortDate(new Date(2026, 11, 31).getTime())).toBe('12/31')
+  })
+})
+
+describe('startOfDay', () => {
+  it('その日の0時に丸める', () => {
+    const ts = new Date(2026, 6, 24, 23, 59, 59, 999).getTime()
+    expect(startOfDay(ts)).toBe(new Date(2026, 6, 24).getTime())
+  })
+
+  it('同じ日の異なる時刻は同じ値になる', () => {
+    const morning = new Date(2026, 6, 24, 1).getTime()
+    const night = new Date(2026, 6, 24, 22).getTime()
+    expect(startOfDay(morning)).toBe(startOfDay(night))
   })
 })
 
