@@ -61,6 +61,8 @@ export default defineConfig({
         { from: '#composables/useConfetti', imports: ['useConfetti'] },
         { from: '#composables/useDraftCard', imports: ['useDraftCard'] },
         { from: '#composables/useRulesModal', imports: ['useRulesModal'] },
+        { from: '#utils/markdown', imports: ['renderMarkdown', 'extractTitle'] },
+        { from: '#utils/docs', imports: ['docList', 'getDoc'] },
       ],
     }),
     vue(),
@@ -69,6 +71,7 @@ export default defineConfig({
     alias: {
       '#shared': fileURLToPath(new URL('./shared', import.meta.url)),
       '#composables': fileURLToPath(new URL('./app/composables', import.meta.url)),
+      '#utils': fileURLToPath(new URL('./app/utils', import.meta.url)),
       '#test-stubs': fileURLToPath(new URL('./tests/setup', import.meta.url)),
     },
   },
