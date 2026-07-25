@@ -64,7 +64,7 @@ npx netlify database reset
 
 ```bash
 npm run db:seed         # テストデータを投入する（投入前に開発環境のカードをすべて削除する）
-npm run db:seed:clean   # 開発環境のカードをすべて削除する
+npm run db:clean        # 開発環境のカードをすべて削除する
 ```
 
 カードの作成は開発サーバーの API 経由で行い、バリデーションやビンゴ自動判定をアプリ本体と同じ経路に通す。ただし出目の記録日時（`rolledAt`）だけは API で指定できないため、投入後に日時のみローカル DB へ直接書き戻して複数日に分散させている（`scripts/lib/cardDb.mjs`）。カード名は `【テストデータ】` 始まり。**削除は接続先のカードをすべて消す**ため、接続先が `localhost` / `127.0.0.1` 以外の場合はエラーで中断する。投入するカードの定義は `scripts/lib/testData.mjs`。

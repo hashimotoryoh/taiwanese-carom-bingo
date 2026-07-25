@@ -1,4 +1,4 @@
-// テストデータの投入・削除の手順。エントリポイント（scripts/seed.mjs・scripts/unseed.mjs）から呼ぶ。
+// テストデータの投入・削除の手順。エントリポイント（scripts/seed.mjs・scripts/clean.mjs）から呼ぶ。
 
 import { buildTestCards } from './testData.mjs'
 import { updateCardDates } from './cardDb.mjs'

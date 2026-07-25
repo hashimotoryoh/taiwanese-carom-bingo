@@ -1,5 +1,5 @@
 // 開発環境（`npm run dev:netlify`）のカードをすべて削除する。
-// 実行: npm run db:seed:clean
+// 実行: npm run db:clean
 // テストデータかどうかに関わらず、接続先のカードをすべて消す点に注意すること。
 // 接続先は環境変数 BINGO_BASE_URL で変更できる（既定: http://localhost:8888）。
 
