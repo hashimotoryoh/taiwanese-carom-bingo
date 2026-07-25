@@ -180,6 +180,11 @@ a.btn {
   opacity: 0.5;
   cursor: not-allowed;
 }
+/* 無効時はホバーの塗りつぶしを効かせず、再読み込み中のアイコンの視認性を保つ */
+.btn-secondary.btn-icon:disabled:hover {
+  background: transparent;
+  color: var(--ink);
+}
 /* 再読み込み中はアイコンを回転させる */
 .btn-icon.is-loading svg {
   animation: btn-icon-spin 0.8s linear infinite;
