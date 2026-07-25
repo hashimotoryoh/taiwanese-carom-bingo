@@ -45,6 +45,7 @@ describe('card/[id].vue', () => {
       data: ref(undefined),
       status: ref('pending'),
       refresh: vi.fn(),
+      error: ref(null),
     })
     const wrapper = mount(CardIdPage, { global })
     expect(wrapper.find('.loading').exists()).toBe(true)
@@ -55,6 +56,7 @@ describe('card/[id].vue', () => {
       data: ref(null),
       status: ref('success'),
       refresh: vi.fn(),
+      error: ref(null),
     })
     const wrapper = mount(CardIdPage, { global })
     expect(wrapper.find('.empty').exists()).toBe(true)
@@ -66,6 +68,7 @@ describe('card/[id].vue', () => {
       data: ref(card),
       status: ref('success'),
       refresh: vi.fn(),
+      error: ref(null),
     })
     const wrapper = mount(CardIdPage, { global })
     expect(wrapper.findComponent(RollInput).exists()).toBe(true)
@@ -80,6 +83,7 @@ describe('card/[id].vue', () => {
       data: ref(card),
       status: ref('success'),
       refresh: vi.fn(),
+      error: ref(null),
     })
     const wrapper = mount(CardIdPage, { global })
     expect(wrapper.findComponent(RollInput).exists()).toBe(false)
@@ -98,6 +102,7 @@ describe('card/[id].vue', () => {
       data: ref(card),
       status: ref('success'),
       refresh: vi.fn(),
+      error: ref(null),
     })
     const wrapper = mount(CardIdPage, { global })
 
@@ -117,6 +122,7 @@ describe('card/[id].vue', () => {
       data: ref(card),
       status: ref('success'),
       refresh: vi.fn(),
+      error: ref(null),
     })
     const wrapper = mount(CardIdPage, { global })
 
@@ -135,6 +141,7 @@ describe('card/[id].vue', () => {
       data: ref(card),
       status: ref('success'),
       refresh: vi.fn(),
+      error: ref(null),
     })
     const wrapper = mount(CardIdPage, { global })
     expect(wrapper.find('.reach-banner').exists()).toBe(true)
@@ -155,6 +162,7 @@ describe('card/[id].vue', () => {
       data: ref(card),
       status: ref('success'),
       refresh: vi.fn(),
+      error: ref(null),
     })
     const wrapper = mount(CardIdPage, { global })
 
@@ -176,7 +184,12 @@ describe('card/[id].vue', () => {
     vi.mocked(useBingoApi).mockReturnValue({ recordRoll } as unknown as ReturnType<
       typeof useBingoApi
     >)
-    vi.mocked(useFetch).mockReturnValue({ data: ref(card), status: ref('success'), refresh })
+    vi.mocked(useFetch).mockReturnValue({
+      data: ref(card),
+      status: ref('success'),
+      refresh,
+      error: ref(null),
+    })
     const wrapper = mount(CardIdPage, { global })
 
     await wrapper.findComponent(RollInput).vm.$emit('record', 5)
@@ -192,6 +205,7 @@ describe('card/[id].vue', () => {
       data: ref(card),
       status: ref('success'),
       refresh: vi.fn(),
+      error: ref(null),
     })
     const wrapper = mount(CardIdPage, { global })
 
@@ -216,6 +230,7 @@ describe('card/[id].vue', () => {
       data: ref(card),
       status: ref('success'),
       refresh: vi.fn(),
+      error: ref(null),
     })
     useDraftCard().value = { name: '前回の下書き', columns: { B: [], I: [], N: [], G: [], O: [] } }
     const wrapper = mount(CardIdPage, { global })
@@ -243,6 +258,7 @@ describe('card/[id].vue', () => {
       data: ref(card),
       status: ref('success'),
       refresh: vi.fn(),
+      error: ref(null),
     })
     const wrapper = mount(CardIdPage, { global })
     await wrapper.findComponent(RollInput).vm.$emit('record', 5)
@@ -261,11 +277,92 @@ describe('card/[id].vue', () => {
       data: ref(card),
       status: ref('success'),
       refresh: vi.fn(),
+      error: ref(null),
     })
     const wrapper = mount(CardIdPage, { global })
 
     await wrapper.findComponent(RollHistoryTable).vm.$emit('delete', 'roll-1')
     await wrapper.find('.confirm-ok').trigger('click')
     await vi.waitFor(() => expect(deleteRoll).toHaveBeenCalledWith(card.id, 'roll-1'))
+  })
+
+  it('再読み込みボタンを押すと最新状態を取り直す', async () => {
+    const card = makeCard()
+    const refresh = vi.fn()
+    vi.mocked(useFetch).mockReturnValue({
+      data: ref(card),
+      status: ref('success'),
+      refresh,
+      error: ref(null),
+    })
+    const wrapper = mount(CardIdPage, { global })
+
+    await wrapper.find('button[aria-label="再読み込み"]').trigger('click')
+    await vi.waitFor(() => expect(refresh).toHaveBeenCalled())
+  })
+
+  it('再読み込み中は全面のローディングに切り替えず、ボタンを無効化する', async () => {
+    const card = makeCard()
+    const status = ref('success')
+    // refresh 中は useFetch の status が pending に戻る
+    const refresh = vi.fn().mockImplementation(async () => {
+      status.value = 'pending'
+      await Promise.resolve()
+      status.value = 'success'
+    })
+    vi.mocked(useFetch).mockReturnValue({
+      data: ref(card),
+      status,
+      refresh,
+      error: ref(null),
+    })
+    const wrapper = mount(CardIdPage, { global })
+
+    const button = wrapper.find('button[aria-label="再読み込み"]')
+    button.trigger('click')
+    await vi.waitFor(() => expect(refresh).toHaveBeenCalled())
+
+    // カード本体が「読み込み中...」に置き換わって押したボタンごと消えてはいけない
+    expect(wrapper.find('.loading').exists()).toBe(false)
+    expect(wrapper.find('button[aria-label="再読み込み"]').exists()).toBe(true)
+  })
+
+  it('再読み込みが通信エラーで失敗しても直前のカードを保持する', async () => {
+    const card = makeCard()
+    const data = ref<ReturnType<typeof makeCard> | undefined>(card)
+    const error = ref<{ statusCode: number } | null>(null)
+    // useFetch は失敗時に data を default（未指定なら undefined）へ戻す
+    const refresh = vi.fn().mockImplementation(async () => {
+      data.value = undefined
+      error.value = { statusCode: 500 }
+    })
+    vi.mocked(useFetch).mockReturnValue({ data, status: ref('success'), refresh, error })
+    const wrapper = mount(CardIdPage, { global })
+
+    await wrapper.find('button[aria-label="再読み込み"]').trigger('click')
+    await vi.waitFor(() => expect(refresh).toHaveBeenCalled())
+
+    expect(data.value).toEqual(card)
+    expect(wrapper.find('.empty').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('見つかりませんでした')
+  })
+
+  it('再読み込みが404ならカードを保持せず見つからない表示にする', async () => {
+    const card = makeCard()
+    const data = ref<ReturnType<typeof makeCard> | undefined>(card)
+    const error = ref<{ statusCode: number } | null>(null)
+    // 他の端末で完全削除された場合は404が返る
+    const refresh = vi.fn().mockImplementation(async () => {
+      data.value = undefined
+      error.value = { statusCode: 404 }
+    })
+    vi.mocked(useFetch).mockReturnValue({ data, status: ref('success'), refresh, error })
+    const wrapper = mount(CardIdPage, { global })
+
+    await wrapper.find('button[aria-label="再読み込み"]').trigger('click')
+    await vi.waitFor(() => expect(refresh).toHaveBeenCalled())
+
+    expect(data.value).toBeUndefined()
+    expect(wrapper.find('.empty').exists()).toBe(true)
   })
 })

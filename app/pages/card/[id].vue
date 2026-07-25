@@ -8,16 +8,18 @@ const {
   data: card,
   status,
   refresh,
+  error,
 } = useFetch<BingoCard>(`/api/cards/${id}`, {
   key: `card-${id}`,
 })
 
 // useFetch は失敗すると card を undefined に戻すため、そのままだとカードが存在するのに
-// 「見つかりませんでした」表示に化ける。取得できなかった場合は直前の内容を保持する
+// 「見つかりませんでした」表示に化ける。取得できなかった場合は直前の内容を保持する。
+// ただし404は他の端末で削除された場合なので、その時だけは保持せず見つからない扱いにする
 async function reloadCard() {
   const previous = card.value
   await refresh()
-  if (!card.value) card.value = previous
+  if (!card.value && error.value?.statusCode !== 404) card.value = previous
 }
 
 useHead(() => ({ title: card.value ? `${card.value.name} | カイルンBINGO` : 'カイルンBINGO' }))
