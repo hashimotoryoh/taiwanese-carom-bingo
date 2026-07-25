@@ -31,7 +31,7 @@ for (const [path, markdown] of Object.entries(modules)) {
 }
 
 // 表示順を固定するためのスラッグ順。ここに無いスラッグは末尾にアルファベット順で続く
-const ORDER = ['d120-expected-value', 'average-cairn-count']
+const ORDER = ['d120-expected-value', 'avg-carom-count']
 
 // 全ドキュメントの一覧（ナビゲーション用）。ORDER の並びを優先する
 export const docList: DocEntry[] = Object.values(docsBySlug).sort((a, b) => {
