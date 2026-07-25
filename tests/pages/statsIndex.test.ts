@@ -4,6 +4,8 @@ import { ref } from 'vue'
 import StatsIndexPage from '../../app/pages/stats/index.vue'
 import PersonStatsList from '../../app/components/PersonStatsList.vue'
 import StatsSummary from '../../app/components/StatsSummary.vue'
+import RollAverageTrendChart from '../../app/components/RollAverageTrendChart.vue'
+import RollDistributionChart from '../../app/components/RollDistributionChart.vue'
 import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { useAsyncData } from '../setup/nuxtStubs'
 import { useBingoApi } from '../../app/composables/useBingoApi'
@@ -12,7 +14,15 @@ import { makeCard, makeRoll } from '../setup/fixtures'
 
 vi.mock('../../app/composables/useBingoApi', () => ({ useBingoApi: vi.fn() }))
 
-const global = { components: { PersonStatsList, StatsSummary, NuxtLink: NuxtLinkStub } }
+const global = {
+  components: {
+    PersonStatsList,
+    StatsSummary,
+    RollAverageTrendChart,
+    RollDistributionChart,
+    NuxtLink: NuxtLinkStub,
+  },
+}
 
 beforeEach(() => {
   resetTestState()
@@ -31,6 +41,27 @@ describe('stats/index.vue', () => {
     const wrapper = mount(StatsIndexPage, { global })
     expect(wrapper.find('.empty').exists()).toBe(true)
     expect(wrapper.findComponent(PersonStatsList).exists()).toBe(false)
+  })
+
+  it('出目があれば全員分の平均値の遷移グラフと偏差グラフを表示する', () => {
+    const cards = [
+      makeCard({ id: 'a', name: '太郎', rolls: [makeRoll(1, new Date(2026, 0, 1).getTime())] }),
+      makeCard({ id: 'b', name: '花子', rolls: [makeRoll(2, new Date(2026, 0, 2).getTime())] }),
+    ]
+    vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
+    const wrapper = mount(StatsIndexPage, { global })
+    // 全員分（2人・2日）をまとめて集計する
+    expect(wrapper.findComponent(RollAverageTrendChart).props('points')).toHaveLength(2)
+    const bins = wrapper.findComponent(RollDistributionChart).props('bins')
+    expect(bins[0]!.count).toBe(2)
+  })
+
+  it('出目が無ければグラフを表示しない', () => {
+    const cards = [makeCard({ id: 'a', name: '太郎' })]
+    vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
+    const wrapper = mount(StatsIndexPage, { global })
+    expect(wrapper.findComponent(RollAverageTrendChart).exists()).toBe(false)
+    expect(wrapper.findComponent(RollDistributionChart).exists()).toBe(false)
   })
 
   it('同名カードを1人にまとめて統計を集計し通算カイルン回数の多い順に並べる', () => {

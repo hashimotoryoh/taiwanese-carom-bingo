@@ -958,13 +958,14 @@ a.btn {
   stroke: #fffaf0;
   stroke-width: 1.4;
 }
+/* 偏差の棒。期待より多い区間と少ない区間を色で分ける */
 .chart-bars rect {
   fill: var(--teal);
   opacity: 0.72;
 }
-.chart-bars rect.top {
-  fill: var(--gold-dark);
-  opacity: 1;
+.chart-bars rect.negative {
+  fill: var(--stamp);
+  opacity: 0.55;
 }
 .chart-legend {
   display: flex;
@@ -1128,6 +1129,10 @@ a.btn {
   }
   .history-datetime {
     font-size: 0.64rem;
+  }
+  /* 棒が細くなるぶん、偏差の値も小さくして隣とぶつからないようにする */
+  .chart-bar-value {
+    font-size: 9px;
   }
   .col-head {
     width: 30px;

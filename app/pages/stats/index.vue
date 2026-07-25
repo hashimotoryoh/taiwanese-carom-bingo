@@ -8,6 +8,10 @@ const { data: cards, status } = useAsyncData<BingoCard[]>('stats-all', () => api
 
 const overallStats = computed(() => aggregateRollStats(cards.value ?? []))
 
+const hasRolls = computed(() => overallStats.value.totalRolls > 0)
+const averagePoints = computed(() => dailyRollAverages(cards.value ?? []))
+const distribution = computed(() => rollDistribution(cards.value ?? []))
+
 const persons = computed(() => {
   const byName = new Map<string, BingoCard[]>()
   for (const card of cards.value ?? []) {
@@ -40,6 +44,14 @@ const persons = computed(() => {
     <div v-if="status === 'pending'" class="loading">読み込み中...</div>
     <template v-else>
       <StatsSummary :stats="overallStats" />
+
+      <template v-if="hasRolls">
+        <h3 class="roll-section-title">出目の平均値の遷移</h3>
+        <RollAverageTrendChart :points="averagePoints" />
+
+        <h3 class="roll-section-title">出目の分布</h3>
+        <RollDistributionChart :bins="distribution" />
+      </template>
 
       <h3 class="roll-section-title">個人統計データ</h3>
       <div v-if="persons.length === 0" class="empty">
