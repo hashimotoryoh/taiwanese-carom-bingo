@@ -320,7 +320,7 @@ a.btn {
   color: var(--paper);
 }
 
-/* ---------- person stats list (全統計データの人別一覧) ---------- */
+/* ---------- person stats list (全員の統計データの人別一覧) ---------- */
 /* 枠線・影は持たせず、全体集計と同じ .roll-summary のタイルだけを見せる */
 .person-stats-list {
   display: flex;
@@ -874,15 +874,6 @@ a.btn {
   background: rgba(184, 57, 43, 0.12);
 }
 
-.history-card a {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  color: var(--ink-soft);
-  white-space: nowrap;
-}
-.history-card a:hover {
-  color: var(--stamp-dark);
-}
 .history-more {
   text-align: center;
   padding: 14px 0 2px;
@@ -927,19 +918,20 @@ a.btn {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+/* 日ごとの平均は参考値なので、破線＋薄い色で通算平均より控えめに見せる */
 .chart-line.daily {
-  stroke: var(--stamp);
-  stroke-width: 2.4;
+  stroke: rgba(184, 57, 43, 0.42);
+  stroke-width: 1.8;
+  stroke-dasharray: 6 4;
 }
 .chart-line.cumulative {
   stroke: var(--teal);
-  stroke-width: 2;
-  stroke-dasharray: 6 4;
+  stroke-width: 2.4;
 }
 .chart-dots circle {
-  fill: var(--stamp);
+  fill: rgba(184, 57, 43, 0.45);
   stroke: #fffaf0;
-  stroke-width: 1.6;
+  stroke-width: 1.4;
 }
 .chart-bars rect {
   fill: var(--teal);
@@ -970,10 +962,10 @@ a.btn {
   border-radius: 2px;
 }
 .chart-legend-item.daily::before {
-  background: var(--stamp);
+  background: repeating-linear-gradient(90deg, rgba(184, 57, 43, 0.42) 0 6px, transparent 6px 10px);
 }
 .chart-legend-item.cumulative::before {
-  background: repeating-linear-gradient(90deg, var(--teal) 0 6px, transparent 6px 10px);
+  background: var(--teal);
 }
 .chart-note {
   font-size: 0.66rem;
@@ -1088,7 +1080,7 @@ a.btn {
 }
 
 @media (max-width: 480px) {
-  /* 列の多い履歴テーブル（個人統計データ）でも横に収まるよう詰める */
+  /* 履歴テーブルが横に収まるよう詰める */
   .history-table {
     font-size: 0.76rem;
   }
@@ -1098,9 +1090,6 @@ a.btn {
   }
   .history-datetime {
     font-size: 0.64rem;
-  }
-  .history-card a {
-    font-size: 0.62rem;
   }
   .col-head {
     width: 30px;

@@ -33,7 +33,7 @@ describe('stats/index.vue', () => {
     expect(wrapper.findComponent(PersonStatsList).exists()).toBe(false)
   })
 
-  it('同名カードを1人にまとめて統計を集計し総カイルン回数の多い順に並べる', () => {
+  it('同名カードを1人にまとめて統計を集計し通算カイルン回数の多い順に並べる', () => {
     const cards = [
       makeCard({ id: 'a1', name: '太郎', createdAt: 1, updatedAt: 100, rolls: [makeRoll(1, 1)] }),
       makeCard({ id: 'a2', name: '太郎', createdAt: 2, updatedAt: 300, rolls: [makeRoll(2, 2)] }),
@@ -51,7 +51,7 @@ describe('stats/index.vue', () => {
     expect(rows[1]!.stats.totalRolls).toBe(0)
   })
 
-  it('総カイルン回数が多ければ最終更新が古くても先に並べる', () => {
+  it('通算カイルン回数が多ければ最終更新が古くても先に並べる', () => {
     const cards = [
       makeCard({ id: 'a1', name: '太郎', createdAt: 1, updatedAt: 100, rolls: [makeRoll(1, 1)] }),
       makeCard({ id: 'b1', name: '花子', createdAt: 2, updatedAt: 900, rolls: [] }),
@@ -69,7 +69,7 @@ describe('stats/index.vue', () => {
     expect(rows.map((r) => r.name)).toEqual(['次郎', '太郎', '花子'])
   })
 
-  it('総カイルン回数が同数なら最終更新が新しい順に並べる', () => {
+  it('通算カイルン回数が同数なら最終更新が新しい順に並べる', () => {
     const cards = [
       makeCard({ id: 'a1', name: '太郎', createdAt: 1, updatedAt: 100, rolls: [makeRoll(1, 1)] }),
       makeCard({ id: 'b1', name: '花子', createdAt: 2, updatedAt: 300, rolls: [makeRoll(2, 2)] }),

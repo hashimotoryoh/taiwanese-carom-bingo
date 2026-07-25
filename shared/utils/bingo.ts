@@ -403,25 +403,7 @@ export function rollDistribution(cards: BingoCard[]): RollDistributionBin[] {
   return bins
 }
 
-/** 複数カードを横断した出目履歴の1行（どのカードの記録かを併せ持つ） */
-export interface CrossCardRollHistoryRow extends RollHistoryRow {
-  cardId: string
-  /** 記録元カードの作成日時（同一人物の複数カードを見分ける表示に使う） */
-  cardCreatedAt: number
-}
-
-/**
- * 複数カード分の出目履歴をまとめて新しい順に返す。
- * マスラベルの付け方はカード単位の `rollHistory` と同じ（カードごとに判定する）。
- */
-export function crossCardRollHistory(cards: BingoCard[]): CrossCardRollHistoryRow[] {
-  return cards
-    .flatMap((card) =>
-      rollHistory(card).map((row) => ({
-        ...row,
-        cardId: card.id,
-        cardCreatedAt: card.createdAt,
-      })),
-    )
-    .sort((a, b) => b.roll.rolledAt - a.roll.rolledAt)
+/** 複数カード分の出目をまとめて新しい順に返す */
+export function crossCardRolls(cards: BingoCard[]): Roll[] {
+  return cards.flatMap((card) => card.rolls).sort((a, b) => b.rolledAt - a.rolledAt)
 }

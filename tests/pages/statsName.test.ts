@@ -79,7 +79,7 @@ describe('stats/[name].vue', () => {
     expect(wrapper.text()).toContain('まだ出目が記録されていません。')
   })
 
-  it('全統計データへのリンクは /stats を指す', () => {
+  it('全員の統計データへのリンクは /stats を指す', () => {
     const cards = [makeCard({ id: 'a', name: '太郎' })]
     vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
     const wrapper = mount(StatsNamePage, { global })

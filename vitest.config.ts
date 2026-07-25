@@ -37,7 +37,7 @@ const BINGO_UTILS = [
   'dailyRollAverages',
   'DISTRIBUTION_BIN_SIZE',
   'rollDistribution',
-  'crossCardRollHistory',
+  'crossCardRolls',
 ]
 
 export default defineConfig({

@@ -52,11 +52,11 @@ describe('PersonStatsList', () => {
       global,
     })
     expect(wrapper.findAll('.summary-label').map((l) => l.text())).toEqual([
-      '総カイルン回数',
+      '通算カイルン回数',
       '出目の平均値',
-      'ゾロ目回数',
-      'ゾロ目割合',
-      'ビンゴカードパンチ率',
+      '通算ゾロ目回数',
+      '通算ゾロ目割合',
+      '通算ビンゴカードパンチ率',
     ])
   })
 

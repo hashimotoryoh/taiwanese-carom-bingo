@@ -10,15 +10,13 @@ const props = withDefaults(
   { initialLimit: 30 },
 )
 
-const rows = computed(() => crossCardRollHistory(props.cards))
-// カードが1枚だけなら、どのカードの記録かは自明なので列ごと省く
-const showCardColumn = computed(() => props.cards.length > 1)
+const rolls = computed(() => crossCardRolls(props.cards))
 
 const expanded = ref(false)
-const visibleRows = computed(() =>
-  expanded.value ? rows.value : rows.value.slice(0, props.initialLimit),
+const visibleRolls = computed(() =>
+  expanded.value ? rolls.value : rolls.value.slice(0, props.initialLimit),
 )
-const hiddenCount = computed(() => rows.value.length - visibleRows.value.length)
+const hiddenCount = computed(() => rolls.value.length - visibleRolls.value.length)
 </script>
 
 <template>
@@ -28,20 +26,14 @@ const hiddenCount = computed(() => rows.value.length - visibleRows.value.length)
         <tr>
           <th>日時</th>
           <th>出目</th>
-          <th>パンチされたマス目</th>
-          <th v-if="showCardColumn">カード</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in visibleRows" :key="row.roll.id">
-          <td class="history-datetime">{{ fmtDateTime(row.roll.rolledAt) }}</td>
-          <td class="history-value" :class="{ zorome: isZorome(row.roll.value) }">
-            {{ row.roll.value }}
-            <span v-if="isZorome(row.roll.value)" class="zorome-tag">ゾロ目</span>
-          </td>
-          <td class="history-cell">{{ row.label ?? '—' }}</td>
-          <td v-if="showCardColumn" class="history-card">
-            <NuxtLink :to="`/card/${row.cardId}`">{{ fmtDate(row.cardCreatedAt) }} 作成</NuxtLink>
+        <tr v-for="roll in visibleRolls" :key="roll.id">
+          <td class="history-datetime">{{ fmtDateTime(roll.rolledAt) }}</td>
+          <td class="history-value" :class="{ zorome: isZorome(roll.value) }">
+            {{ roll.value }}
+            <span v-if="isZorome(roll.value)" class="zorome-tag">ゾロ目</span>
           </td>
         </tr>
       </tbody>

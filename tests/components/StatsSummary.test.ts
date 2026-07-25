@@ -18,19 +18,25 @@ describe('StatsSummary', () => {
   it('決められた順番のラベルで表示する', () => {
     const wrapper = mount(StatsSummary, { props: { stats: makeStats() } })
     expect(wrapper.findAll('.summary-label').map((l) => l.text())).toEqual([
-      '総カイルン回数',
+      '通算カイルン回数',
+      '出目の平均値',
+      '通算ゾロ目回数',
+      '通算ゾロ目割合',
+      '通算ビンゴカードパンチ率',
+    ])
+  })
+
+  it('labelPrefixを空にすると「通算」の付かないラベルになる', () => {
+    const wrapper = mount(StatsSummary, {
+      props: { stats: makeStats(), labelPrefix: '' },
+    })
+    expect(wrapper.findAll('.summary-label').map((l) => l.text())).toEqual([
+      'カイルン回数',
       '出目の平均値',
       'ゾロ目回数',
       'ゾロ目割合',
       'ビンゴカードパンチ率',
     ])
-  })
-
-  it('totalRollsLabelでカイルン総数のラベルを差し替えられる', () => {
-    const wrapper = mount(StatsSummary, {
-      props: { stats: makeStats(), totalRollsLabel: 'カイルン回数' },
-    })
-    expect(wrapper.findAll('.summary-label')[0]!.text()).toBe('カイルン回数')
   })
 
   it('compactを指定したときだけグリッドにcompactクラスを付ける', () => {

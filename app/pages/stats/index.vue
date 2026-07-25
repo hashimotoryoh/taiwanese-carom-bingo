@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { BingoCard } from '#shared/types/bingo'
 
-useHead({ title: '全統計データ | カイルンBINGO' })
+useHead({ title: '全員の統計データ | カイルンBINGO' })
 
 const api = useBingoApi()
 const { data: cards, status } = useAsyncData<BingoCard[]>('stats-all', () => api.fetchAllCards())
@@ -23,7 +23,7 @@ const persons = computed(() => {
       stats: aggregateRollStats(group),
     }))
     .sort(
-      // 総カイルン回数の多い順。同数なら最終更新が新しい順にする
+      // 通算カイルン回数の多い順。同数なら最終更新が新しい順にする
       (a, b) => b.stats.totalRolls - a.stats.totalRolls || b.latestActivity - a.latestActivity,
     )
 })
@@ -31,7 +31,7 @@ const persons = computed(() => {
 
 <template>
   <div>
-    <h2 class="page-title">全統計データ</h2>
+    <h2 class="page-title">全員の統計データ</h2>
     <p class="page-sub">これまでに記録された全員分のカイルンを集計しています</p>
     <div class="row" style="margin-bottom: 20px">
       <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>

@@ -14,7 +14,7 @@ import {
   countCompletedLines,
   countPunched,
   countReachLines,
-  crossCardRollHistory,
+  crossCardRolls,
   dailyRollAverages,
   draftToNumbers,
   emptyPunched,
@@ -509,26 +509,14 @@ describe('rollDistribution', () => {
   })
 })
 
-describe('crossCardRollHistory', () => {
-  it('複数カードの履歴を新しい順にまとめ、カード情報を添える', () => {
-    const cardA = makeCard({ id: 'a', createdAt: 100, rolls: [makeRoll(1, 10, 'r1')] })
-    const cardB = makeCard({ id: 'b', createdAt: 200, rolls: [makeRoll(2, 30, 'r2')] })
-    const rows = crossCardRollHistory([cardA, cardB])
-    expect(rows.map((r) => r.roll.id)).toEqual(['r2', 'r1'])
-    expect(rows[0]).toMatchObject({ cardId: 'b', cardCreatedAt: 200, label: 'B2' })
+describe('crossCardRolls', () => {
+  it('複数カードの出目を新しい順にまとめる', () => {
+    const cardA = makeCard({ id: 'a', rolls: [makeRoll(1, 10, 'r1'), makeRoll(3, 50, 'r3')] })
+    const cardB = makeCard({ id: 'b', rolls: [makeRoll(2, 30, 'r2')] })
+    expect(crossCardRolls([cardA, cardB]).map((r) => r.id)).toEqual(['r3', 'r2', 'r1'])
   })
 
-  it('マスラベルはカードごとに判定する（同じ出目でも別カードなら両方に付く）', () => {
-    const cardA = makeCard({ id: 'a', rolls: [makeRoll(1, 10, 'r1')] })
-    const cardB = makeCard({ id: 'b', rolls: [makeRoll(1, 20, 'r2')] })
-    const rows = crossCardRollHistory([cardA, cardB])
-    expect(rows.map((r) => r.label)).toEqual(['B1', 'B1'])
-  })
-
-  it('カード内の2回目以降の同一出目にはラベルを付けない', () => {
-    const card = makeCard({ rolls: [makeRoll(1, 10, 'r1'), makeRoll(1, 20, 'r2')] })
-    const rows = crossCardRollHistory([card])
-    expect(rows.find((r) => r.roll.id === 'r2')!.label).toBeNull()
-    expect(rows.find((r) => r.roll.id === 'r1')!.label).toBe('B1')
+  it('記録が無ければ空配列を返す', () => {
+    expect(crossCardRolls([makeCard()])).toEqual([])
   })
 })

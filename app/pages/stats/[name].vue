@@ -26,7 +26,7 @@ const distribution = computed(() => rollDistribution(personCards.value))
     <div v-if="status === 'pending'" class="loading">読み込み中...</div>
     <div v-else-if="personCards.length === 0" class="empty">
       <p>{{ name }}さんの記録は見つかりませんでした。</p>
-      <NuxtLink class="btn btn-primary" to="/stats">全統計データへ戻る</NuxtLink>
+      <NuxtLink class="btn btn-primary" to="/stats">全員の統計データへ戻る</NuxtLink>
     </div>
     <template v-else>
       <h2 class="page-title">{{ name }}の統計データ</h2>
@@ -35,7 +35,7 @@ const distribution = computed(() => rollDistribution(personCards.value))
         <template v-if="bingoCount > 0">・ビンゴ達成 {{ bingoCount }} 回</template>
       </p>
       <div class="row" style="margin-bottom: 20px">
-        <NuxtLink class="btn btn-secondary" to="/stats">← 全統計データへ戻る</NuxtLink>
+        <NuxtLink class="btn btn-secondary" to="/stats">← 全員の統計データへ戻る</NuxtLink>
       </div>
 
       <StatsSummary :stats="stats" />

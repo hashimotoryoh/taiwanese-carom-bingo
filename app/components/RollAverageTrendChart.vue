@@ -73,16 +73,18 @@ const dateLabels = computed(() => {
         </g>
       </g>
 
-      <polyline class="chart-line cumulative" :points="cumulativeLine" />
+      <!-- 控えめな日ごとの平均を先に描き、主役の通算平均を上に重ねる -->
       <polyline class="chart-line daily" :points="dailyLine" />
 
       <g class="chart-dots">
-        <circle v-for="p in plotted" :key="p.point.date" :cx="p.x" :cy="p.y" r="4">
+        <circle v-for="p in plotted" :key="p.point.date" :cx="p.x" :cy="p.y" r="3.5">
           <title>
             {{ fmtDate(p.point.date) }} 平均 {{ fmtNum(p.point.average) }}（{{ p.point.count }}回）
           </title>
         </circle>
       </g>
+
+      <polyline class="chart-line cumulative" :points="cumulativeLine" />
 
       <g class="chart-tick-labels">
         <text
