@@ -22,7 +22,10 @@ const persons = computed(() => {
       latestActivity: Math.max(...group.map((c) => c.updatedAt ?? c.createdAt)),
       stats: aggregateRollStats(group),
     }))
-    .sort((a, b) => b.latestActivity - a.latestActivity)
+    .sort(
+      // 総カイルン回数の多い順。同数なら最終更新が新しい順にする
+      (a, b) => b.stats.totalRolls - a.stats.totalRolls || b.latestActivity - a.latestActivity,
+    )
 })
 </script>
 
