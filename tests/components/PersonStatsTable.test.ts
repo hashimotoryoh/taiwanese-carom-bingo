@@ -61,6 +61,20 @@ describe('PersonStatsTable', () => {
     ])
   })
 
+  it('各値に見出しをdata-labelとして持たせる（狭い画面での縦積み表示用）', () => {
+    const wrapper = mount(PersonStatsTable, {
+      props: { rows: [{ name: '太郎', stats: makeStats() }] },
+    })
+    expect(wrapper.findAll('tbody td').map((td) => td.attributes('data-label'))).toEqual([
+      '総カイルン回数',
+      '同日平均カイルン回数',
+      '出目の平均値',
+      'ゾロ目回数',
+      'ゾロ目割合',
+      'ビンゴカードパンチ率',
+    ])
+  })
+
   it('行クリックで個人統計データページへ遷移する（名前はURLエンコードする）', async () => {
     const wrapper = mount(PersonStatsTable, {
       props: { rows: [{ name: '太郎', stats: makeStats() }] },

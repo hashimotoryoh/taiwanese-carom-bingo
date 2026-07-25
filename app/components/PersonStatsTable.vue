@@ -26,12 +26,13 @@ defineProps<{ rows: { name: string; stats: RollStats }[] }>()
           @click="navigateTo(`/stats/${encodeURIComponent(row.name)}`)"
         >
           <th scope="row" class="stats-name">{{ row.name }}</th>
-          <td>{{ row.stats.totalRolls }}</td>
-          <td>{{ fmtNum(row.stats.avgRollsPerDay) }}</td>
-          <td>{{ fmtNum(row.stats.averageValue) }}</td>
-          <td>{{ row.stats.totalZorome }}</td>
-          <td>{{ fmtNum(row.stats.zoromeRatioPercent) }}%</td>
-          <td>{{ fmtNum(row.stats.punchRatePercent) }}%</td>
+          <!-- data-label は狭い画面で見出しを各値の前に表示するために使う（CSSのみで切り替え） -->
+          <td data-label="総カイルン回数">{{ row.stats.totalRolls }}</td>
+          <td data-label="同日平均カイルン回数">{{ fmtNum(row.stats.avgRollsPerDay) }}</td>
+          <td data-label="出目の平均値">{{ fmtNum(row.stats.averageValue) }}</td>
+          <td data-label="ゾロ目回数">{{ row.stats.totalZorome }}</td>
+          <td data-label="ゾロ目割合">{{ fmtNum(row.stats.zoromeRatioPercent) }}%</td>
+          <td data-label="ビンゴカードパンチ率">{{ fmtNum(row.stats.punchRatePercent) }}%</td>
         </tr>
       </tbody>
     </table>

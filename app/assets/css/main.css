@@ -282,11 +282,12 @@ a.btn {
 
 /* ---------- person stats table (全統計データの人別一覧) ---------- */
 .stats-table-wrap {
-  overflow-x: auto;
   background: linear-gradient(180deg, #fff8ea, var(--paper) 60%);
   border: 1px solid rgba(35, 46, 61, 0.08);
   border-radius: var(--radius);
   box-shadow: 0 4px 12px var(--shadow);
+  /* 角丸からはみ出す行のホバー背景を切り取る */
+  overflow: hidden;
 }
 .stats-table {
   width: 100%;
@@ -295,13 +296,14 @@ a.btn {
 }
 .stats-table th,
 .stats-table td {
-  padding: 10px 12px;
+  padding: 10px 8px;
   text-align: right;
-  white-space: nowrap;
   border-bottom: 1px solid rgba(35, 46, 61, 0.1);
 }
+/* 見出しは折り返して収める（横スクロールを出さないため nowrap にしない） */
 .stats-table thead th {
-  font-size: 0.68rem;
+  font-size: 0.66rem;
+  line-height: 1.35;
   color: var(--ink-soft);
   font-weight: 700;
 }
@@ -313,10 +315,15 @@ a.btn {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
   color: var(--ink);
+  white-space: nowrap;
 }
 .stats-table th:first-child,
 .stats-table .stats-name {
   text-align: left;
+  padding-left: 14px;
+}
+.stats-table td:last-child {
+  padding-right: 14px;
 }
 .stats-name {
   font-weight: 800;
@@ -327,6 +334,51 @@ a.btn {
 }
 .stats-row:hover {
   background: rgba(212, 167, 61, 0.14);
+}
+/* 列が収まらない幅では、1人分を縦積みのカードとして表示する（横スクロールを避ける） */
+@media (max-width: 700px) {
+  .stats-table,
+  .stats-table tbody,
+  .stats-table tr,
+  .stats-table th,
+  .stats-table td {
+    display: block;
+  }
+  .stats-table thead {
+    display: none;
+  }
+  .stats-table th,
+  .stats-table td {
+    padding: 0;
+    border-bottom: none;
+  }
+  .stats-table tbody tr {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(35, 46, 61, 0.12);
+  }
+  .stats-table tbody tr:last-child {
+    border-bottom: none;
+  }
+  .stats-table .stats-name {
+    font-size: 1rem;
+    padding: 0 0 6px;
+    border-bottom: 2px dotted rgba(35, 46, 61, 0.15);
+    margin-bottom: 6px;
+  }
+  .stats-table td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 3px 0;
+  }
+  .stats-table td::before {
+    content: attr(data-label);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
 }
 
 /* ---------- create page grid ---------- */
