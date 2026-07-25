@@ -58,7 +58,7 @@ describe('stats/index.vue', () => {
     expect(wrapper.find('.roll-section-title').text()).toBe('個人統計データ')
   })
 
-  it('全体の同日平均カイルン回数は人数で割った1人あたりの値になる', () => {
+  it('全体集計は全員分のカードを横断して合算する', () => {
     const day = new Date(2026, 0, 1).getTime()
     const cards = [
       makeCard({ id: 'a1', name: '太郎', rolls: [makeRoll(1, day), makeRoll(2, day)] }),
@@ -66,8 +66,7 @@ describe('stats/index.vue', () => {
     ]
     vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
     const wrapper = mount(StatsIndexPage, { global })
-    // 1日 × 2人 で記録3件なので 1.5
-    expect(wrapper.findComponent(StatsSummary).props('stats').avgRollsPerDay).toBe(1.5)
+    expect(wrapper.findComponent(StatsSummary).props('stats').totalRolls).toBe(3)
   })
 
   it('人別の一覧にビンゴカード枚数・最終更新日は表示しない', () => {

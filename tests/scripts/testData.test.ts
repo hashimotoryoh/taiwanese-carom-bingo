@@ -172,11 +172,11 @@ describe('buildTestCards', () => {
     }
   })
 
-  it('出目の記録日時が複数日に分散する（同日平均カイルン回数の確認用）', () => {
+  it('出目の記録日時が複数日に分散する（日付ごとの履歴表示の確認用）', () => {
     const spreadDays = cards.map((spec) => new Set(spec.rolls.map((r) => fmtDate(r.rolledAt))).size)
     // 出目のあるカードはすべて2日以上にまたがる
     expect(spreadDays.filter((days) => days > 0).every((days) => days >= 2)).toBe(true)
-    // カードごとに日数が異なる（同日平均カイルン回数がカードごとに変わる）
+    // カードごとに記録がまたがる日数が異なる
     expect(new Set(spreadDays).size).toBeGreaterThan(2)
   })
 

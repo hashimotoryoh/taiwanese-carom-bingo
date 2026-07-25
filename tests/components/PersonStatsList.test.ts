@@ -11,7 +11,6 @@ function makeStats(overrides: Partial<RollStats> = {}): RollStats {
   return {
     averageValue: 60,
     totalRolls: 10,
-    avgRollsPerDay: 2,
     totalZorome: 1,
     zoromeRatioPercent: 10,
     punchRatePercent: 50,
@@ -54,7 +53,6 @@ describe('PersonStatsList', () => {
     })
     expect(wrapper.findAll('.summary-label').map((l) => l.text())).toEqual([
       '総カイルン回数',
-      '同日平均カイルン回数',
       '出目の平均値',
       'ゾロ目回数',
       'ゾロ目割合',
@@ -70,7 +68,6 @@ describe('PersonStatsList', () => {
             name: '太郎',
             stats: makeStats({
               totalRolls: 12,
-              avgRollsPerDay: 2.34,
               averageValue: 60.44,
               totalZorome: 3,
               zoromeRatioPercent: 25,
@@ -83,7 +80,6 @@ describe('PersonStatsList', () => {
     })
     expect(wrapper.findAll('.summary-value').map((v) => v.text())).toEqual([
       '12',
-      '2.3',
       '60.4',
       '3',
       '25%',

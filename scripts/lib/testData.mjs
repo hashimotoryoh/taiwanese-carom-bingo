@@ -138,7 +138,7 @@ function timestampsInDay(now, daysAgo, count) {
 
 /**
  * 出目の記録日時を `dayRange`（[何日前から, 何日前まで]）の期間へ日付をまたいで分散させる。
- * 同日平均カイルン回数や日付ごとの履歴表示を確認できるようにするため。
+ * 日付ごとの履歴表示を確認できるようにするため。
  * 出目は記録順（古い順）に並び、範囲の初日と最終日には必ず1件以上入る。
  */
 function buildRolledAtList(count, [from, to], now) {
