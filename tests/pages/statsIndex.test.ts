@@ -51,6 +51,24 @@ describe('stats/index.vue', () => {
     expect(rows[1]!.stats.totalRolls).toBe(0)
   })
 
+  it('個人統計データの見出しを表示する', () => {
+    const cards = [makeCard({ id: 'a1', name: '太郎', updatedAt: 100 })]
+    vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
+    const wrapper = mount(StatsIndexPage, { global })
+    expect(wrapper.find('.roll-section-title').text()).toBe('個人統計データ')
+  })
+
+  it('全体集計は全員分のカードを横断して合算する', () => {
+    const day = new Date(2026, 0, 1).getTime()
+    const cards = [
+      makeCard({ id: 'a1', name: '太郎', rolls: [makeRoll(1, day), makeRoll(2, day)] }),
+      makeCard({ id: 'b1', name: '花子', rolls: [makeRoll(3, day)] }),
+    ]
+    vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
+    const wrapper = mount(StatsIndexPage, { global })
+    expect(wrapper.findComponent(StatsSummary).props('stats').totalRolls).toBe(3)
+  })
+
   it('人別の一覧にビンゴカード枚数・最終更新日は表示しない', () => {
     const cards = [makeCard({ id: 'a1', name: '太郎', updatedAt: 100 })]
     vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })

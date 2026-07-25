@@ -7,7 +7,6 @@ function makeStats(overrides: Partial<RollStats> = {}): RollStats {
   return {
     averageValue: 60,
     totalRolls: 10,
-    avgRollsPerDay: 2,
     totalZorome: 1,
     zoromeRatioPercent: 10,
     punchRatePercent: 50,
@@ -20,7 +19,6 @@ describe('StatsSummary', () => {
     const wrapper = mount(StatsSummary, { props: { stats: makeStats() } })
     expect(wrapper.findAll('.summary-label').map((l) => l.text())).toEqual([
       '総カイルン回数',
-      '同日平均カイルン回数',
       '出目の平均値',
       'ゾロ目回数',
       'ゾロ目割合',
@@ -46,13 +44,12 @@ describe('StatsSummary', () => {
   it('整数値はそのまま、小数値は小数第1位までを表示する', () => {
     const wrapper = mount(StatsSummary, {
       props: {
-        stats: makeStats({ totalRolls: 10, avgRollsPerDay: 2.34, averageValue: 60.456 }),
+        stats: makeStats({ totalRolls: 10, averageValue: 60.456 }),
       },
     })
     const values = wrapper.findAll('.summary-value').map((v) => v.text())
     expect(values[0]).toBe('10')
-    expect(values[1]).toBe('2.3')
-    expect(values[2]).toBe('60.5')
-    expect(values[4]).toBe('10%')
+    expect(values[1]).toBe('60.5')
+    expect(values[3]).toBe('10%')
   })
 })

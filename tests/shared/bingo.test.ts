@@ -391,7 +391,6 @@ describe('computeRollStats / aggregateRollStats', () => {
     expect(stats).toEqual({
       totalRolls: 0,
       averageValue: 0,
-      avgRollsPerDay: 0,
       totalZorome: 0,
       zoromeRatioPercent: 0,
       punchRatePercent: 0,
@@ -420,14 +419,6 @@ describe('computeRollStats / aggregateRollStats', () => {
     const card = makeCard({ rolls: [makeRoll(1, 0), makeRoll(999, 0)] })
     const stats = computeRollStats(card)
     expect(stats.punchRatePercent).toBe(50)
-  })
-
-  it('日をまたぐ記録では同日平均カイルン回数を按分する', () => {
-    const d1 = new Date(2026, 0, 1).getTime()
-    const d2 = new Date(2026, 0, 2).getTime()
-    const card = makeCard({ rolls: [makeRoll(1, d1), makeRoll(2, d1), makeRoll(3, d2)] })
-    const stats = computeRollStats(card)
-    expect(stats.avgRollsPerDay).toBe(3 / 2)
   })
 
   it('aggregateRollStatsは複数カードを横断集計する', () => {

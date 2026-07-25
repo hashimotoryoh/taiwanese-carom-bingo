@@ -1,5 +1,4 @@
 import type { BingoCard, ColumnDef, ColumnKey, DraftCard, Roll } from '../types/bingo'
-import { fmtDate } from './date'
 
 export const COLUMNS: ColumnDef[] = [
   { key: 'B', label: 'B', min: 1, max: 24 },
@@ -271,8 +270,6 @@ export interface RollStats {
   totalRolls: number
   /** 出目の平均値（ゾロ目はマイナスとして計算、100は200として計算） */
   averageValue: number
-  /** 同日平均カイルン回数（記録を日付でまとめた1日あたりの平均） */
-  avgRollsPerDay: number
   /** 総ゾロ目回数 */
   totalZorome: number
   /** ゾロ目割合の百分率（ゾロ目回数 / 記録数 × 100） */
@@ -293,7 +290,6 @@ function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollSta
     return {
       totalRolls: 0,
       averageValue: 0,
-      avgRollsPerDay: 0,
       totalZorome: 0,
       zoromeRatioPercent: 0,
       punchRatePercent: 0,
@@ -305,12 +301,10 @@ function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollSta
     0,
   )
   const totalZorome = rolls.filter((r) => isZorome(r.value)).length
-  const distinctDays = new Set(rolls.map((r) => fmtDate(r.rolledAt))).size
 
   return {
     totalRolls,
     averageValue: signedSum / totalRolls,
-    avgRollsPerDay: distinctDays === 0 ? 0 : totalRolls / distinctDays,
     totalZorome,
     zoromeRatioPercent: (totalZorome / totalRolls) * 100,
     punchRatePercent: punchRatePercent(punchedCount, totalRolls),
@@ -324,7 +318,8 @@ export function computeRollStats(card: BingoCard): RollStats {
 
 /**
  * 複数カード分の出目履歴をまとめてサマリー統計を計算する。
- * 同じ人物が持つ複数のビンゴカード（進行中・アーカイブ済み問わず）を横断集計する用途。
+ * 同じ人物が持つ複数のビンゴカード（進行中・アーカイブ済み問わず）や、
+ * 全員分のカードを横断集計する用途。
  */
 export function aggregateRollStats(cards: BingoCard[]): RollStats {
   const rolls = cards.flatMap((c) => c.rolls)
