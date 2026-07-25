@@ -281,6 +281,11 @@ export interface RollStats {
   punchRatePercent: number
 }
 
+/** パンチ率の百分率（パンチ数 / 記録数 × 100）。記録が無ければ0 */
+export function punchRatePercent(punchedCount: number, rollCount: number): number {
+  return rollCount === 0 ? 0 : (punchedCount / rollCount) * 100
+}
+
 /** 出目履歴とパンチ数からサマリー統計を計算する（1人・複数カード分の集計いずれにも使う） */
 function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollStats {
   const totalRolls = rolls.length
@@ -308,7 +313,7 @@ function computeRollStatsFromRolls(rolls: Roll[], punchedCount: number): RollSta
     avgRollsPerDay: distinctDays === 0 ? 0 : totalRolls / distinctDays,
     totalZorome,
     zoromeRatioPercent: (totalZorome / totalRolls) * 100,
-    punchRatePercent: (punchedCount / totalRolls) * 100,
+    punchRatePercent: punchRatePercent(punchedCount, totalRolls),
   }
 }
 

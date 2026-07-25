@@ -4,8 +4,8 @@ import type { BingoCardSummary } from '#shared/types/bingo'
 const props = defineProps<{ summary: BingoCardSummary }>()
 
 /** このカードのパンチ率（穴の数 / カイルン回数）。まだ記録が無ければ0% */
-const punchRatePercent = computed(() =>
-  props.summary.rollCount === 0 ? 0 : (props.summary.punchedCount / props.summary.rollCount) * 100,
+const punchRate = computed(() =>
+  punchRatePercent(props.summary.punchedCount, props.summary.rollCount),
 )
 </script>
 
@@ -16,7 +16,7 @@ const punchRatePercent = computed(() =>
     <h3>{{ summary.name }}</h3>
     <div class="stat-row">
       <span class="stat-chip">穴 {{ summary.punchedCount }} 個</span>
-      <span class="stat-chip">パンチ率 {{ fmtNum(punchRatePercent) }}%</span>
+      <span class="stat-chip">パンチ率 {{ fmtNum(punchRate) }}%</span>
       <!-- アーカイブ済みカードはこれ以上進行しないためリーチは表示しない -->
       <span v-if="!summary.archived && summary.reachCount > 0" class="stat-chip reach">
         リーチ {{ summary.reachCount }} 本

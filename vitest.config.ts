@@ -30,6 +30,7 @@ const BINGO_UTILS = [
   'draftToNumbers',
   'toSummary',
   'rollHistory',
+  'punchRatePercent',
   'computeRollStats',
   'aggregateRollStats',
 ]
