@@ -68,7 +68,7 @@ describe('RollAverageTrendChart', () => {
     const wrapper = mount(RollAverageTrendChart, { props: { points }, global })
     expect(wrapper.find('.chart-expected').exists()).toBe(true)
     const legend = wrapper.find('.chart-legend-item.expected')
-    expect(legend.text()).toBe('期待値 51.66')
+    expect(legend.text()).toBe('期待値 51.7')
     // 計算の解説ページへのリンクになっている
     expect(legend.attributes('href')).toBe('/doc/d120-expected-value')
   })

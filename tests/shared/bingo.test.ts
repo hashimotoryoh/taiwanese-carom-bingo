@@ -435,9 +435,9 @@ describe('computeRollStats / aggregateRollStats', () => {
 })
 
 describe('ROLL_EXPECTED_VALUE', () => {
-  it('出目1回あたりの得点の期待値 6148/119（≒51.66）', () => {
+  it('出目1回あたりの得点の期待値 6148/119（≒51.7）', () => {
     expect(ROLL_EXPECTED_VALUE).toBe(6148 / 119)
-    expect(ROLL_EXPECTED_VALUE.toFixed(2)).toBe('51.66')
+    expect(ROLL_EXPECTED_VALUE.toFixed(1)).toBe('51.7')
   })
 })
 

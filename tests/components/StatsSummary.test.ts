@@ -47,7 +47,7 @@ describe('StatsSummary', () => {
     const wrapper = mount(StatsSummary, { props: { stats: makeStats() }, global })
     const notes = wrapper.findAll('.summary-note')
     expect(notes).toHaveLength(1)
-    expect(notes[0]!.text()).toBe('期待値 51.66')
+    expect(notes[0]!.text()).toBe('期待値 51.7')
     // 計算の解説ページへのリンクになっている
     expect(notes[0]!.attributes('href')).toBe('/doc/d120-expected-value')
     // 「出目の平均値」の枠内にあること

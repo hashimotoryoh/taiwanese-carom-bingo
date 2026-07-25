@@ -116,7 +116,7 @@ const dateLabels = computed(() => {
       <span class="chart-legend-item daily">日ごとの平均</span>
       <span class="chart-legend-item cumulative">通算平均</span>
       <NuxtLink class="chart-legend-item expected" :to="EXPECTED_VALUE_DOC_PATH">
-        期待値 {{ ROLL_EXPECTED_VALUE.toFixed(2) }}
+        期待値 {{ ROLL_EXPECTED_VALUE.toFixed(1) }}
       </NuxtLink>
     </div>
   </div>

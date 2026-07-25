@@ -26,7 +26,7 @@ withDefaults(
       <span class="summary-label">出目の平均値</span>
       <span class="summary-value">{{ fmtNum(stats.averageValue) }}</span>
       <NuxtLink class="summary-note" :to="EXPECTED_VALUE_DOC_PATH">
-        期待値 {{ ROLL_EXPECTED_VALUE.toFixed(2) }}
+        期待値 {{ ROLL_EXPECTED_VALUE.toFixed(1) }}
       </NuxtLink>
     </div>
     <div class="summary-item">
