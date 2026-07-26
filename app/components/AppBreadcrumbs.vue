@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from '../composables/useBreadcrumbs'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     items: BreadcrumbItem[]
     /** ページ内に複数置くため、ランドマークを区別できるようラベルを差し替えられるようにする */
@@ -9,6 +9,9 @@ withDefaults(
   }>(),
   { label: 'パンくずリスト' },
 )
+
+// 現在地は末尾の項目ただ1つ。途中の項目に to が無くても現在地扱いにはしない
+const lastIndex = computed(() => props.items.length - 1)
 </script>
 
 <template>
@@ -16,10 +19,16 @@ withDefaults(
     <ol>
       <li v-for="(item, i) in items" :key="`${i}:${item.label}`">
         <!-- 末尾は現在地なのでリンクにしない -->
-        <NuxtLink v-if="item.to && i < items.length - 1" :to="item.to" class="crumb">
+        <NuxtLink v-if="item.to && i !== lastIndex" :to="item.to" class="crumb">
           {{ item.label }}
         </NuxtLink>
-        <span v-else class="crumb is-current" aria-current="page">{{ item.label }}</span>
+        <span
+          v-else
+          class="crumb"
+          :class="{ 'is-current': i === lastIndex }"
+          :aria-current="i === lastIndex ? 'page' : undefined"
+          >{{ item.label }}</span
+        >
       </li>
     </ol>
   </nav>

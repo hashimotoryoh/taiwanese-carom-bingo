@@ -41,6 +41,22 @@ describe('AppBreadcrumbs.vue', () => {
     expect(wrapper.find('[aria-current="page"]').text()).toBe('ビンゴカード一覧')
   })
 
+  it('途中の項目に to が無くてもリンクにせず、現在地扱いにもしない', () => {
+    const wrapper = mount(AppBreadcrumbs, {
+      props: {
+        items: [{ label: 'ビンゴカード一覧', to: '/' }, { label: '中間' }, { label: '現在地' }],
+      },
+      global,
+    })
+
+    // 現在地の印は末尾のただ1つだけ
+    const current = wrapper.findAll('[aria-current="page"]')
+    expect(current).toHaveLength(1)
+    expect(current[0]!.text()).toBe('現在地')
+    expect(wrapper.findAll('a')).toHaveLength(1)
+    expect(wrapper.text()).toContain('中間')
+  })
+
   it('ランドマークのラベルは差し替えられる', () => {
     const items = [{ label: 'ビンゴカード一覧' }]
     const def = mount(AppBreadcrumbs, { props: { items }, global })
