@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import SlugPage from '../../app/pages/doc/[slug].vue'
 import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { useHead, useRoute } from '../setup/nuxtStubs'
+import { useBreadcrumbsState } from '../../app/composables/useBreadcrumbs'
 
 const global = {
   components: { NuxtLink: NuxtLinkStub },
@@ -20,8 +21,6 @@ describe('[slug].vue', () => {
     // h1 見出しとコードブロックが描画されている
     expect(wrapper.find('.doc-body h1').text()).toBe('120面体サイコロの期待値')
     expect(wrapper.find('.doc-body pre code').exists()).toBe(true)
-    // 戻るリンクがある
-    expect(wrapper.find('.back-link').exists()).toBe(true)
   })
 
   it('存在するスラッグでは useHead にドキュメントのタイトルを渡す', () => {
@@ -43,5 +42,23 @@ describe('[slug].vue', () => {
     mount(SlugPage, { global })
     const arg = vi.mocked(useHead).mock.calls[0]![0] as () => { title: string }
     expect(arg().title).toBe('ページが見つかりません | カイルンBINGO')
+  })
+
+  it('パンくずリストにドキュメントのタイトルを登録する', () => {
+    vi.mocked(useRoute).mockReturnValue({ params: { slug: 'avg-carom-count' } })
+    mount(SlugPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'ビンゴまでの平均カイルン回数' },
+    ])
+  })
+
+  it('存在しないスラッグのパンくずリストは見つからない旨にする', () => {
+    vi.mocked(useRoute).mockReturnValue({ params: { slug: 'unknown-slug' } })
+    mount(SlugPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'ページが見つかりません' },
+    ])
   })
 })

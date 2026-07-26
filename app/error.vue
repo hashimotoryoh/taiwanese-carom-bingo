@@ -29,6 +29,9 @@ const detail = computed(() =>
 
 useHead(() => ({ title: `${title.value} | カイルンBINGO` }))
 
+// 直前のページのパンくずリストが残らないよう、エラー表示時も明示的に上書きする
+useBreadcrumbs(() => [{ label: title.value }])
+
 // NuxtLink だけではエラー表示が残る場合があるため、エラー状態を解除しつつ遷移する
 function backToTop() {
   clearError({ redirect: '/' })

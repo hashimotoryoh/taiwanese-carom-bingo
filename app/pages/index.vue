@@ -2,6 +2,8 @@
 import type { BingoCardSummary } from '#shared/types/bingo'
 
 useHead({ title: 'ビンゴカード一覧 | カイルンBINGO' })
+// トップページ自身なので、パンくずリストは先頭項目（一覧）だけになる
+useBreadcrumbs(() => [])
 
 const { data: summaries, status } = useFetch<BingoCardSummary[]>('/api/cards')
 
@@ -22,7 +24,7 @@ function gotoCreate() {
     <h2 class="page-title">ビンゴカード一覧</h2>
     <p class="page-sub">カードを選んで進行状況を確認できます</p>
     <div class="row between" style="margin-bottom: 20px">
-      <NuxtLink class="btn btn-secondary" to="/stats">みんなの統計データを見る</NuxtLink>
+      <NuxtLink class="btn btn-secondary" to="/stats">統計データを見る</NuxtLink>
       <button class="btn btn-primary" @click="gotoCreate">+ 新しいビンゴカードを作成</button>
     </div>
 

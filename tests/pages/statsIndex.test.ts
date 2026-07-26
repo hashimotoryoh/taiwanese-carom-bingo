@@ -9,6 +9,7 @@ import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { useAsyncData } from '../setup/nuxtStubs'
 import { useBingoApi } from '../../app/composables/useBingoApi'
 import { resetTestState } from '../setup/nitroGlobals'
+import { useBreadcrumbsState } from '../../app/composables/useBreadcrumbs'
 import { makeCard, makeRoll } from '../setup/fixtures'
 
 vi.mock('../../app/composables/useBingoApi', () => ({ useBingoApi: vi.fn() }))
@@ -132,5 +133,14 @@ describe('stats/index.vue', () => {
     // 「ビンゴカードパンチ率」は残るので、枚数表記と最終更新日が無いことで確認する
     expect(list.text()).not.toContain('枚')
     expect(list.text()).not.toContain('最終更新')
+  })
+
+  it('パンくずリストに統計データを登録する', () => {
+    vi.mocked(useAsyncData).mockReturnValue({ data: ref([]), status: ref('success') })
+    mount(StatsIndexPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: '統計データ' },
+    ])
   })
 })

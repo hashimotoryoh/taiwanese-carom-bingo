@@ -12,12 +12,13 @@ useHead(() => ({
     ? `${doc.value.title} | カイルンBINGO`
     : 'ページが見つかりません | カイルンBINGO',
 }))
+
+useBreadcrumbs(() => [{ label: doc.value ? doc.value.title : 'ページが見つかりません' }])
 </script>
 
 <template>
   <div>
     <div v-if="doc" class="doc">
-      <NuxtLink to="/" class="back-link">← ビンゴカード一覧に戻る</NuxtLink>
       <!-- 信頼できるリポジトリ内のマークダウンのみを描画するため v-html は安全 -->
       <!-- eslint-disable-next-line vue/no-v-html -->
       <article class="doc-body" v-html="bodyHtml" />
@@ -30,17 +31,6 @@ useHead(() => ({
 </template>
 
 <style scoped>
-.back-link {
-  display: inline-block;
-  margin-bottom: 18px;
-  color: var(--ink-soft);
-  text-decoration: none;
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-.back-link:hover {
-  text-decoration: underline;
-}
 .doc-body {
   background: var(--paper);
   border: 3px solid var(--ink);

@@ -24,6 +24,13 @@ async function reloadCard() {
 
 useHead(() => ({ title: card.value ? `${card.value.name} | カイルンBINGO` : 'カイルンBINGO' }))
 
+// アーカイブ済みのカードは一覧ではなくアーカイブ一覧からたどれるため、間にその階層を挟む
+useBreadcrumbs(() => {
+  if (!card.value) return [{ label: 'ビンゴカード' }]
+  const trail = card.value.archived ? [{ label: 'アーカイブ済み一覧', to: '/card/archived' }] : []
+  return [...trail, { label: card.value.name }]
+})
+
 const api = useBingoApi()
 const confetti = useConfetti()
 const draft = useDraftCard()
@@ -36,7 +43,6 @@ const reachCount = computed(() =>
 )
 
 const justAchievedBingo = ref(false)
-const reloading = ref(false)
 const confirmingArchive = ref(false)
 const confirmingDelete = ref(false)
 const busy = ref(false)
@@ -53,7 +59,7 @@ onBeforeUnmount(() => {
 })
 
 async function onRecord(value: number) {
-  if (!card.value || card.value.archived || busy.value || reloading.value) return
+  if (!card.value || card.value.archived || busy.value) return
   busy.value = true
   try {
     const res = await api.recordRoll(id, value)
@@ -77,22 +83,10 @@ async function onRecord(value: number) {
   }
 }
 
-// カードの最新状態をサーバーから取り直す。
-// 記録・削除と同時に走ると、古い取得結果が後から新しい状態を上書きしうるため互いに排他する
-async function onReload() {
-  if (reloading.value || busy.value) return
-  reloading.value = true
-  try {
-    await reloadCard()
-  } finally {
-    reloading.value = false
-  }
-}
-
 async function onDeleteRoll() {
   const rollId = pendingDeleteRollId.value
   pendingDeleteRollId.value = null
-  if (!rollId || !card.value || card.value.archived || busy.value || reloading.value) return
+  if (!rollId || !card.value || card.value.archived || busy.value) return
   busy.value = true
   try {
     card.value = await api.deleteRoll(id, rollId)
@@ -124,42 +118,13 @@ function gotoCreateNew() {
 
 <template>
   <div>
-    <!-- 再読み込み時はボタンごと消えてしまうため、初回読み込み（カード未取得）に限り全面のローディングを出す -->
+    <!-- 競合時の取り直しでカードごと消えてしまうため、初回読み込み（カード未取得）に限り全面のローディングを出す -->
     <div v-if="!card && status === 'pending'" class="loading">読み込み中...</div>
     <div v-else-if="!card" class="empty">
       <p>指定されたビンゴカードが見つかりませんでした。</p>
       <NuxtLink class="btn btn-primary" to="/">一覧へ戻る</NuxtLink>
     </div>
     <template v-else>
-      <div class="row between" style="margin-bottom: 20px">
-        <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
-        <button
-          class="btn btn-ghost btn-icon"
-          :class="{ 'is-loading': reloading }"
-          type="button"
-          :disabled="reloading || busy"
-          title="再読み込み"
-          aria-label="再読み込み"
-          @click="onReload"
-        >
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M20 12a8 8 0 1 1-2.34-5.66"
-              stroke="currentColor"
-              stroke-width="2.4"
-              stroke-linecap="round"
-            />
-            <path
-              d="M20 3.5V9h-5.5"
-              stroke="currentColor"
-              stroke-width="2.4"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-      </div>
-
       <div class="card-head">
         <div class="status-row">
           <span v-if="card.bingoAchieved" class="status-pill bingo">🎉 ビンゴ達成</span>
@@ -180,7 +145,7 @@ function gotoCreateNew() {
 
       <PunchGrid :card="card" :flash-cell="flashCell" />
 
-      <RollInput v-if="!locked" :busy="busy || reloading" @record="onRecord" />
+      <RollInput v-if="!locked" :busy="busy" @record="onRecord" />
 
       <section class="roll-section">
         <h3 class="roll-section-title">記録サマリー</h3>

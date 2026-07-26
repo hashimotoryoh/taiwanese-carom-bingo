@@ -15,6 +15,7 @@ import { useBingoApi } from '../../app/composables/useBingoApi'
 import { useConfetti } from '../../app/composables/useConfetti'
 import { useDraftCard } from '../../app/composables/useDraftCard'
 import { resetTestState } from '../setup/nitroGlobals'
+import { useBreadcrumbsState } from '../../app/composables/useBreadcrumbs'
 import { makeCard, makeRoll } from '../setup/fixtures'
 
 vi.mock('../../app/composables/useBingoApi', () => ({ useBingoApi: vi.fn() }))
@@ -286,22 +287,7 @@ describe('card/[id].vue', () => {
     await vi.waitFor(() => expect(deleteRoll).toHaveBeenCalledWith(card.id, 'roll-1'))
   })
 
-  it('再読み込みボタンを押すと最新状態を取り直す', async () => {
-    const card = makeCard()
-    const refresh = vi.fn()
-    vi.mocked(useFetch).mockReturnValue({
-      data: ref(card),
-      status: ref('success'),
-      refresh,
-      error: ref(null),
-    })
-    const wrapper = mount(CardIdPage, { global })
-
-    await wrapper.find('button[aria-label="再読み込み"]').trigger('click')
-    await vi.waitFor(() => expect(refresh).toHaveBeenCalled())
-  })
-
-  it('再読み込み中は全面のローディングに切り替えず、ボタンを無効化する', async () => {
+  it('取り直し中も全面のローディングには切り替えない', async () => {
     const card = makeCard()
     const status = ref('success')
     // refresh 中は useFetch の status が pending に戻る
@@ -310,24 +296,22 @@ describe('card/[id].vue', () => {
       await Promise.resolve()
       status.value = 'success'
     })
-    vi.mocked(useFetch).mockReturnValue({
-      data: ref(card),
-      status,
-      refresh,
-      error: ref(null),
-    })
+    const recordRoll = vi.fn().mockRejectedValue(new Error('conflict'))
+    vi.mocked(useBingoApi).mockReturnValue({ recordRoll } as unknown as ReturnType<
+      typeof useBingoApi
+    >)
+    vi.mocked(useFetch).mockReturnValue({ data: ref(card), status, refresh, error: ref(null) })
     const wrapper = mount(CardIdPage, { global })
 
-    const button = wrapper.find('button[aria-label="再読み込み"]')
-    button.trigger('click')
+    wrapper.findComponent(RollInput).vm.$emit('record', 5)
     await vi.waitFor(() => expect(refresh).toHaveBeenCalled())
 
-    // カード本体が「読み込み中...」に置き換わって押したボタンごと消えてはいけない
+    // カード本体が「読み込み中...」に置き換わって消えてはいけない
     expect(wrapper.find('.loading').exists()).toBe(false)
-    expect(wrapper.find('button[aria-label="再読み込み"]').exists()).toBe(true)
+    expect(wrapper.findComponent(PunchGrid).exists()).toBe(true)
   })
 
-  it('再読み込みが通信エラーで失敗しても直前のカードを保持する', async () => {
+  it('取り直しが通信エラーで失敗しても直前のカードを保持する', async () => {
     const card = makeCard()
     const data = ref<ReturnType<typeof makeCard> | undefined>(card)
     const error = ref<{ statusCode: number } | null>(null)
@@ -336,18 +320,22 @@ describe('card/[id].vue', () => {
       data.value = undefined
       error.value = { statusCode: 500 }
     })
+    const recordRoll = vi.fn().mockRejectedValue(new Error('conflict'))
+    vi.mocked(useBingoApi).mockReturnValue({ recordRoll } as unknown as ReturnType<
+      typeof useBingoApi
+    >)
     vi.mocked(useFetch).mockReturnValue({ data, status: ref('success'), refresh, error })
     const wrapper = mount(CardIdPage, { global })
 
-    await wrapper.find('button[aria-label="再読み込み"]').trigger('click')
-    await vi.waitFor(() => expect(refresh).toHaveBeenCalled())
+    await wrapper.findComponent(RollInput).vm.$emit('record', 5)
+    await vi.waitFor(() => expect(data.value).toEqual(card))
+    await wrapper.vm.$nextTick()
 
-    expect(data.value).toEqual(card)
     expect(wrapper.find('.empty').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('見つかりませんでした')
   })
 
-  it('再読み込み中は出目の記録を受け付けない（古い取得結果での上書きを防ぐ）', async () => {
+  it('取り直しが終わるまで次の出目の記録を受け付けない', async () => {
     const card = makeCard()
     let resolveRefresh: (() => void) | undefined
     const refresh = vi.fn().mockImplementation(
@@ -356,40 +344,7 @@ describe('card/[id].vue', () => {
           resolveRefresh = resolve
         }),
     )
-    const recordRoll = vi.fn()
-    vi.mocked(useBingoApi).mockReturnValue({ recordRoll } as unknown as ReturnType<
-      typeof useBingoApi
-    >)
-    vi.mocked(useFetch).mockReturnValue({
-      data: ref(card),
-      status: ref('success'),
-      refresh,
-      error: ref(null),
-    })
-    const wrapper = mount(CardIdPage, { global })
-
-    wrapper.find('button[aria-label="再読み込み"]').trigger('click')
-    await vi.waitFor(() => expect(refresh).toHaveBeenCalled())
-
-    // 再読み込みの応答が返る前は記録ボタンを無効化し、記録も走らせない
-    expect(wrapper.findComponent(RollInput).props('busy')).toBe(true)
-    await wrapper.findComponent(RollInput).vm.$emit('record', 5)
-    expect(recordRoll).not.toHaveBeenCalled()
-
-    resolveRefresh?.()
-    await vi.waitFor(() => expect(wrapper.findComponent(RollInput).props('busy')).toBe(false))
-  })
-
-  it('出目の記録中は再読み込みボタンを無効化する', async () => {
-    const card = makeCard()
-    const refresh = vi.fn()
-    let resolveRecord: ((value: unknown) => void) | undefined
-    const recordRoll = vi.fn().mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          resolveRecord = resolve
-        }),
-    )
+    const recordRoll = vi.fn().mockRejectedValue(new Error('conflict'))
     vi.mocked(useBingoApi).mockReturnValue({ recordRoll } as unknown as ReturnType<
       typeof useBingoApi
     >)
@@ -402,17 +357,18 @@ describe('card/[id].vue', () => {
     const wrapper = mount(CardIdPage, { global })
 
     wrapper.findComponent(RollInput).vm.$emit('record', 5)
-    await vi.waitFor(() => expect(recordRoll).toHaveBeenCalled())
+    await vi.waitFor(() => expect(refresh).toHaveBeenCalled())
 
-    const button = wrapper.find('button[aria-label="再読み込み"]')
-    expect(button.attributes('disabled')).toBeDefined()
-    await button.trigger('click')
-    expect(refresh).not.toHaveBeenCalled()
+    // 取り直しの応答が返る前は記録ボタンを無効化し、記録も走らせない
+    expect(wrapper.findComponent(RollInput).props('busy')).toBe(true)
+    await wrapper.findComponent(RollInput).vm.$emit('record', 6)
+    expect(recordRoll).toHaveBeenCalledTimes(1)
 
-    resolveRecord?.({ card, achievedNow: false, punchedCell: null })
+    resolveRefresh?.()
+    await vi.waitFor(() => expect(wrapper.findComponent(RollInput).props('busy')).toBe(false))
   })
 
-  it('再読み込みが404ならカードを保持せず見つからない表示にする', async () => {
+  it('取り直しが404ならカードを保持せず見つからない表示にする', async () => {
     const card = makeCard()
     const data = ref<ReturnType<typeof makeCard> | undefined>(card)
     const error = ref<{ statusCode: number } | null>(null)
@@ -421,13 +377,66 @@ describe('card/[id].vue', () => {
       data.value = undefined
       error.value = { statusCode: 404 }
     })
+    const recordRoll = vi.fn().mockRejectedValue(new Error('conflict'))
+    vi.mocked(useBingoApi).mockReturnValue({ recordRoll } as unknown as ReturnType<
+      typeof useBingoApi
+    >)
     vi.mocked(useFetch).mockReturnValue({ data, status: ref('success'), refresh, error })
     const wrapper = mount(CardIdPage, { global })
 
-    await wrapper.find('button[aria-label="再読み込み"]').trigger('click')
-    await vi.waitFor(() => expect(refresh).toHaveBeenCalled())
+    await wrapper.findComponent(RollInput).vm.$emit('record', 5)
+    await vi.waitFor(() => expect(data.value).toBeUndefined())
+    await wrapper.vm.$nextTick()
 
-    expect(data.value).toBeUndefined()
     expect(wrapper.find('.empty').exists()).toBe(true)
+  })
+
+  it('進行中カードのパンくずリストはカード名で終わる', () => {
+    vi.mocked(useFetch).mockReturnValue({
+      data: ref(makeCard({ name: '太郎', archived: false })),
+      status: ref('success'),
+      refresh: vi.fn(),
+      error: ref(null),
+    })
+    mount(CardIdPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: '太郎' },
+    ])
+  })
+
+  it('アーカイブ済みカードのパンくずリストはアーカイブ一覧を経由する', () => {
+    vi.mocked(useFetch).mockReturnValue({
+      data: ref(makeCard({ name: '太郎', archived: true })),
+      status: ref('success'),
+      refresh: vi.fn(),
+      error: ref(null),
+    })
+    mount(CardIdPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'アーカイブ済み一覧', to: '/card/archived' },
+      { label: '太郎' },
+    ])
+  })
+
+  it('カード取得前のパンくずリストは汎用の見出しにする', async () => {
+    const data = ref<ReturnType<typeof makeCard> | undefined>(undefined)
+    vi.mocked(useFetch).mockReturnValue({
+      data,
+      status: ref('pending'),
+      refresh: vi.fn(),
+      error: ref(null),
+    })
+    const wrapper = mount(CardIdPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'ビンゴカード' },
+    ])
+
+    // 取得できたら名前に差し替わる
+    data.value = makeCard({ name: '花子' })
+    await wrapper.vm.$nextTick()
+    expect(useBreadcrumbsState().value.at(-1)).toEqual({ label: '花子' })
   })
 })

@@ -5,6 +5,7 @@ const route = useRoute()
 const name = route.params.name as string
 
 useHead({ title: `${name}の統計データ | カイルンBINGO` })
+useBreadcrumbs(() => [{ label: '統計データ', to: '/stats' }, { label: `${name}の統計データ` }])
 
 const api = useBingoApi()
 const { data: cards, status } = useAsyncData<BingoCard[]>('stats-all', () => api.fetchAllCards())
@@ -25,7 +26,7 @@ const averagePoints = computed(() => dailyRollAverages(personCards.value))
     <div v-if="status === 'pending'" class="loading">読み込み中...</div>
     <div v-else-if="personCards.length === 0" class="empty">
       <p>{{ name }}さんの記録は見つかりませんでした。</p>
-      <NuxtLink class="btn btn-primary" to="/stats">全員の統計データへ戻る</NuxtLink>
+      <NuxtLink class="btn btn-primary" to="/stats">統計データへ戻る</NuxtLink>
     </div>
     <template v-else>
       <h2 class="page-title">{{ name }}の統計データ</h2>
@@ -33,10 +34,6 @@ const averagePoints = computed(() => dailyRollAverages(personCards.value))
         ビンゴカード {{ personCards.length }} 枚分の記録を集計しています
         <template v-if="bingoCount > 0">・ビンゴ達成 {{ bingoCount }} 回</template>
       </p>
-      <div class="row" style="margin-bottom: 20px">
-        <NuxtLink class="btn btn-secondary" to="/stats">← 全員の統計データへ戻る</NuxtLink>
-      </div>
-
       <StatsSummary :stats="stats" />
 
       <template v-if="hasRolls">

@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import ErrorPage from '../app/error.vue'
 import { NuxtLayoutStub } from './setup/NuxtLayoutStub'
 import { clearError, useHead } from './setup/nuxtStubs'
+import { useBreadcrumbsState } from '../app/composables/useBreadcrumbs'
 
 const global = {
   components: { NuxtLayout: NuxtLayoutStub },
@@ -60,5 +61,19 @@ describe('error.vue', () => {
     const wrapper = mountError({ statusCode: 404 })
     await wrapper.find('.btn-primary').trigger('click')
     expect(vi.mocked(clearError)).toHaveBeenCalledWith({ redirect: '/' })
+  })
+
+  it('パンくずリストはエラーの見出しで上書きする', () => {
+    mountError({ statusCode: 404 })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'ページが見つかりません' },
+    ])
+
+    mountError({ statusCode: 500 })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'エラーが発生しました' },
+    ])
   })
 })
