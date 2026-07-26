@@ -71,8 +71,8 @@ describe('layouts/default.vue', () => {
 
   it('パンくずリストの更新はレイアウトに反映される', async () => {
     const wrapper = mount(DefaultLayout, { global })
-    useBreadcrumbs(() => [{ label: '全員の統計データ' }])
+    useBreadcrumbs(() => [{ label: '統計データ' }])
     await wrapper.vm.$nextTick()
-    expect(wrapper.findComponent(AppBreadcrumbs).text()).toContain('全員の統計データ')
+    expect(wrapper.findComponent(AppBreadcrumbs).text()).toContain('統計データ')
   })
 })

@@ -48,9 +48,7 @@ async function finish() {
       <div class="confirm-name">{{ draft.name }}</div>
       <ReadonlyGrid :columns="draft.columns" />
 
-      <div class="row" style="margin-top: 22px">
-        <NuxtLink class="btn btn-secondary" to="/card/create">← 作成ページへ戻る</NuxtLink>
-        <div class="spacer" />
+      <div class="row" style="margin-top: 22px; justify-content: flex-end">
         <button class="btn btn-primary" :disabled="creating" @click="finish">
           {{ creating ? '作成中...' : '作成を完了する' }}
         </button>

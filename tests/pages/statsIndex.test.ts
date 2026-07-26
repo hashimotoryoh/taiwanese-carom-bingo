@@ -135,12 +135,12 @@ describe('stats/index.vue', () => {
     expect(list.text()).not.toContain('最終更新')
   })
 
-  it('パンくずリストに全員の統計データを登録する', () => {
+  it('パンくずリストに統計データを登録する', () => {
     vi.mocked(useAsyncData).mockReturnValue({ data: ref([]), status: ref('success') })
     mount(StatsIndexPage, { global })
     expect(useBreadcrumbsState().value).toEqual([
       { label: 'ビンゴカード一覧', to: '/' },
-      { label: '全員の統計データ' },
+      { label: '統計データ' },
     ])
   })
 })

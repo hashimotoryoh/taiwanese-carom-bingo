@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { BingoCard } from '#shared/types/bingo'
 
-useHead({ title: '全員の統計データ | カイルンBINGO' })
-useBreadcrumbs(() => [{ label: '全員の統計データ' }])
+useHead({ title: '統計データ | カイルンBINGO' })
+useBreadcrumbs(() => [{ label: '統計データ' }])
 
 const api = useBingoApi()
 const { data: cards, status } = useAsyncData<BingoCard[]>('stats-all', () => api.fetchAllCards())
@@ -35,12 +35,8 @@ const persons = computed(() => {
 
 <template>
   <div>
-    <h2 class="page-title">全員の統計データ</h2>
+    <h2 class="page-title">統計データ</h2>
     <p class="page-sub">これまでに記録された全員分のカイルンを集計しています</p>
-    <div class="row" style="margin-bottom: 20px">
-      <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
-    </div>
-
     <div v-if="status === 'pending'" class="loading">読み込み中...</div>
     <template v-else>
       <StatsSummary :stats="overallStats" />

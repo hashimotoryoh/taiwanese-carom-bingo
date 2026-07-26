@@ -21,8 +21,6 @@ describe('[slug].vue', () => {
     // h1 見出しとコードブロックが描画されている
     expect(wrapper.find('.doc-body h1').text()).toBe('120面体サイコロの期待値')
     expect(wrapper.find('.doc-body pre code').exists()).toBe(true)
-    // 戻るリンクがある
-    expect(wrapper.find('.back-link').exists()).toBe(true)
   })
 
   it('存在するスラッグでは useHead にドキュメントのタイトルを渡す', () => {

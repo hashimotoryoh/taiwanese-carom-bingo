@@ -16,7 +16,7 @@ describe('AppBreadcrumbs.vue', () => {
       props: {
         items: [
           { label: 'ビンゴカード一覧', to: '/' },
-          { label: '全員の統計データ', to: '/stats' },
+          { label: '統計データ', to: '/stats' },
           { label: '太郎の統計データ' },
         ],
       },
@@ -25,7 +25,7 @@ describe('AppBreadcrumbs.vue', () => {
 
     const links = wrapper.findAll('a')
     expect(links.map((a) => a.attributes('href'))).toEqual(['/', '/stats'])
-    expect(links.map((a) => a.text())).toEqual(['ビンゴカード一覧', '全員の統計データ'])
+    expect(links.map((a) => a.text())).toEqual(['ビンゴカード一覧', '統計データ'])
 
     const current = wrapper.find('[aria-current="page"]')
     expect(current.text()).toBe('太郎の統計データ')
