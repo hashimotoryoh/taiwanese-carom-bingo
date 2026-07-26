@@ -24,6 +24,13 @@ async function reloadCard() {
 
 useHead(() => ({ title: card.value ? `${card.value.name} | カイルンBINGO` : 'カイルンBINGO' }))
 
+// アーカイブ済みのカードは一覧ではなくアーカイブ一覧からたどれるため、間にその階層を挟む
+useBreadcrumbs(() => {
+  if (!card.value) return [{ label: 'ビンゴカード' }]
+  const trail = card.value.archived ? [{ label: 'アーカイブ済み一覧', to: '/card/archived' }] : []
+  return [...trail, { label: card.value.name }]
+})
+
 const api = useBingoApi()
 const confetti = useConfetti()
 const draft = useDraftCard()

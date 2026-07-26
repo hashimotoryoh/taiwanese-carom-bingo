@@ -6,6 +6,7 @@ import BingoTicket from '../../app/components/BingoTicket.vue'
 import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { useFetch } from '../setup/nuxtStubs'
 import { resetTestState } from '../setup/nitroGlobals'
+import { useBreadcrumbsState } from '../../app/composables/useBreadcrumbs'
 import { makeSummary } from '../setup/fixtures'
 
 const global = { components: { BingoTicket, NuxtLink: NuxtLinkStub } }
@@ -52,5 +53,14 @@ describe('card/archived.vue', () => {
     const wrapper = mount(ArchivedPage, { global })
     expect(wrapper.find('.delete-btn').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('完全に削除')
+  })
+
+  it('パンくずリストにアーカイブ済み一覧を登録する', () => {
+    vi.mocked(useFetch).mockReturnValue({ data: ref([]), status: ref('success') })
+    mount(ArchivedPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'アーカイブ済み一覧' },
+    ])
   })
 })

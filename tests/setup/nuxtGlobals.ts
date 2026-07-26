@@ -5,11 +5,14 @@
  * app/**\/*.vue 側の自動インポート（ref・useFetch・useBingoApiなど）は
  * vitest.config.ts の unplugin-auto-import 設定で解決している。
  */
+import { useBreadcrumbs, useBreadcrumbsState } from '../../app/composables/useBreadcrumbs'
 import { useConfetti } from '../../app/composables/useConfetti'
 import { useDraftCard } from '../../app/composables/useDraftCard'
 import { useRulesModal } from '../../app/composables/useRulesModal'
 
 type NuxtGlobals = typeof globalThis & {
+  useBreadcrumbs: typeof useBreadcrumbs
+  useBreadcrumbsState: typeof useBreadcrumbsState
   useConfetti: typeof useConfetti
   useDraftCard: typeof useDraftCard
   useRulesModal: typeof useRulesModal
@@ -17,6 +20,8 @@ type NuxtGlobals = typeof globalThis & {
 
 const g = globalThis as NuxtGlobals
 
+g.useBreadcrumbs = useBreadcrumbs
+g.useBreadcrumbsState = useBreadcrumbsState
 g.useConfetti = useConfetti
 g.useDraftCard = useDraftCard
 g.useRulesModal = useRulesModal

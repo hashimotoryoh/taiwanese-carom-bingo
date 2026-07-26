@@ -7,6 +7,7 @@ import { navigateTo } from '../setup/nuxtStubs'
 import { useDraftCard } from '../../app/composables/useDraftCard'
 import { useBingoApi } from '../../app/composables/useBingoApi'
 import { resetTestState } from '../setup/nitroGlobals'
+import { useBreadcrumbsState } from '../../app/composables/useBreadcrumbs'
 import { blankDraft } from '../../shared/utils/bingo'
 import { makeCard } from '../setup/fixtures'
 
@@ -71,5 +72,14 @@ describe('card/confirm.vue', () => {
         'ビンゴカードの作成に失敗しました。もう一度お試しください。',
       ),
     )
+  })
+
+  it('パンくずリストに作成ページを経由した階層を登録する', () => {
+    mount(ConfirmPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'ビンゴカード作成', to: '/card/create' },
+      { label: '作成の確認' },
+    ])
   })
 })

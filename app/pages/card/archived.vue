@@ -2,6 +2,7 @@
 import type { BingoCardSummary } from '#shared/types/bingo'
 
 useHead({ title: 'アーカイブ済み一覧 | カイルンBINGO' })
+useBreadcrumbs(() => [{ label: 'アーカイブ済み一覧' }])
 
 const { data: summaries, status } = useFetch<BingoCardSummary[]>('/api/cards')
 

@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import SlugPage from '../../app/pages/doc/[slug].vue'
 import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { useHead, useRoute } from '../setup/nuxtStubs'
+import { useBreadcrumbsState } from '../../app/composables/useBreadcrumbs'
 
 const global = {
   components: { NuxtLink: NuxtLinkStub },
@@ -43,5 +44,23 @@ describe('[slug].vue', () => {
     mount(SlugPage, { global })
     const arg = vi.mocked(useHead).mock.calls[0]![0] as () => { title: string }
     expect(arg().title).toBe('ページが見つかりません | カイルンBINGO')
+  })
+
+  it('パンくずリストにドキュメントのタイトルを登録する', () => {
+    vi.mocked(useRoute).mockReturnValue({ params: { slug: 'avg-carom-count' } })
+    mount(SlugPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'ビンゴまでの平均カイルン回数' },
+    ])
+  })
+
+  it('存在しないスラッグのパンくずリストは見つからない旨にする', () => {
+    vi.mocked(useRoute).mockReturnValue({ params: { slug: 'unknown-slug' } })
+    mount(SlugPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'ページが見つかりません' },
+    ])
   })
 })

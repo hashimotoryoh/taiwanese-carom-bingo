@@ -10,6 +10,7 @@ import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { useAsyncData, useRoute } from '../setup/nuxtStubs'
 import { useBingoApi } from '../../app/composables/useBingoApi'
 import { resetTestState } from '../setup/nitroGlobals'
+import { useBreadcrumbsState } from '../../app/composables/useBreadcrumbs'
 import { makeCard, makeRoll } from '../setup/fixtures'
 
 vi.mock('../../app/composables/useBingoApi', () => ({ useBingoApi: vi.fn() }))
@@ -80,5 +81,15 @@ describe('stats/[name].vue', () => {
     vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
     const wrapper = mount(StatsNamePage, { global })
     expect(wrapper.find('a').attributes('href')).toBe('/stats')
+  })
+
+  it('パンくずリストに全員の統計データを経由した階層を登録する', () => {
+    vi.mocked(useAsyncData).mockReturnValue({ data: ref([]), status: ref('success') })
+    mount(StatsNamePage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: '全員の統計データ', to: '/stats' },
+      { label: '太郎の統計データ' },
+    ])
   })
 })

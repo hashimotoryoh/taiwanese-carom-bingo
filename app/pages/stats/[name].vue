@@ -5,6 +5,10 @@ const route = useRoute()
 const name = route.params.name as string
 
 useHead({ title: `${name}の統計データ | カイルンBINGO` })
+useBreadcrumbs(() => [
+  { label: '全員の統計データ', to: '/stats' },
+  { label: `${name}の統計データ` },
+])
 
 const api = useBingoApi()
 const { data: cards, status } = useAsyncData<BingoCard[]>('stats-all', () => api.fetchAllCards())

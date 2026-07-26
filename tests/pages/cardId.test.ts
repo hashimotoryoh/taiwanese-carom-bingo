@@ -15,6 +15,7 @@ import { useBingoApi } from '../../app/composables/useBingoApi'
 import { useConfetti } from '../../app/composables/useConfetti'
 import { useDraftCard } from '../../app/composables/useDraftCard'
 import { resetTestState } from '../setup/nitroGlobals'
+import { useBreadcrumbsState } from '../../app/composables/useBreadcrumbs'
 import { makeCard, makeRoll } from '../setup/fixtures'
 
 vi.mock('../../app/composables/useBingoApi', () => ({ useBingoApi: vi.fn() }))
@@ -429,5 +430,53 @@ describe('card/[id].vue', () => {
 
     expect(data.value).toBeUndefined()
     expect(wrapper.find('.empty').exists()).toBe(true)
+  })
+  it('進行中カードのパンくずリストはカード名で終わる', () => {
+    vi.mocked(useFetch).mockReturnValue({
+      data: ref(makeCard({ name: '太郎', archived: false })),
+      status: ref('success'),
+      refresh: vi.fn(),
+      error: ref(null),
+    })
+    mount(CardIdPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: '太郎' },
+    ])
+  })
+
+  it('アーカイブ済みカードのパンくずリストはアーカイブ一覧を経由する', () => {
+    vi.mocked(useFetch).mockReturnValue({
+      data: ref(makeCard({ name: '太郎', archived: true })),
+      status: ref('success'),
+      refresh: vi.fn(),
+      error: ref(null),
+    })
+    mount(CardIdPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'アーカイブ済み一覧', to: '/card/archived' },
+      { label: '太郎' },
+    ])
+  })
+
+  it('カード取得前のパンくずリストは汎用の見出しにする', async () => {
+    const data = ref<ReturnType<typeof makeCard> | undefined>(undefined)
+    vi.mocked(useFetch).mockReturnValue({
+      data,
+      status: ref('pending'),
+      refresh: vi.fn(),
+      error: ref(null),
+    })
+    const wrapper = mount(CardIdPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'ビンゴカード' },
+    ])
+
+    // 取得できたら名前に差し替わる
+    data.value = makeCard({ name: '花子' })
+    await wrapper.vm.$nextTick()
+    expect(useBreadcrumbsState().value.at(-1)).toEqual({ label: '花子' })
   })
 })

@@ -68,6 +68,10 @@ export default defineConfig({
           ],
         },
         { from: '#composables/useBingoApi', imports: ['useBingoApi'] },
+        {
+          from: '#composables/useBreadcrumbs',
+          imports: ['useBreadcrumbs', 'useBreadcrumbsState'],
+        },
         { from: '#composables/useConfetti', imports: ['useConfetti'] },
         { from: '#composables/useDraftCard', imports: ['useDraftCard'] },
         { from: '#composables/useRulesModal', imports: ['useRulesModal'] },

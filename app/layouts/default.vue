@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const rules = useRulesModal()
+// パンくずリストの内容は各ページが useBreadcrumbs で登録する
+const breadcrumbs = useBreadcrumbsState()
 </script>
 
 <template>
@@ -17,7 +19,15 @@ const rules = useRulesModal()
       <button class="rules-btn" @click="rules.open()">ルール説明</button>
     </header>
 
+    <AppBreadcrumbs :items="breadcrumbs" class="breadcrumbs-top" />
+
     <slot />
+
+    <AppBreadcrumbs
+      :items="breadcrumbs"
+      label="パンくずリスト（ページ下部）"
+      class="breadcrumbs-bottom"
+    />
 
     <AppFooter />
 
@@ -25,3 +35,12 @@ const rules = useRulesModal()
     <ConfettiLayer />
   </div>
 </template>
+
+<style scoped>
+.breadcrumbs-top {
+  margin-bottom: 18px;
+}
+.breadcrumbs-bottom {
+  margin-top: 32px;
+}
+</style>

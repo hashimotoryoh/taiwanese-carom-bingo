@@ -2,6 +2,8 @@
 import type { BingoCardSummary } from '#shared/types/bingo'
 
 useHead({ title: 'ビンゴカード一覧 | カイルンBINGO' })
+// トップページ自身なので、パンくずリストは先頭項目（一覧）だけになる
+useBreadcrumbs(() => [])
 
 const { data: summaries, status } = useFetch<BingoCardSummary[]>('/api/cards')
 

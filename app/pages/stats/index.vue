@@ -2,6 +2,7 @@
 import type { BingoCard } from '#shared/types/bingo'
 
 useHead({ title: '全員の統計データ | カイルンBINGO' })
+useBreadcrumbs(() => [{ label: '全員の統計データ' }])
 
 const api = useBingoApi()
 const { data: cards, status } = useAsyncData<BingoCard[]>('stats-all', () => api.fetchAllCards())

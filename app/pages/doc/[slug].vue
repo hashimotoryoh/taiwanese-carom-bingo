@@ -12,6 +12,8 @@ useHead(() => ({
     ? `${doc.value.title} | カイルンBINGO`
     : 'ページが見つかりません | カイルンBINGO',
 }))
+
+useBreadcrumbs(() => [{ label: doc.value ? doc.value.title : 'ページが見つかりません' }])
 </script>
 
 <template>

@@ -3,6 +3,7 @@ import type { Ref } from 'vue'
 import type { BingoCardSummary, ColumnKey, DraftCard } from '#shared/types/bingo'
 
 useHead({ title: 'ビンゴカード作成 | カイルンBINGO' })
+useBreadcrumbs(() => [{ label: 'ビンゴカード作成' }])
 
 const draftState = useDraftCard()
 if (!draftState.value) draftState.value = blankDraft()

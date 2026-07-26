@@ -2,6 +2,7 @@
 import type { FetchError } from 'ofetch'
 
 useHead({ title: 'ビンゴカード作成の確認 | カイルンBINGO' })
+useBreadcrumbs(() => [{ label: 'ビンゴカード作成', to: '/card/create' }, { label: '作成の確認' }])
 
 const draft = useDraftCard()
 const api = useBingoApi()
