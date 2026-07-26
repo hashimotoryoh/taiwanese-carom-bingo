@@ -72,7 +72,7 @@ export default defineConfig({
         { from: '#composables/useDraftCard', imports: ['useDraftCard'] },
         { from: '#composables/useRulesModal', imports: ['useRulesModal'] },
         { from: '#composables/useElementWidth', imports: ['useElementWidth'] },
-        { from: '#utils/chart', imports: ['paddedDomain', 'niceTicks', 'sampledIndexes'] },
+        { from: '#utils/chart', imports: ['paddedDomain', 'sampledIndexes'] },
         { from: '#utils/markdown', imports: ['renderMarkdown', 'extractTitle'] },
         { from: '#utils/docs', imports: ['docList', 'getDoc', 'EXPECTED_VALUE_DOC_PATH'] },
       ],
