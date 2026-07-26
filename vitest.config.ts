@@ -64,6 +64,7 @@ export default defineConfig({
             'useFetch',
             'useAsyncData',
             'useRuntimeConfig',
+            'clearError',
           ],
         },
         { from: '#composables/useBingoApi', imports: ['useBingoApi'] },
