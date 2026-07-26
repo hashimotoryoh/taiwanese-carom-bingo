@@ -82,12 +82,43 @@ describe('RollAverageTrendChart', () => {
     expect(y).toBeLessThan(240)
   })
 
-  it('マイナスを含むレンジでは0の基準線を強調する', () => {
+  it('0の基準線を強調する', () => {
     const withMinus = [
       makePoint({ average: -20, cumulativeAverage: -20 }),
       makePoint({ date: new Date(2026, 0, 2).getTime(), average: 30, cumulativeAverage: 5 }),
     ]
     const wrapper = mount(RollAverageTrendChart, { props: { points: withMinus }, global })
     expect(wrapper.find('.chart-grid line.zero').exists()).toBe(true)
+  })
+
+  it('目安線は値の範囲によらず常に 0・40・80 の3本', () => {
+    const cases: RollAveragePoint[][] = [
+      points,
+      [makePoint({ average: -30, cumulativeAverage: -30 })],
+      [makePoint({ average: 200, cumulativeAverage: 200 })],
+      [makePoint({ average: 50.5, cumulativeAverage: 50.5 })],
+    ]
+    for (const props of cases) {
+      const wrapper = mount(RollAverageTrendChart, { props: { points: props }, global })
+      expect(wrapper.findAll('.chart-grid .chart-axis-label').map((t) => t.text())).toEqual([
+        '0',
+        '40',
+        '80',
+      ])
+    }
+  })
+
+  it('目安線はどれもグラフの内側に収まる（値が偏っていても切れない）', () => {
+    const far = [makePoint({ average: 300, cumulativeAverage: 300 })]
+    const wrapper = mount(RollAverageTrendChart, { props: { points: far }, global })
+    const ys = wrapper.findAll('.chart-grid line').map((l) => Number(l.attributes('y1')))
+    expect(ys).toHaveLength(3)
+    for (const y of ys) {
+      expect(y).toBeGreaterThan(0)
+      expect(y).toBeLessThan(240)
+    }
+    // 0・40・80 の順に下から並ぶ（値が大きいほどY座標は小さい）
+    expect(ys[0]).toBeGreaterThan(ys[1]!)
+    expect(ys[1]).toBeGreaterThan(ys[2]!)
   })
 })
