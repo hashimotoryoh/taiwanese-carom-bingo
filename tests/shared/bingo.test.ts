@@ -5,7 +5,9 @@ import {
   FREE_ROW,
   FREE_VALUE,
   GRID_SIZE,
+  MAX_ROLL,
   ROLL_EXPECTED_VALUE,
+  ZOROME_PROBABILITY_PERCENT,
   aggregateRollStats,
   blankDraft,
   buildPunched,
@@ -438,6 +440,21 @@ describe('ROLL_EXPECTED_VALUE', () => {
   it('出目1回あたりの得点の期待値 6148/119（≒51.7）', () => {
     expect(ROLL_EXPECTED_VALUE).toBe(6148 / 119)
     expect(ROLL_EXPECTED_VALUE.toFixed(1)).toBe('51.7')
+  })
+})
+
+describe('ZOROME_PROBABILITY_PERCENT', () => {
+  it('出目1回がゾロ目になる確率 10/120（≒8.3%）', () => {
+    expect(ZOROME_PROBABILITY_PERCENT).toBe((10 / 120) * 100)
+    expect(ZOROME_PROBABILITY_PERCENT.toFixed(1)).toBe('8.3')
+  })
+
+  it('1〜120のゾロ目の個数（10個）と整合している', () => {
+    const zoromeCount = Array.from({ length: MAX_ROLL }, (_, i) => i + 1).filter((v) =>
+      isZorome(v),
+    ).length
+    expect(zoromeCount).toBe(10)
+    expect(ZOROME_PROBABILITY_PERCENT).toBe((zoromeCount / MAX_ROLL) * 100)
   })
 })
 

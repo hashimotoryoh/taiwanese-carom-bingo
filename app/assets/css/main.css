@@ -760,7 +760,8 @@ a.btn {
 }
 .roll-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  /* 統計値と補足を横並びにするため、1枠あたりの最小幅は補足込みで収まる幅にしている */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
 }
 .summary-item {
@@ -777,20 +778,36 @@ a.btn {
   color: var(--ink-soft);
   font-weight: 700;
 }
+/* 統計値と補足を1行に並べる。補足は枠の右下に寄せ、統計値とベースラインを揃える */
+.summary-figure {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
 .summary-value {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--ink);
 }
+/* 統計値に添える単位（回・%）。数字を主役にするため統計値より小さく薄い色にする。
+   フォントサイズはemで指定し、compact時に小さくなる統計値にも追従させる */
+.summary-unit {
+  font-size: 0.72em;
+  color: var(--ink-soft);
+  opacity: 0.7;
+  /* 数値とわずかに離す（半角スペースより狭く、統計値のサイズに追従する幅） */
+  margin-left: 0.25em;
+}
 /* 統計値に添える補足（出目の平均値に対する期待値など）。計算の解説ページへのリンクにする */
 .summary-note {
-  align-self: flex-start;
+  flex: none;
   font-size: 0.6rem;
   font-weight: 600;
   color: var(--ink-soft);
   opacity: 0.75;
-  margin-top: -2px;
+  white-space: nowrap;
   text-decoration: none;
   border-bottom: 1px dotted currentcolor;
 }

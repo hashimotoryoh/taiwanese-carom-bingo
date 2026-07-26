@@ -5,17 +5,22 @@ import { compareByOrder, docList, getDoc } from '../../app/utils/docs'
 const entry = (slug: string): DocEntry => ({ slug, title: slug, markdown: '' })
 
 describe('docList', () => {
-  it('app/content/docs 配下のマークダウンを2件読み込む', () => {
-    expect(docList).toHaveLength(2)
+  it('app/content/docs 配下のマークダウンを3件読み込む', () => {
+    expect(docList).toHaveLength(3)
   })
 
-  it('ORDER で指定した並び（期待値 → 平均カイルン回数）になる', () => {
-    expect(docList.map((d) => d.slug)).toEqual(['d120-expected-value', 'avg-carom-count'])
+  it('ORDER で指定した並び（期待値 → ゾロ目確率 → 平均カイルン回数）になる', () => {
+    expect(docList.map((d) => d.slug)).toEqual([
+      'd120-expected-value',
+      'zorome-probability',
+      'avg-carom-count',
+    ])
   })
 
   it('各ドキュメントのタイトルは先頭の h1 から導出される', () => {
     const titles = Object.fromEntries(docList.map((d) => [d.slug, d.title]))
     expect(titles['d120-expected-value']).toBe('120面体サイコロの期待値')
+    expect(titles['zorome-probability']).toBe('ゾロ目が出る確率')
     expect(titles['avg-carom-count']).toBe('ビンゴまでの平均カイルン回数')
   })
 
