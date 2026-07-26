@@ -82,8 +82,16 @@ describe('StatsSummary', () => {
       global,
     })
     const values = wrapper.findAll('.summary-value').map((v) => v.text())
-    expect(values[0]).toBe('10')
+    // 単位は数値に続けて表示する（間に余分な空白が入らないこと）
+    expect(values[0]).toBe('10回')
     expect(values[1]).toBe('60.5')
     expect(values[3]).toBe('10%')
+  })
+
+  it('回数には「回」、割合には「%」の単位を数値と別要素で添える', () => {
+    const wrapper = mount(StatsSummary, { props: { stats: makeStats() }, global })
+    expect(wrapper.findAll('.summary-unit').map((u) => u.text())).toEqual(['回', '回', '%', '%'])
+    // 出目の平均値には単位を付けない
+    expect(wrapper.findAll('.summary-item')[1]!.find('.summary-unit').exists()).toBe(false)
   })
 })

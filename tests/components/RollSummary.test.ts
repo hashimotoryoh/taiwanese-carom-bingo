@@ -13,6 +13,6 @@ describe('RollSummary', () => {
     })
     // カード単体のページではラベルを「カイルン回数」にする
     expect(wrapper.findAll('.summary-label')[0]!.text()).toBe('カイルン回数')
-    expect(wrapper.findAll('.summary-value')[0]!.text()).toBe('2')
+    expect(wrapper.findAll('.summary-value')[0]!.text()).toBe('2回')
   })
 })

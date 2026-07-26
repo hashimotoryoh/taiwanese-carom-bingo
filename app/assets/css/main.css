@@ -791,6 +791,14 @@ a.btn {
   font-weight: 700;
   color: var(--ink);
 }
+/* 統計値に添える単位（回・%）。数字を主役にするため統計値より小さく薄い色にする。
+   フォントサイズはemで指定し、compact時に小さくなる統計値にも追従させる */
+.summary-unit {
+  font-size: 0.72em;
+  color: var(--ink-soft);
+  opacity: 0.7;
+  margin-left: 1px;
+}
 /* 統計値に添える補足（出目の平均値に対する期待値など）。計算の解説ページへのリンクにする */
 .summary-note {
   flex: none;
