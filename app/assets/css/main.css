@@ -797,7 +797,8 @@ a.btn {
   font-size: 0.72em;
   color: var(--ink-soft);
   opacity: 0.7;
-  margin-left: 1px;
+  /* 数値とわずかに離す（半角スペースより狭く、統計値のサイズに追従する幅） */
+  margin-left: 0.25em;
 }
 /* 統計値に添える補足（出目の平均値に対する期待値など）。計算の解説ページへのリンクにする */
 .summary-note {
