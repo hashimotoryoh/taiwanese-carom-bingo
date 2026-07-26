@@ -45,13 +45,25 @@ describe('StatsSummary', () => {
 
   it('出目の平均値の枠内に期待値を添える', () => {
     const wrapper = mount(StatsSummary, { props: { stats: makeStats() }, global })
-    const notes = wrapper.findAll('.summary-note')
-    expect(notes).toHaveLength(1)
-    expect(notes[0]!.text()).toBe('期待値 51.7')
+    // 「出目の平均値」の枠内で、統計値と同じ行（.summary-figure）に置く
+    const note = wrapper.findAll('.summary-item')[1]!.find('.summary-figure .summary-note')
+    expect(note.text()).toBe('期待値 51.7')
     // 計算の解説ページへのリンクになっている
-    expect(notes[0]!.attributes('href')).toBe('/doc/d120-expected-value')
-    // 「出目の平均値」の枠内にあること
-    expect(wrapper.findAll('.summary-item')[1]!.find('.summary-note').exists()).toBe(true)
+    expect(note.attributes('href')).toBe('/doc/d120-expected-value')
+  })
+
+  it('ゾロ目割合の枠内に理論値を添える', () => {
+    const wrapper = mount(StatsSummary, { props: { stats: makeStats() }, global })
+    // 「ゾロ目割合」の枠内で、統計値と同じ行（.summary-figure）に置く
+    const note = wrapper.findAll('.summary-item')[3]!.find('.summary-figure .summary-note')
+    expect(note.text()).toBe('理論値 8.3%')
+    // 計算の解説ページへのリンクになっている
+    expect(note.attributes('href')).toBe('/doc/zorome-probability')
+  })
+
+  it('補足を添えるのは出目の平均値とゾロ目割合の2枠だけ', () => {
+    const wrapper = mount(StatsSummary, { props: { stats: makeStats() }, global })
+    expect(wrapper.findAll('.summary-note')).toHaveLength(2)
   })
 
   it('compactを指定したときだけグリッドにcompactクラスを付ける', () => {
