@@ -6,6 +6,7 @@ import BingoTicket from '../../app/components/BingoTicket.vue'
 import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { navigateTo, useFetch } from '../setup/nuxtStubs'
 import { resetTestState } from '../setup/nitroGlobals'
+import { useBreadcrumbsState } from '../../app/composables/useBreadcrumbs'
 import { makeSummary } from '../setup/fixtures'
 
 const global = { components: { BingoTicket, NuxtLink: NuxtLinkStub } }
@@ -58,5 +59,11 @@ describe('index.vue', () => {
     const wrapper = mount(IndexPage, { global })
     await wrapper.find('.empty .btn-primary').trigger('click')
     expect(navigateTo).toHaveBeenCalledWith('/card/create')
+  })
+
+  it('パンくずリストは一覧ページのみを登録する', () => {
+    vi.mocked(useFetch).mockReturnValue({ data: ref([]), status: ref('success') })
+    mount(IndexPage, { global })
+    expect(useBreadcrumbsState().value).toEqual([{ label: 'ビンゴカード一覧', to: '/' }])
   })
 })

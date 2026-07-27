@@ -9,6 +9,7 @@ import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { navigateTo, useFetch } from '../setup/nuxtStubs'
 import { useDraftCard } from '../../app/composables/useDraftCard'
 import { resetTestState } from '../setup/nitroGlobals'
+import { useBreadcrumbsState } from '../../app/composables/useBreadcrumbs'
 import { makeSummary } from '../setup/fixtures'
 import { COLUMNS, FREE_ROW, GRID_SIZE } from '../../shared/utils/bingo'
 
@@ -97,5 +98,13 @@ describe('card/create.vue', () => {
     const wrapper = mount(CreatePage, { global })
     expect(wrapper.text()).toContain('アーカイブ済みの名前からも選べます')
     expect(wrapper.find('#archived-names option').attributes('value')).toBe('花子')
+  })
+
+  it('パンくずリストにビンゴカード作成を登録する', () => {
+    mount(CreatePage, { global })
+    expect(useBreadcrumbsState().value).toEqual([
+      { label: 'ビンゴカード一覧', to: '/' },
+      { label: 'ビンゴカード作成' },
+    ])
   })
 })

@@ -3,6 +3,7 @@ import type { Ref } from 'vue'
 import type { BingoCardSummary, ColumnKey, DraftCard } from '#shared/types/bingo'
 
 useHead({ title: 'ビンゴカード作成 | カイルンBINGO' })
+useBreadcrumbs(() => [{ label: 'ビンゴカード作成' }])
 
 const draftState = useDraftCard()
 if (!draftState.value) draftState.value = blankDraft()
@@ -88,10 +89,6 @@ function toConfirm() {
     <p class="page-sub">
       あなたのお名前を入力して、B・I・N・G・O 各列に好きな数字を設定してください
     </p>
-    <div class="row" style="margin-bottom: 20px">
-      <NuxtLink class="btn btn-secondary" to="/">← 一覧へ戻る</NuxtLink>
-    </div>
-
     <div v-if="errors.length > 0" class="errors">
       <strong>入力内容を確認してください</strong>
       <ul>

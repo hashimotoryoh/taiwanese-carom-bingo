@@ -291,6 +291,12 @@ export function punchRatePercent(punchedCount: number, rollCount: number): numbe
 export const ROLL_EXPECTED_VALUE = 6148 / 119
 
 /**
+ * 出目1回がゾロ目になる確率の百分率（10 / 120 ≒ 8.3%）。
+ * 導出は `app/content/docs/zorome-probability.md` を参照。
+ */
+export const ZOROME_PROBABILITY_PERCENT = (10 / 120) * 100
+
+/**
  * 平均値の計算に使う出目の値。
  * ゾロ目はマイナス、100（センターマス相当の大当たり）は200として扱うローカルルール。
  */

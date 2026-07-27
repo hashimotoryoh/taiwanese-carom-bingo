@@ -11,10 +11,14 @@ const PAD = { top: 16, right: 14, bottom: 34, left: 46 }
 const plotW = computed(() => Math.max(80, width.value - PAD.left - PAD.right))
 const plotH = H - PAD.top - PAD.bottom
 
-// 期待値の基準線が必ず収まるよう、表示レンジの計算にも期待値を含める
+// 目安線はグラフごとに変えず、常に同じ位置（0・40・80）に引く
+const GUIDE_VALUES = [0, 40, 80]
+
+// 目安線と期待値の基準線が必ず収まるよう、表示レンジの計算にもそれらを含める
 const domain = computed(() =>
   paddedDomain([
     ...props.points.flatMap((p) => [p.average, p.cumulativeAverage]),
+    ...GUIDE_VALUES,
     ROLL_EXPECTED_VALUE,
   ]),
 )
@@ -42,9 +46,7 @@ const plotted = computed(() =>
 const dailyLine = computed(() => plotted.value.map((p) => `${p.x},${p.y}`).join(' '))
 const cumulativeLine = computed(() => plotted.value.map((p) => `${p.x},${p.cumulativeY}`).join(' '))
 
-const ticks = computed(() =>
-  niceTicks(domain.value.min, domain.value.max).map((value) => ({ value, y: toY(value) })),
-)
+const ticks = computed(() => GUIDE_VALUES.map((value) => ({ value, y: toY(value) })))
 // 日付ラベルが重ならないよう、幅に収まる本数まで等間隔に間引く
 const dateLabels = computed(() => {
   const max = Math.min(6, Math.max(2, Math.floor(plotW.value / 56)))

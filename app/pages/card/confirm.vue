@@ -2,6 +2,7 @@
 import type { FetchError } from 'ofetch'
 
 useHead({ title: 'ビンゴカード作成の確認 | カイルンBINGO' })
+useBreadcrumbs(() => [{ label: 'ビンゴカード作成', to: '/card/create' }, { label: '作成の確認' }])
 
 const draft = useDraftCard()
 const api = useBingoApi()
@@ -47,9 +48,7 @@ async function finish() {
       <div class="confirm-name">{{ draft.name }}</div>
       <ReadonlyGrid :columns="draft.columns" />
 
-      <div class="row" style="margin-top: 22px">
-        <NuxtLink class="btn btn-secondary" to="/card/create">← 作成ページへ戻る</NuxtLink>
-        <div class="spacer" />
+      <div class="row" style="margin-top: 22px; justify-content: flex-end">
         <button class="btn btn-primary" :disabled="creating" @click="finish">
           {{ creating ? '作成中...' : '作成を完了する' }}
         </button>

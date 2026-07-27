@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import DefaultLayout from '../../app/layouts/default.vue'
+import AppBreadcrumbs from '../../app/components/AppBreadcrumbs.vue'
 import AppFooter from '../../app/components/AppFooter.vue'
 import AppLogo from '../../app/components/AppLogo.vue'
 import ConfettiLayer from '../../app/components/ConfettiLayer.vue'
@@ -9,9 +10,11 @@ import RulesModal from '../../app/components/RulesModal.vue'
 import { NuxtLinkStub } from '../setup/NuxtLinkStub'
 import { resetTestState } from '../setup/nitroGlobals'
 import { useRulesModal } from '../../app/composables/useRulesModal'
+import { useBreadcrumbs } from '../../app/composables/useBreadcrumbs'
 
 const global = {
   components: {
+    AppBreadcrumbs,
     AppFooter,
     AppLogo,
     ConfettiLayer,
@@ -45,5 +48,31 @@ describe('layouts/default.vue', () => {
     useRulesModal().open()
     await wrapper.vm.$nextTick()
     expect(wrapper.findComponent(RulesModal).exists()).toBe(true)
+  })
+
+  it('パンくずリストをページの上下に1つずつ描画する', () => {
+    useBreadcrumbs(() => [{ label: 'アーカイブ済み一覧' }])
+    const wrapper = mount(DefaultLayout, { global })
+
+    const crumbs = wrapper.findAllComponents(AppBreadcrumbs)
+    expect(crumbs).toHaveLength(2)
+    for (const crumb of crumbs) {
+      expect(crumb.props('items')).toEqual([
+        { label: 'ビンゴカード一覧', to: '/' },
+        { label: 'アーカイブ済み一覧' },
+      ])
+    }
+    // 同一ページ内で重複しないよう、ランドマークのラベルは上下で分ける
+    expect(crumbs.map((c) => c.find('nav').attributes('aria-label'))).toEqual([
+      'パンくずリスト',
+      'パンくずリスト（ページ下部）',
+    ])
+  })
+
+  it('パンくずリストの更新はレイアウトに反映される', async () => {
+    const wrapper = mount(DefaultLayout, { global })
+    useBreadcrumbs(() => [{ label: '統計データ' }])
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findComponent(AppBreadcrumbs).text()).toContain('統計データ')
   })
 })

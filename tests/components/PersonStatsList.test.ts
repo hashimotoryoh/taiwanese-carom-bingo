@@ -80,9 +80,9 @@ describe('PersonStatsList', () => {
       global,
     })
     expect(wrapper.findAll('.summary-value').map((v) => v.text())).toEqual([
-      '12',
+      '12回',
       '60.4',
-      '3',
+      '3回',
       '25%',
       '41.7%',
     ])
