@@ -16,7 +16,7 @@ const stats = computed(() => rollFrequencyStats(cards.value ?? []))
     <header class="d120-head">
       <div>
         <h1>出目ヒートマップ</h1>
-        <p>d120 · disdyakis triacontahedron</p>
+        <p>roll frequency heatmap</p>
       </div>
       <NuxtLink to="/stats" class="d120-back">統計データへ戻る</NuxtLink>
     </header>

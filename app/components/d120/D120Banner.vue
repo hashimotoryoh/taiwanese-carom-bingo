@@ -1,28 +1,21 @@
 <script setup lang="ts">
-import type { BingoCard } from '#shared/types/bingo'
-
-const props = defineProps<{ cards: BingoCard[] }>()
-
-// 見本なので実データの偏りをそのまま見せる
-const stats = computed(() => rollFrequencyStats(props.cards))
+// 見本なのでヒートマップの7色が必ず全て出るよう、面ごとに色を巡回させる
+const BAND_SAMPLE_Z = [-4, -2.5, -1.5, 0, 1.5, 2.5, 4]
+const zScores = Array.from({ length: 120 }, (_, i) => BAND_SAMPLE_Z[i % BAND_SAMPLE_Z.length]!)
 </script>
 
 <template>
   <NuxtLink to="/stats/d120" class="d120-banner">
+    <div class="d120-banner-preview" aria-hidden="true">
+      <D120Viewer :z-scores="zScores" :interactive="false" />
+    </div>
     <div class="d120-banner-text">
-      <span class="d120-banner-eyebrow">d120</span>
+      <span class="d120-banner-eyebrow">120面体サイコロ</span>
       <strong>出目ヒートマップ</strong>
       <p>
-        1〜120 の出方の偏りを、120面体サイコロの上に色で表します。ドラッグで回して全面を見られます。
+        1 ~ 120
+        の出方の偏りを、120面体サイコロの上に色で表します。ドラッグで回して全面を見られます。
       </p>
-    </div>
-    <div class="d120-banner-preview" aria-hidden="true">
-      <D120Viewer
-        :z-scores="stats.zScores"
-        :counts="stats.counts"
-        :expected="stats.expected"
-        :interactive="false"
-      />
     </div>
   </NuxtLink>
 </template>
@@ -38,7 +31,7 @@ const stats = computed(() => rollFrequencyStats(props.cards))
   border-radius: 14px;
   border: 1px solid rgba(232, 233, 242, 0.12);
   background:
-    radial-gradient(circle at 78% 50%, rgba(126, 150, 220, 0.18), transparent 55%),
+    radial-gradient(circle at 22% 50%, rgba(126, 150, 220, 0.18), transparent 55%),
     linear-gradient(135deg, #0b0c1c, #050510);
   color: #e8e9f2;
   text-decoration: none;
@@ -57,7 +50,6 @@ const stats = computed(() => rollFrequencyStats(props.cards))
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: #6f7489;
 }
 .d120-banner strong {

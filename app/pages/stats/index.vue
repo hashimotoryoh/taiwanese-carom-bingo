@@ -37,7 +37,7 @@ const persons = computed(() => {
   <div>
     <h2 class="page-title">統計データ</h2>
     <p class="page-sub">これまでに記録された全員分のカイルンを集計しています</p>
-    <D120Banner v-if="cards" :cards="cards" />
+    <D120Banner />
     <div v-if="status === 'pending'" class="loading">読み込み中...</div>
     <template v-else>
       <StatsSummary :stats="overallStats" />
