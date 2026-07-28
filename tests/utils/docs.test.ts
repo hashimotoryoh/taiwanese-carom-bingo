@@ -22,7 +22,7 @@ describe('docList', () => {
     const titles = Object.fromEntries(docList.map((d) => [d.slug, d.title]))
     expect(titles['d120-expected-value']).toBe('120面体サイコロの期待値')
     expect(titles['zorome-probability']).toBe('ゾロ目が出る確率')
-    expect(titles['bingo-avg']).toBe('ビンゴまでの平均カイルン回数')
+    expect(titles['bingo-avg']).toBe('ビンゴまでの平均必要カイルン回数')
   })
 
   it('markdown 本文を保持している', () => {
@@ -52,7 +52,7 @@ describe('getDoc', () => {
   it('スラッグに対応するドキュメントを返す', () => {
     const doc = getDoc('bingo-avg')
     expect(doc?.slug).toBe('bingo-avg')
-    expect(doc?.title).toBe('ビンゴまでの平均カイルン回数')
+    expect(doc?.title).toBe('ビンゴまでの平均必要カイルン回数')
   })
 
   it('存在しないスラッグには undefined を返す', () => {
