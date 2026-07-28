@@ -34,9 +34,7 @@ describe('docList', () => {
 describe('compareByOrder', () => {
   it('両方が ORDER にある場合は ORDER の並び順にする', () => {
     expect(compareByOrder(entry('d120-expected-value'), entry('bingo-avg'))).toBeLessThan(0)
-    expect(compareByOrder(entry('bingo-avg'), entry('d120-expected-value'))).toBeGreaterThan(
-      0,
-    )
+    expect(compareByOrder(entry('bingo-avg'), entry('d120-expected-value'))).toBeGreaterThan(0)
   })
 
   it('片方だけ ORDER にある場合は ORDER にある方を前にする', () => {
