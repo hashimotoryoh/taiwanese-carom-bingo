@@ -35,7 +35,7 @@ for (const [path, markdown] of Object.entries(modules)) {
 }
 
 // 表示順を固定するためのスラッグ順。ここに無いスラッグは末尾にアルファベット順で続く
-const ORDER = ['d120-expected-value', 'zorome-probability', 'avg-carom-count', 'd120-face-layout']
+const ORDER = ['d120-expected-value', 'zorome-probability', 'bingo-avg', 'd120-face-layout']
 
 /** 出目の期待値の計算を説明するドキュメントへのパス（統計データからのリンク先） */
 export const EXPECTED_VALUE_DOC_PATH = '/doc/d120-expected-value'

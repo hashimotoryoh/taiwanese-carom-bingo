@@ -13,7 +13,7 @@ describe('docList', () => {
     expect(docList.map((d) => d.slug)).toEqual([
       'd120-expected-value',
       'zorome-probability',
-      'avg-carom-count',
+      'bingo-avg',
       'd120-face-layout',
     ])
   })
@@ -22,7 +22,7 @@ describe('docList', () => {
     const titles = Object.fromEntries(docList.map((d) => [d.slug, d.title]))
     expect(titles['d120-expected-value']).toBe('120面体サイコロの期待値')
     expect(titles['zorome-probability']).toBe('ゾロ目が出る確率')
-    expect(titles['avg-carom-count']).toBe('ビンゴまでの平均カイルン回数')
+    expect(titles['bingo-avg']).toBe('ビンゴまでの平均カイルン回数')
   })
 
   it('markdown 本文を保持している', () => {
@@ -33,8 +33,8 @@ describe('docList', () => {
 
 describe('compareByOrder', () => {
   it('両方が ORDER にある場合は ORDER の並び順にする', () => {
-    expect(compareByOrder(entry('d120-expected-value'), entry('avg-carom-count'))).toBeLessThan(0)
-    expect(compareByOrder(entry('avg-carom-count'), entry('d120-expected-value'))).toBeGreaterThan(
+    expect(compareByOrder(entry('d120-expected-value'), entry('bingo-avg'))).toBeLessThan(0)
+    expect(compareByOrder(entry('bingo-avg'), entry('d120-expected-value'))).toBeGreaterThan(
       0,
     )
   })
@@ -52,8 +52,8 @@ describe('compareByOrder', () => {
 
 describe('getDoc', () => {
   it('スラッグに対応するドキュメントを返す', () => {
-    const doc = getDoc('avg-carom-count')
-    expect(doc?.slug).toBe('avg-carom-count')
+    const doc = getDoc('bingo-avg')
+    expect(doc?.slug).toBe('bingo-avg')
     expect(doc?.title).toBe('ビンゴまでの平均カイルン回数')
   })
 
