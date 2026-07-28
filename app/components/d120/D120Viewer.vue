@@ -421,6 +421,17 @@ function onPointerUp(e: PointerEvent) {
   if (!props.interactive) return
   pointers.delete(e.pointerId)
   if (pointers.size < 2) pinch = 0
+  if (pointers.size === 1) {
+    // ピンチから片手ドラッグに戻るところ。ピンチ中は lastPos を更新していないので、
+    // 残った指の現在位置で取り直さないと差分が巨大になり、向きが飛んで慣性も暴れる。
+    // 一連の操作はもうタップではないので、しきい値の判定からも外す。
+    const [remaining] = [...pointers.values()]
+    if (remaining) {
+      lastPos = { x: remaining.x, y: remaining.y }
+      moved = Number.POSITIVE_INFINITY
+      velocity = { x: 0, y: 0 }
+    }
+  }
   if (pointers.size === 0) {
     // 指のブレを見込んで、タップ判定はマウスより広めにする
     const slop = e.pointerType === 'mouse' ? 5 : 14

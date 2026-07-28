@@ -108,12 +108,8 @@ function build(): { faces: D120Face[]; opposite: number[] } {
     for (let e = 0; e < 3; e++) {
       const p = tri[e]!
       const q = tri[(e + 1) % 3]!
-      const mid = scale(
-        normalize(
-          scale([iv[p]![0] + iv[q]![0], iv[p]![1] + iv[q]![1], iv[p]![2] + iv[q]![2]], 0.5),
-        ),
-        1,
-      )
+      // C頂点は辺の中点の方向にあり、半径は R_C（正規化後の 1）
+      const mid = normalize([iv[p]![0] + iv[q]![0], iv[p]![1] + iv[q]![1], iv[p]![2] + iv[q]![2]])
       for (const corner of [p, q]) {
         const A = scale(iv[corner]!, R_A / R_C)
         let v: [Vec3, Vec3, Vec3] = [A, mid, center]
