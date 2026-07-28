@@ -56,6 +56,43 @@ describe('D120_FACE_NUMBERS', () => {
   })
 })
 
+describe('目の配置の均等性', () => {
+  // 頂点は座標が一致するかで同定する（D120_FACES は面ごとに頂点を持つため）
+  const key = (p: readonly number[]) => p.map((x) => x.toFixed(5)).join(',')
+
+  it('どの頂点まわりでも目の和が 面数 × 60.5 になる', () => {
+    const groups = new Map<string, { kind: number; sum: number; count: number }>()
+    D120_FACES.forEach((f, i) => {
+      f.v.forEach((p, k) => {
+        const g = groups.get(key(p)) ?? { kind: f.kind[k]!, sum: 0, count: 0 }
+        g.sum += D120_FACE_NUMBERS[i]!
+        g.count += 1
+        groups.set(key(p), g)
+      })
+    })
+    // A頂点12個(10面/605)・B頂点20個(6面/363)・C頂点30個(4面/242)
+    expect(groups.size).toBe(62)
+    for (const g of groups.values()) {
+      expect(g.sum).toBe(g.count * 60.5)
+    }
+    const byKind = [VERTEX_A, VERTEX_B, VERTEX_C].map(
+      (k) => [...groups.values()].filter((g) => g.kind === k).length,
+    )
+    expect(byKind).toEqual([12, 20, 30])
+  })
+
+  it('高い目が片側に寄る成分（双極子）がゼロになる', () => {
+    // 各面の目のずれ (n − 60.5) を法線方向の重みとして足し合わせる。
+    // ゼロなら、半球をどう切っても「こちら側が高い」という向きが存在しない。
+    const d = [0, 0, 0]
+    D120_FACES.forEach((f, i) => {
+      const w = D120_FACE_NUMBERS[i]! - 60.5
+      for (let k = 0; k < 3; k++) d[k]! += w * f.n[k]!
+    })
+    expect(Math.hypot(d[0]!, d[1]!, d[2]!)).toBeLessThan(1e-9)
+  })
+})
+
 describe('D120_DOTTED_NUMBERS', () => {
   it('上下逆で別の数に読める目だけを対象にする', () => {
     expect([...D120_DOTTED_NUMBERS].sort((a, b) => a - b)).toEqual([6, 9, 66, 68, 86, 89, 98, 99])
