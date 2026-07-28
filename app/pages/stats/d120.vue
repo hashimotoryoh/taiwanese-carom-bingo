@@ -82,9 +82,14 @@ const stats = computed(() => rollFrequencyStats(cards.value ?? []))
   place-items: center;
   color: #6f7489;
 }
+/*
+ * サイコロは min(幅, 高さ) を基準に描くので、縦に伸ばしても大きくならず余白が増えるだけ。
+ * 縦長のスマホで下が間延びして数式が見切れないよう、高さを横幅に連動させる。
+ */
 .d120-viewer {
-  flex: 1 1 auto;
-  min-height: 380px;
+  flex: 0 0 auto;
+  height: min(68vh, 88vw);
+  min-height: 260px;
 }
 .d120-legend-wrap {
   padding: 4px 24px 18px;
