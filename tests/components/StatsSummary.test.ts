@@ -52,6 +52,27 @@ describe('StatsSummary', () => {
     expect(note.attributes('href')).toBe('/doc/d120-expected-value')
   })
 
+  it('ゾロ目回数の枠内に理論値（カイルン回数 × ゾロ目確率）を添える', () => {
+    const wrapper = mount(StatsSummary, {
+      props: { stats: makeStats({ totalRolls: 120 }) },
+      global,
+    })
+    // 「ゾロ目回数」の枠内で、統計値と同じ行（.summary-figure）に置く
+    const note = wrapper.findAll('.summary-item')[2]!.find('.summary-figure .summary-note')
+    expect(note.text()).toBe('理論値 10回')
+    // 計算の解説ページへのリンクになっている
+    expect(note.attributes('href')).toBe('/doc/zorome-probability')
+  })
+
+  it('ゾロ目回数の理論値は小数第1位まで表示する', () => {
+    const wrapper = mount(StatsSummary, {
+      props: { stats: makeStats({ totalRolls: 10 }) },
+      global,
+    })
+    const note = wrapper.findAll('.summary-item')[2]!.find('.summary-figure .summary-note')
+    expect(note.text()).toBe('理論値 0.8回')
+  })
+
   it('ゾロ目割合の枠内に理論値を添える', () => {
     const wrapper = mount(StatsSummary, { props: { stats: makeStats() }, global })
     // 「ゾロ目割合」の枠内で、統計値と同じ行（.summary-figure）に置く
@@ -61,9 +82,9 @@ describe('StatsSummary', () => {
     expect(note.attributes('href')).toBe('/doc/zorome-probability')
   })
 
-  it('補足を添えるのは出目の平均値とゾロ目割合の2枠だけ', () => {
+  it('補足を添えるのは出目の平均値・ゾロ目回数・ゾロ目割合の3枠だけ', () => {
     const wrapper = mount(StatsSummary, { props: { stats: makeStats() }, global })
-    expect(wrapper.findAll('.summary-note')).toHaveLength(2)
+    expect(wrapper.findAll('.summary-note')).toHaveLength(3)
   })
 
   it('compactを指定したときだけグリッドにcompactクラスを付ける', () => {

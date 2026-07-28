@@ -21,6 +21,7 @@ import {
   dailyRollAverages,
   draftToNumbers,
   emptyPunched,
+  expectedZoromeCount,
   findCell,
   isValidRoll,
   isZorome,
@@ -455,6 +456,18 @@ describe('ZOROME_PROBABILITY_PERCENT', () => {
     ).length
     expect(zoromeCount).toBe(10)
     expect(ZOROME_PROBABILITY_PERCENT).toBe((zoromeCount / MAX_ROLL) * 100)
+  })
+})
+
+describe('expectedZoromeCount', () => {
+  it('カイルン回数にゾロ目確率を掛けた回数を返す', () => {
+    expect(expectedZoromeCount(120)).toBe(10)
+    expect(expectedZoromeCount(12)).toBe(1)
+    expect(expectedZoromeCount(10)).toBeCloseTo(10 / 12)
+  })
+
+  it('記録が無ければ0', () => {
+    expect(expectedZoromeCount(0)).toBe(0)
   })
 })
 

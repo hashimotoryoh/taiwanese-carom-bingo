@@ -33,6 +33,7 @@ const BINGO_UTILS = [
   'punchRatePercent',
   'ROLL_EXPECTED_VALUE',
   'ZOROME_PROBABILITY_PERCENT',
+  'expectedZoromeCount',
   'signedRollValue',
   'computeRollStats',
   'aggregateRollStats',

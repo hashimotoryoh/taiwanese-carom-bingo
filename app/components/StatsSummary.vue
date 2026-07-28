@@ -41,6 +41,9 @@ withDefaults(
         <span class="summary-value"
           >{{ stats.totalZorome }}<span class="summary-unit">回</span></span
         >
+        <NuxtLink class="summary-note" :to="ZOROME_PROBABILITY_DOC_PATH">
+          理論値 {{ fmtNum(expectedZoromeCount(stats.totalRolls)) }}回
+        </NuxtLink>
       </div>
     </div>
     <div class="summary-item">
