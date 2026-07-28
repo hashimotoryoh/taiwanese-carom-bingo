@@ -5,15 +5,16 @@ import { compareByOrder, docList, getDoc } from '../../app/utils/docs'
 const entry = (slug: string): DocEntry => ({ slug, title: slug, markdown: '' })
 
 describe('docList', () => {
-  it('app/content/docs 配下のマークダウンを3件読み込む', () => {
-    expect(docList).toHaveLength(3)
+  it('app/content/docs 配下のマークダウンを4件読み込む', () => {
+    expect(docList).toHaveLength(4)
   })
 
-  it('ORDER で指定した並び（期待値 → ゾロ目確率 → 平均カイルン回数）になる', () => {
+  it('ORDER で指定した並び（期待値 → ゾロ目確率 → 平均カイルン回数 → 目の配置）になる', () => {
     expect(docList.map((d) => d.slug)).toEqual([
       'd120-expected-value',
       'zorome-probability',
       'avg-carom-count',
+      'd120-face-layout',
     ])
   })
 
