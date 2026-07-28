@@ -29,7 +29,7 @@ withDefaults(
     <div class="summary-item">
       <span class="summary-label">出目の平均値</span>
       <div class="summary-figure">
-        <span class="summary-value">{{ fmtNum(stats.averageValue) }}</span>
+        <span class="summary-value">{{ fmtStat(stats.averageValue) }}</span>
         <NuxtLink class="summary-note" :to="EXPECTED_VALUE_DOC_PATH">
           期待値 {{ ROLL_EXPECTED_VALUE.toFixed(1) }}
         </NuxtLink>
@@ -41,13 +41,16 @@ withDefaults(
         <span class="summary-value"
           >{{ stats.totalZorome }}<span class="summary-unit">回</span></span
         >
+        <NuxtLink class="summary-note" :to="ZOROME_PROBABILITY_DOC_PATH">
+          理論値 {{ fmtStat(expectedZoromeCount(stats.totalRolls)) }}回
+        </NuxtLink>
       </div>
     </div>
     <div class="summary-item">
       <span class="summary-label">{{ labelPrefix }}ゾロ目割合</span>
       <div class="summary-figure">
         <span class="summary-value"
-          >{{ fmtNum(stats.zoromeRatioPercent) }}<span class="summary-unit">%</span></span
+          >{{ fmtStat(stats.zoromeRatioPercent) }}<span class="summary-unit">%</span></span
         >
         <NuxtLink class="summary-note" :to="ZOROME_PROBABILITY_DOC_PATH">
           理論値 {{ ZOROME_PROBABILITY_PERCENT.toFixed(1) }}%
@@ -58,7 +61,7 @@ withDefaults(
       <span class="summary-label">{{ labelPrefix }}ビンゴカードパンチ率</span>
       <div class="summary-figure">
         <span class="summary-value"
-          >{{ fmtNum(stats.punchRatePercent) }}<span class="summary-unit">%</span></span
+          >{{ fmtStat(stats.punchRatePercent) }}<span class="summary-unit">%</span></span
         >
       </div>
     </div>

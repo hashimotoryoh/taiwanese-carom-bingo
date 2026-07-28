@@ -291,10 +291,21 @@ export function punchRatePercent(punchedCount: number, rollCount: number): numbe
 export const ROLL_EXPECTED_VALUE = 6148 / 119
 
 /**
- * 出目1回がゾロ目になる確率の百分率（10 / 120 ≒ 8.3%）。
+ * 1 ~ 120 に含まれるゾロ目の個数（11・22・…・99 の9個と111の計10個）。
  * 導出は `app/content/docs/zorome-probability.md` を参照。
  */
-export const ZOROME_PROBABILITY_PERCENT = (10 / 120) * 100
+const ZOROME_VALUE_COUNT = 10
+
+/** 出目1回がゾロ目になる確率の百分率（10 / 120 ≒ 8.3%） */
+export const ZOROME_PROBABILITY_PERCENT = (ZOROME_VALUE_COUNT / MAX_ROLL) * 100
+
+/**
+ * カイルン回数から期待されるゾロ目回数（理論値）を返す。
+ * 掛け算を先に行い、120回で丁度10回のような整数がそのまま出るようにしている
+ */
+export function expectedZoromeCount(totalRolls: number): number {
+  return (totalRolls * ZOROME_VALUE_COUNT) / MAX_ROLL
+}
 
 /**
  * 平均値の計算に使う出目の値。

@@ -35,7 +35,8 @@ describe('RollAverageTrendChart', () => {
     const dots = wrapper.findAll('.chart-dots circle')
     expect(dots).toHaveLength(3)
     expect(dots[0]!.find('title').text()).toContain('2026/01/01')
-    expect(dots[0]!.find('title').text()).toContain('平均 40')
+    // 割り切れる平均値でも小数第1位まで表示する
+    expect(dots[0]!.find('title').text()).toContain('平均 40.0')
   })
 
   it('平均値が高い点ほど上（Y座標が小さい）に描かれる', () => {

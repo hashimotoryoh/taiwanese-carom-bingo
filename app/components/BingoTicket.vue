@@ -16,7 +16,7 @@ const punchRate = computed(() =>
     <h3>{{ summary.name }}</h3>
     <div class="stat-row">
       <span class="stat-chip">穴 {{ summary.punchedCount }} 個</span>
-      <span class="stat-chip">パンチ率 {{ fmtNum(punchRate) }}%</span>
+      <span class="stat-chip">パンチ率 {{ fmtStat(punchRate) }}%</span>
       <!-- アーカイブ済みカードはこれ以上進行しないためリーチは表示しない -->
       <span v-if="!summary.archived && summary.reachCount > 0" class="stat-chip reach">
         リーチ {{ summary.reachCount }} 本

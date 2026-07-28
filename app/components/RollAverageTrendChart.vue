@@ -94,7 +94,7 @@ const dateLabels = computed(() => {
       <g class="chart-dots">
         <circle v-for="p in plotted" :key="p.point.date" :cx="p.x" :cy="p.y" r="3.5">
           <title>
-            {{ fmtDate(p.point.date) }} 平均 {{ fmtNum(p.point.average) }}（{{ p.point.count }}回）
+            {{ fmtDate(p.point.date) }} 平均 {{ fmtStat(p.point.average) }}（{{ p.point.count }}回）
           </title>
         </circle>
       </g>
