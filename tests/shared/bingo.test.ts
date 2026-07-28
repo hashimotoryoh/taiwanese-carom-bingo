@@ -21,6 +21,7 @@ import {
   dailyRollAverages,
   draftToNumbers,
   emptyPunched,
+  expectedZoromeCount,
   findCell,
   isValidRoll,
   isZorome,
@@ -458,6 +459,18 @@ describe('ZOROME_PROBABILITY_PERCENT', () => {
   })
 })
 
+describe('expectedZoromeCount', () => {
+  it('カイルン回数にゾロ目確率を掛けた回数を返す', () => {
+    expect(expectedZoromeCount(120)).toBe(10)
+    expect(expectedZoromeCount(12)).toBe(1)
+    expect(expectedZoromeCount(10)).toBeCloseTo(10 / 12)
+  })
+
+  it('記録が無ければ0', () => {
+    expect(expectedZoromeCount(0)).toBe(0)
+  })
+})
+
 describe('signedRollValue', () => {
   it('通常の出目はそのままの値を返す', () => {
     expect(signedRollValue(37)).toBe(37)
@@ -517,5 +530,43 @@ describe('crossCardRolls', () => {
 
   it('記録が無ければ空配列を返す', () => {
     expect(crossCardRolls([makeCard()])).toEqual([])
+  })
+})
+
+describe('rollFrequencyStats', () => {
+  const cardWith = (values: number[]): BingoCard => ({
+    ...makeCard(),
+    rolls: values.map((value, i) => ({ id: `r${i}`, value, rolledAt: 1000 + i })),
+  })
+
+  it('記録が無ければ全て0で、zはゼロ除算にならない', () => {
+    const s = rollFrequencyStats([])
+    expect(s.totalRolls).toBe(0)
+    expect(s.sigma).toBe(0)
+    expect(s.counts).toHaveLength(120)
+    expect(s.zScores.every((z) => z === 0)).toBe(true)
+  })
+
+  it('出目ごとの回数を数え、期待値と標準偏差を返す', () => {
+    const s = rollFrequencyStats([cardWith([1, 1, 1, 120])])
+    expect(s.counts[0]).toBe(3)
+    expect(s.counts[119]).toBe(1)
+    expect(s.totalRolls).toBe(4)
+    expect(s.probability).toBeCloseTo(1 / 120)
+    expect(s.expected).toBeCloseTo(4 / 120)
+    expect(s.sigma).toBeCloseTo(Math.sqrt(4 * (1 / 120) * (1 - 1 / 120)))
+  })
+
+  it('ゾロ目もそのままの出目として数える（signedRollValue の変換をかけない）', () => {
+    const s = rollFrequencyStats([cardWith([11, 11, 100])])
+    expect(s.counts[10]).toBe(2)
+    expect(s.counts[99]).toBe(1)
+    expect(s.totalRolls).toBe(3)
+  })
+
+  it('標準化残差は (回数 − e) / σ になる', () => {
+    const s = rollFrequencyStats([cardWith(new Array(240).fill(0).map((_, i) => (i % 120) + 1))])
+    // 全ての目が2回ずつなので偏りはゼロ
+    expect(s.zScores.every((z) => Math.abs(z) < 1e-9)).toBe(true)
   })
 })

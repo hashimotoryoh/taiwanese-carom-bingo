@@ -11,7 +11,7 @@ describe('BingoTicket', () => {
     })
     expect(wrapper.text()).toContain('太郎')
     expect(wrapper.text()).toContain('穴 3 個')
-    expect(wrapper.text()).toContain('パンチ率 60%')
+    expect(wrapper.text()).toContain('パンチ率 60.0%')
   })
 
   it('カイルン回数・日付は表示しない', () => {
@@ -23,11 +23,11 @@ describe('BingoTicket', () => {
     expect(wrapper.text()).not.toContain('最終更新')
   })
 
-  it('記録が無ければパンチ率は0%とする', () => {
+  it('記録が無ければパンチ率は0.0%とする', () => {
     const wrapper = mount(BingoTicket, {
       props: { summary: makeSummary({ punchedCount: 0, rollCount: 0 }) },
     })
-    expect(wrapper.text()).toContain('パンチ率 0%')
+    expect(wrapper.text()).toContain('パンチ率 0.0%')
   })
 
   it('リーチがある場合のみリーチ本数を表示する', () => {

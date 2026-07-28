@@ -291,10 +291,21 @@ export function punchRatePercent(punchedCount: number, rollCount: number): numbe
 export const ROLL_EXPECTED_VALUE = 6148 / 119
 
 /**
- * 出目1回がゾロ目になる確率の百分率（10 / 120 ≒ 8.3%）。
+ * 1 ~ 120 に含まれるゾロ目の個数（11・22・…・99 の9個と111の計10個）。
  * 導出は `app/content/docs/zorome-probability.md` を参照。
  */
-export const ZOROME_PROBABILITY_PERCENT = (10 / 120) * 100
+const ZOROME_VALUE_COUNT = 10
+
+/** 出目1回がゾロ目になる確率の百分率（10 / 120 ≒ 8.3%） */
+export const ZOROME_PROBABILITY_PERCENT = (ZOROME_VALUE_COUNT / MAX_ROLL) * 100
+
+/**
+ * カイルン回数から期待されるゾロ目回数（理論値）を返す。
+ * 掛け算を先に行い、120回で丁度10回のような整数がそのまま出るようにしている
+ */
+export function expectedZoromeCount(totalRolls: number): number {
+  return (totalRolls * ZOROME_VALUE_COUNT) / MAX_ROLL
+}
 
 /**
  * 平均値の計算に使う出目の値。
@@ -391,4 +402,40 @@ export function dailyRollAverages(cards: BingoCard[]): RollAveragePoint[] {
 /** 複数カード分の出目をまとめて新しい順に返す */
 export function crossCardRolls(cards: BingoCard[]): Roll[] {
   return cards.flatMap((card) => card.rolls).sort((a, b) => b.rolledAt - a.rolledAt)
+}
+
+/** 出目ごとの出現回数と、そこから求まる統計量 */
+export interface RollFrequencyStats {
+  /** index 0〜119 が出目 1〜120 の出現回数 */
+  counts: number[]
+  /** 同上。標準化残差 z = (出現回数 − e) / σ */
+  zScores: number[]
+  /** 総カイルン回数 N */
+  totalRolls: number
+  /** 特定の目が出る確率 p = 1 / 120 */
+  probability: number
+  /** 特定の目の出現回数の期待値 e = N / 120 */
+  expected: number
+  /** 標準偏差 σ = √(N × p × (1 − p)) */
+  sigma: number
+}
+
+/**
+ * 複数カード分の出目を1〜120の度数分布にまとめ、二項分布に照らした偏りを求める。
+ * ゾロ目を負値にする `signedRollValue` の変換はかけず、素の出現回数を数える。
+ */
+export function rollFrequencyStats(cards: BingoCard[]): RollFrequencyStats {
+  const counts = new Array<number>(MAX_ROLL).fill(0)
+  for (const roll of cards.flatMap((c) => c.rolls)) {
+    if (isValidRoll(roll.value)) counts[roll.value - 1] += 1
+  }
+
+  const totalRolls = counts.reduce((sum, n) => sum + n, 0)
+  const probability = 1 / MAX_ROLL
+  const expected = totalRolls * probability
+  const sigma = Math.sqrt(totalRolls * probability * (1 - probability))
+  // 記録が無いと σ = 0 になるので、ゼロ除算を避けて z は全て0とする
+  const zScores = counts.map((n) => (sigma > 0 ? (n - expected) / sigma : 0))
+
+  return { counts, zScores, totalRolls, probability, expected, sigma }
 }

@@ -24,10 +24,10 @@ describe('[slug].vue', () => {
   })
 
   it('存在するスラッグでは useHead にドキュメントのタイトルを渡す', () => {
-    vi.mocked(useRoute).mockReturnValue({ params: { slug: 'avg-carom-count' } })
+    vi.mocked(useRoute).mockReturnValue({ params: { slug: 'bingo-avg' } })
     mount(SlugPage, { global })
     const arg = vi.mocked(useHead).mock.calls[0]![0] as () => { title: string }
-    expect(arg().title).toBe('ビンゴまでの平均カイルン回数 | カイルンBINGO')
+    expect(arg().title).toBe('ビンゴまでの平均必要カイルン回数 | カイルンBINGO')
   })
 
   it('存在しないスラッグはフォールバック表示にする', () => {
@@ -45,11 +45,11 @@ describe('[slug].vue', () => {
   })
 
   it('パンくずリストにドキュメントのタイトルを登録する', () => {
-    vi.mocked(useRoute).mockReturnValue({ params: { slug: 'avg-carom-count' } })
+    vi.mocked(useRoute).mockReturnValue({ params: { slug: 'bingo-avg' } })
     mount(SlugPage, { global })
     expect(useBreadcrumbsState().value).toEqual([
       { label: 'ビンゴカード一覧', to: '/' },
-      { label: 'ビンゴまでの平均カイルン回数' },
+      { label: 'ビンゴまでの平均必要カイルン回数' },
     ])
   })
 

@@ -5,15 +5,16 @@ import { compareByOrder, docList, getDoc } from '../../app/utils/docs'
 const entry = (slug: string): DocEntry => ({ slug, title: slug, markdown: '' })
 
 describe('docList', () => {
-  it('app/content/docs 配下のマークダウンを3件読み込む', () => {
-    expect(docList).toHaveLength(3)
+  it('app/content/docs 配下のマークダウンを4件読み込む', () => {
+    expect(docList).toHaveLength(4)
   })
 
-  it('ORDER で指定した並び（期待値 → ゾロ目確率 → 平均カイルン回数）になる', () => {
+  it('ORDER で指定した並び（期待値 → ゾロ目確率 → 平均カイルン回数 → 目の配置）になる', () => {
     expect(docList.map((d) => d.slug)).toEqual([
       'd120-expected-value',
       'zorome-probability',
-      'avg-carom-count',
+      'bingo-avg',
+      'd120-face-layout',
     ])
   })
 
@@ -21,7 +22,7 @@ describe('docList', () => {
     const titles = Object.fromEntries(docList.map((d) => [d.slug, d.title]))
     expect(titles['d120-expected-value']).toBe('120面体サイコロの期待値')
     expect(titles['zorome-probability']).toBe('ゾロ目が出る確率')
-    expect(titles['avg-carom-count']).toBe('ビンゴまでの平均カイルン回数')
+    expect(titles['bingo-avg']).toBe('ビンゴまでの平均必要カイルン回数')
   })
 
   it('markdown 本文を保持している', () => {
@@ -32,10 +33,8 @@ describe('docList', () => {
 
 describe('compareByOrder', () => {
   it('両方が ORDER にある場合は ORDER の並び順にする', () => {
-    expect(compareByOrder(entry('d120-expected-value'), entry('avg-carom-count'))).toBeLessThan(0)
-    expect(compareByOrder(entry('avg-carom-count'), entry('d120-expected-value'))).toBeGreaterThan(
-      0,
-    )
+    expect(compareByOrder(entry('d120-expected-value'), entry('bingo-avg'))).toBeLessThan(0)
+    expect(compareByOrder(entry('bingo-avg'), entry('d120-expected-value'))).toBeGreaterThan(0)
   })
 
   it('片方だけ ORDER にある場合は ORDER にある方を前にする', () => {
@@ -51,9 +50,9 @@ describe('compareByOrder', () => {
 
 describe('getDoc', () => {
   it('スラッグに対応するドキュメントを返す', () => {
-    const doc = getDoc('avg-carom-count')
-    expect(doc?.slug).toBe('avg-carom-count')
-    expect(doc?.title).toBe('ビンゴまでの平均カイルン回数')
+    const doc = getDoc('bingo-avg')
+    expect(doc?.slug).toBe('bingo-avg')
+    expect(doc?.title).toBe('ビンゴまでの平均必要カイルン回数')
   })
 
   it('存在しないスラッグには undefined を返す', () => {
