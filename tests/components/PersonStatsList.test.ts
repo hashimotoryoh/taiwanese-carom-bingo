@@ -61,7 +61,7 @@ describe('PersonStatsList', () => {
     ])
   })
 
-  it('統計値を表示する（小数は第1位まで）', () => {
+  it('統計値を表示する（回数以外は必ず小数第1位まで）', () => {
     const wrapper = mount(PersonStatsList, {
       props: {
         rows: [
@@ -83,7 +83,7 @@ describe('PersonStatsList', () => {
       '12回',
       '60.4',
       '3回',
-      '25%',
+      '25.0%',
       '41.7%',
     ])
   })

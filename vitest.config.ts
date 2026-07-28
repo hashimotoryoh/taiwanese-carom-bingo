@@ -56,7 +56,7 @@ export default defineConfig({
           from: '#shared/utils/date',
           imports: ['fmtDate', 'fmtDateTime', 'fmtShortDate', 'startOfDay', 'daysBetween'],
         },
-        { from: '#shared/utils/number', imports: ['fmtNum'] },
+        { from: '#shared/utils/number', imports: ['fmtNum', 'fmtStat'] },
         {
           from: '#test-stubs/nuxtStubs',
           imports: [

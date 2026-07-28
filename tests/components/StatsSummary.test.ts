@@ -59,12 +59,12 @@ describe('StatsSummary', () => {
     })
     // 「ゾロ目回数」の枠内で、統計値と同じ行（.summary-figure）に置く
     const note = wrapper.findAll('.summary-item')[2]!.find('.summary-figure .summary-note')
-    expect(note.text()).toBe('理論値 10回')
+    expect(note.text()).toBe('理論値 10.0回')
     // 計算の解説ページへのリンクになっている
     expect(note.attributes('href')).toBe('/doc/zorome-probability')
   })
 
-  it('ゾロ目回数の理論値は小数第1位まで表示する', () => {
+  it('ゾロ目回数の理論値は割り切れない場合も小数第1位まで表示する', () => {
     const wrapper = mount(StatsSummary, {
       props: { stats: makeStats({ totalRolls: 10 }) },
       global,
@@ -95,10 +95,18 @@ describe('StatsSummary', () => {
     expect(compact.find('.roll-summary').classes()).toContain('compact')
   })
 
-  it('整数値はそのまま、小数値は小数第1位までを表示する', () => {
+  it('出目の平均値は割り切れる値でも「21.0」のように小数第1位まで表示する', () => {
+    const wrapper = mount(StatsSummary, {
+      props: { stats: makeStats({ averageValue: 21 }) },
+      global,
+    })
+    expect(wrapper.findAll('.summary-value')[1]!.text()).toBe('21.0')
+  })
+
+  it('回数は整数、平均値と割合は割り切れる場合も小数第1位まで表示する', () => {
     const wrapper = mount(StatsSummary, {
       props: {
-        stats: makeStats({ totalRolls: 10, averageValue: 60.456 }),
+        stats: makeStats({ totalRolls: 10, averageValue: 60.456, punchRatePercent: 50 }),
       },
       global,
     })
@@ -106,7 +114,8 @@ describe('StatsSummary', () => {
     // 単位は数値に続けて表示する（間に余分な空白が入らないこと）
     expect(values[0]).toBe('10回')
     expect(values[1]).toBe('60.5')
-    expect(values[3]).toBe('10%')
+    expect(values[3]).toBe('10.0%')
+    expect(values[4]).toBe('50.0%')
   })
 
   it('回数には「回」、割合には「%」の単位を数値と別要素で添える', () => {
