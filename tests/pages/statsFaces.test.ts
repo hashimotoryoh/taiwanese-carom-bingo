@@ -38,7 +38,7 @@ describe('stats/faces.vue', () => {
     expect(wrapper.text()).toContain('120/ 120')
   })
 
-  it('出目の出現回数を列ごとに正しく集計する', () => {
+  it('出目の出現回数を正しく集計する', () => {
     const cards = [
       makeCard({
         id: 'a',
@@ -49,11 +49,9 @@ describe('stats/faces.vue', () => {
     vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
     const wrapper = mount(StatsFacesPage, { global })
     const rows = wrapper.findAll('tbody tr')
-    // 1行目=目1（B列・2回）、97行目=目97（O列・1回）
-    expect(rows[0]!.find('.faces-column').text()).toBe('B')
+    // 1行目=目1（2回）、97行目=目97（1回）
     expect(rows[0]!.find('.faces-count').text()).toBe('2')
     expect(rows[0]!.classes('unrolled')).toBe(false)
-    expect(rows[96]!.find('.faces-column').text()).toBe('O')
     expect(rows[96]!.find('.faces-count').text()).toBe('1')
     expect(wrapper.text()).toContain('118/ 120')
   })

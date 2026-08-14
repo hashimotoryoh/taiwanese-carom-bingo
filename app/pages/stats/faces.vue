@@ -10,13 +10,8 @@ const { data: cards, status } = useAsyncData<BingoCard[]>('stats-all', () => api
 
 const stats = computed(() => rollFrequencyStats(cards.value ?? []))
 
-function columnOf(value: number): string {
-  return COLUMNS.find((c) => value >= c.min && value <= c.max)?.key ?? ''
-}
-
 interface FaceRow {
   value: number
-  column: string
   count: number
   zorome: boolean
 }
@@ -24,7 +19,6 @@ interface FaceRow {
 const rows = computed<FaceRow[]>(() =>
   Array.from({ length: MAX_ROLL }, (_, i) => ({
     value: i + 1,
-    column: columnOf(i + 1),
     count: stats.value.counts[i] ?? 0,
     zorome: isZorome(i + 1),
   })),
@@ -88,7 +82,6 @@ const sortedRows = computed(() => {
               目
               <span class="sort-arrow">{{ sortKey === 'value' ? (sortAsc ? '▲' : '▼') : '' }}</span>
             </th>
-            <th>列</th>
             <th
               class="sortable"
               :class="{ active: sortKey === 'count' }"
@@ -105,7 +98,6 @@ const sortedRows = computed(() => {
               {{ row.value }}
               <span v-if="row.zorome" class="zorome-tag">ゾロ目</span>
             </td>
-            <td class="faces-column">{{ row.column }}</td>
             <td class="faces-count">{{ row.count }}</td>
           </tr>
         </tbody>
@@ -155,10 +147,6 @@ const sortedRows = computed(() => {
 }
 .faces-value.zorome {
   color: var(--stamp-dark);
-}
-.faces-column {
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--ink-soft);
 }
 .faces-count {
   font-family: 'JetBrains Mono', monospace;
