@@ -42,6 +42,10 @@ const persons = computed(() => {
     <template v-else>
       <StatsSummary :stats="overallStats" />
 
+      <p class="faces-link-row">
+        <NuxtLink to="/stats/faces" class="faces-link">出目一覧（出現回数）を見る →</NuxtLink>
+      </p>
+
       <template v-if="hasRolls">
         <h3 class="roll-section-title">出目の平均値の遷移</h3>
         <RollAverageTrendChart :points="averagePoints" />
@@ -55,3 +59,19 @@ const persons = computed(() => {
     </template>
   </div>
 </template>
+
+<style scoped>
+.faces-link-row {
+  margin: 18px 0 0;
+}
+.faces-link {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px dotted currentcolor;
+}
+.faces-link:hover {
+  color: var(--stamp-dark);
+}
+</style>
