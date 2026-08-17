@@ -77,7 +77,11 @@ const sortedRows = computed(() => {
             <th
               class="sortable"
               :class="{ active: sortKey === 'value' }"
+              role="button"
+              tabindex="0"
               @click="toggleSort('value')"
+              @keydown.enter="toggleSort('value')"
+              @keydown.space.prevent="toggleSort('value')"
             >
               目
               <span class="sort-arrow">{{ sortKey === 'value' ? (sortAsc ? '▲' : '▼') : '' }}</span>
@@ -85,7 +89,11 @@ const sortedRows = computed(() => {
             <th
               class="sortable"
               :class="{ active: sortKey === 'count' }"
+              role="button"
+              tabindex="0"
               @click="toggleSort('count')"
+              @keydown.enter="toggleSort('count')"
+              @keydown.space.prevent="toggleSort('count')"
             >
               出現回数
               <span class="sort-arrow">{{ sortKey === 'count' ? (sortAsc ? '▲' : '▼') : '' }}</span>
@@ -131,6 +139,10 @@ const sortedRows = computed(() => {
 }
 .faces-table th.sortable:hover {
   color: var(--stamp-dark);
+}
+.faces-table th.sortable:focus-visible {
+  outline: 2px solid var(--stamp);
+  outline-offset: -2px;
 }
 .faces-table th.active {
   color: var(--stamp-dark);

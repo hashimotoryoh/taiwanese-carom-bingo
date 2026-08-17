@@ -85,6 +85,26 @@ describe('stats/faces.vue', () => {
     expect(rows[0]!.find('.faces-count').text()).toBe('2')
   })
 
+  it('見出しはキーボード（Enter/Space）操作でもソートを切り替えられる', async () => {
+    const cards = [
+      makeCard({ id: 'a', name: '太郎', rolls: [makeRoll(1, 1), makeRoll(1, 2), makeRoll(2, 3)] }),
+    ]
+    vi.mocked(useAsyncData).mockReturnValue({ data: ref(cards), status: ref('success') })
+    const wrapper = mount(StatsFacesPage, { global })
+    const headers = wrapper.findAll('th.sortable')
+    const countHeader = headers[1]!
+    expect(countHeader.attributes('tabindex')).toBe('0')
+    expect(countHeader.attributes('role')).toBe('button')
+
+    await countHeader.trigger('keydown.enter')
+    let rows = wrapper.findAll('tbody tr')
+    expect(rows[0]!.find('.faces-count').text()).toBe('0')
+
+    await countHeader.trigger('keydown.space')
+    rows = wrapper.findAll('tbody tr')
+    expect(rows[0]!.find('.faces-count').text()).toBe('2')
+  })
+
   it('パンくずリストに統計データと出目一覧を登録する', () => {
     vi.mocked(useAsyncData).mockReturnValue({ data: ref([]), status: ref('success') })
     mount(StatsFacesPage, { global })
